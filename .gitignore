@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# ビルドディレクトリを無視
+out/
+build/
+
+# macでの開発でしか使っていないファイルを無視
+CMakeLists.txt
+CMakePresets.json
+

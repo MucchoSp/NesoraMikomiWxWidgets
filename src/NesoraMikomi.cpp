@@ -8,7 +8,7 @@ bool MyApp::OnInit() {
 }
 
 MyFrame::MyFrame()
-    : wxFrame(nullptr, wxID_ANY, "Hello World") {
+    : wxFrame(nullptr, wxID_ANY, "Nesora 1-0") {
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
         "Help string shown in status bar for this menu item");

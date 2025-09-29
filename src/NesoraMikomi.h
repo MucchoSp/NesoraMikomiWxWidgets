@@ -1,12 +1,15 @@
 #pragma once
 #include <wx/wx.h>
 
+#include "NesoraStyle/button/NesoraButton.h"
+
 class MyApp : public wxApp {
+    wxCustomButton* m_btn_1;
+    wxCustomButton* m_btn_2;
+    wxCustomButton* m_btn_3;
 public:
     bool OnInit() override;
 };
-
-wxIMPLEMENT_APP(MyApp);
 
 class MyFrame : public wxFrame {
 public:

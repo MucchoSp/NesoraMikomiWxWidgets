@@ -1,6 +1,8 @@
 #pragma once
 #include <wx/wx.h>
 
+#include "NesoraStyle/NesoraButton.h"
+
 class MyApp : public wxApp {
 public:
     bool OnInit() override;

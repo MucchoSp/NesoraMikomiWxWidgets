@@ -1,4 +1,3 @@
-// Start of wxWidgets "Hello World" Program
 #include "NesoraMikomi.h"
 
 bool MyApp::OnInit() {
@@ -24,12 +23,18 @@ MyFrame::MyFrame()
 
     SetMenuBar(menuBar);
 
+    wxButton *button = new wxButton(this, wxID_EXIT, _("Exit"), wxPoint(20, 20));
+    button->SetFocus();
+    nsButton *nsbutton = new nsButton(this, wxID_EXIT, _("Exit"), wxPoint(20, 60));
+    nsbutton->SetFocus();
+
     CreateStatusBar();
     SetStatusText("Welcome to wxWidgets!");
 
     Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnExit, this, wxID_EXIT);
 }
 
 void MyFrame::OnExit(wxCommandEvent& event) {

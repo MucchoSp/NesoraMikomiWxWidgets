@@ -1,5 +1,7 @@
 #include "NesoraMikomi.h"
 
+wxIMPLEMENT_APP(MyApp);
+
 bool MyApp::OnInit() {
     MyFrame* frame = new MyFrame();
     frame->Show(true);
@@ -9,8 +11,7 @@ bool MyApp::OnInit() {
 MyFrame::MyFrame()
     : wxFrame(nullptr, wxID_ANY, "Nesora 1-0") {
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
-        "Help string shown in status bar for this menu item");
+    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT);
 
@@ -42,8 +43,7 @@ void MyFrame::OnExit(wxCommandEvent& event) {
 }
 
 void MyFrame::OnAbout(wxCommandEvent& event) {
-    wxMessageBox("This is a wxWidgets Hello World example",
-        "About Hello World", wxOK | wxICON_INFORMATION);
+    wxMessageBox("This is a wxWidgets Hello World example", "About Hello World", wxOK | wxICON_INFORMATION);
 }
 
 void MyFrame::OnHello(wxCommandEvent& event) {

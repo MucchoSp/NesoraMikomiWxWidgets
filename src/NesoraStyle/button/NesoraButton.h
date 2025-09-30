@@ -19,14 +19,14 @@ public:
 
 private:
     void onPaint(wxPaintEvent& event) {
-        wxAutoBufferedPaintDC dc( this );
+        wxAutoBufferedPaintDC dc(this);
         int w, h;
         GetSize(&w, &h);
-        wxRect rect( 0,0, w, h );
-        dc.SetBrush( wxBrush( *wxRED ) );
-        dc.SetPen( wxPen( *wxRED ) );
-        dc.DrawRectangle( rect );
-        dc.SetPen( wxPen( *wxWHITE ) );
-        dc.DrawLabel( GetLabel(), rect );
+        wxRect rect(0, 0, w, h);
+        dc.SetBrush(wxBrush(*wxRED));
+        dc.SetPen(wxPen(*wxRED));
+        dc.DrawRectangle(rect);
+        dc.SetPen(wxPen(*wxWHITE));
+        dc.DrawLabel(GetLabel(), rect);
     }
 };

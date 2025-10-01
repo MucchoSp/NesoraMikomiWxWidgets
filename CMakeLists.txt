@@ -3,7 +3,7 @@ project(NesoraMikomi VERSION 0.1.0 LANGUAGES C CXX)
 
 # Request the required wxWidgets libs
 # 第一引数はwxWidgetsのコンポーネントがあるディレクトリを指定
-add_subdirectory(/Users/muchosp/ドキュメント/programming/wxWidgets out/build/cmake/lib/wxWidgets/Makefile EXCLUDE_FROM_ALL)
+add_subdirectory(/Users/Shared/wxWidgets out/build/cmake/lib/wxWidgets/Makefile EXCLUDE_FROM_ALL)
 
 include(CTest)
 enable_testing()

@@ -1,6 +1,7 @@
 #pragma once
 #include <wx/wx.h>
 #include <wx/dcbuffer.h>
+#include <wx/event.h>
 
 #include "../NesoraColor.h"
 
@@ -19,21 +20,23 @@ public:
              const wxString& name = wxASCII_STR(wxButtonNameStr))
              : wxButton(parent, id, label, pos, size, style, validator, name) {
         SetBackgroundStyle(wxBG_STYLE_PAINT);
+        SetOwnForegroundColour(nsGetColor(nsColorType::ON_PRIMARY));
         Connect(wxEVT_PAINT, wxPaintEventHandler(nsButton::onPaint));
+        Connect(wxEVT_LEFT_UP, wxMouseEventHandler(nsButton::onMouseUp));
+        Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(nsButton::onMouseDown));
+        Connect(wxEVT_ENTER_WINDOW, wxMouseEventHandler(nsButton::onMouseEnter));
+        Connect(wxEVT_LEAVE_WINDOW, wxMouseEventHandler(nsButton::onMouseLeave));
     }
 
 private:
-    void onPaint(wxPaintEvent& event) {
-        wxAutoBufferedPaintDC dc(this);
-        int w, h;
-        GetSize(&w, &h);
-        wxRect rect(0, 0, w, h);
-        dc.SetBrush(wxBrush(nsColor().GetColor(nsColorType::PRIMARY)));
-        dc.SetPen(wxPen(nsColor().GetColor(nsColorType::PRIMARY)));
-        dc.DrawRectangle(rect);
-        dc.SetPen(wxPen(nsColor().GetColor(nsColorType::LIGHT)));
-        dc.DrawLabel(GetLabel(), rect);
-    }
+    bool mouseDown = false;
+    bool mouseHover = false;
+
+    void onPaint(wxPaintEvent& event);
+    void onMouseUp(wxMouseEvent& event);
+    void onMouseDown(wxMouseEvent& event);
+    void onMouseEnter(wxMouseEvent& event);
+    void onMouseLeave(wxMouseEvent& event);
 };
 
 #endif // NESORA_BUTTON_H

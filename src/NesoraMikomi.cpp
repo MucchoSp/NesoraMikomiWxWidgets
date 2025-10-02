@@ -10,6 +10,24 @@ bool MyApp::OnInit() {
 
 MyFrame::MyFrame()
     : wxFrame(nullptr, wxID_ANY, "Nesora 1-0") {
+    MenuSetup();
+
+    wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1000, 300));
+    panel->SetBackgroundColour(nsGetColor(nsColorType::PRIMARY));
+    
+    wxButton *button = new wxButton(panel, wxID_EXIT, _("Exit"), wxPoint(20, 20));
+    button->SetFocus();
+    nsButton *nsbutton = new nsButton(panel, ID_EXIT, _("Exit"), wxPoint(20, 60));
+    nsbutton->SetFocus();
+
+    CreateStatusBar();
+    SetStatusText("Welcome to wxWidgets!");
+
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnExit, this, ID_EXIT);
+}
+
+void MyFrame::MenuSetup() {
     wxMenu* menuFile = new wxMenu;
     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
     menuFile->AppendSeparator();
@@ -19,23 +37,14 @@ MyFrame::MyFrame()
     menuHelp->Append(wxID_ABOUT);
 
     wxMenuBar* menuBar = new wxMenuBar;
-    menuBar->Append(menuFile, "&File");
-    menuBar->Append(menuHelp, "&Help");
+    menuBar->Append(menuFile, "&ファイル");
+    menuBar->Append(menuHelp, "&ヘルプ");
 
     SetMenuBar(menuBar);
-
-    wxButton *button = new wxButton(this, wxID_EXIT, _("Exit"), wxPoint(20, 20));
-    button->SetFocus();
-    nsButton *nsbutton = new nsButton(this, wxID_EXIT, _("Exit"), wxPoint(20, 60));
-    nsbutton->SetFocus();
-
-    CreateStatusBar();
-    SetStatusText("Welcome to wxWidgets!");
 
     Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
-    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnExit, this, wxID_EXIT);
 }
 
 void MyFrame::OnExit(wxCommandEvent& event) {

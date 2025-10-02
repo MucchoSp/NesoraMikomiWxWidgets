@@ -2,6 +2,7 @@
 #include <wx/wx.h>
 
 #include "NesoraStyle/button/NesoraButton.h"
+#include "NesoraStyle/NesoraColor.h"
 
 class MyApp : public wxApp {
 public:
@@ -13,11 +14,14 @@ public:
     MyFrame();
 
 private:
+    void MenuSetup();
+
     void OnHello(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
 };
 
 enum {
-    ID_Hello = 1
+    ID_Hello = 1,
+    ID_EXIT
 };

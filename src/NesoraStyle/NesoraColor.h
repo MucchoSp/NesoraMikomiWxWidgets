@@ -30,9 +30,9 @@ inline wxColour nsGetColor(nsColorType type) {
         case nsColorType::PRIMARY:
             return wxColour(0x21, 0x28, 0x4C);
         case nsColorType::PRIMARY_HOVER:
-        return wxColour(0x16, 0x1B, 0x33);
+            return wxColour(0x16, 0x1B, 0x33);
         case nsColorType::PRIMARY_VARIANT:
-        return wxColour(0x2C, 0x36, 0x66);
+            return wxColour(0x2C, 0x36, 0x66);
         case nsColorType::PRIMARY_SHADOW:
             return wxColour(0xF9, 0xFD, 0xFF, 0x1F);
         case nsColorType::ON_PRIMARY:

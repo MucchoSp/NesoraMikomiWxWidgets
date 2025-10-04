@@ -27,6 +27,7 @@
     <ClInclude Include="src\NesoraMikomi.h" />
     <ClInclude Include="src\NesoraStyle\button\NesoraButton.h" />
     <ClInclude Include="src\NesoraStyle\chart\NesoraChart.h" />
+    <ClInclude Include="src\NesoraStyle\NesoraColor.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

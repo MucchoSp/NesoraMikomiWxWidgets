@@ -32,7 +32,7 @@ void nsChartControl::OnPaint(wxPaintEvent& event) {
         gc->DrawText(m_title, (fullArea.GetSize().GetWidth() - tw) / 2.0, (marginTop - th) / 2.0);
 
         gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND_HOVER)));
-        gc->DrawRectangle(chartArea.GetX(), chartArea.GetY(), chartArea.GetWidth(), chartArea.GetHeight());
+        gc->DrawRectangle(chartArea.m_x, chartArea.m_y, chartArea.m_width, chartArea.m_height);
 
         delete gc;
     }

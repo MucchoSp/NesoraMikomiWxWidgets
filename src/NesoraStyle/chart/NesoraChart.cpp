@@ -1,4 +1,4 @@
-#include "NesoraChart.h"
+﻿#include "NesoraChart.h"
 
 nsChartControl::nsChartControl(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size)
     : wxWindow(parent, id, pos, size, wxFULL_REPAINT_ON_RESIZE) {

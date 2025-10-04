@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <wx/wx.h>
 #include <wx/dcbuffer.h>
 #include <wx/settings.h>

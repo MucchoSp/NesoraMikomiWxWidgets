@@ -12,15 +12,20 @@ enum class nsColorType {
     PRIMARY_VARIANT,
     PRIMARY_SHADOW,
     ON_PRIMARY,
+    ON_PRIMARY_THIN,
+
     SECONDARY,
     SECONDARY_HOVER,
     SECONDARY_VARIANT,
     SECONDARY_SHADOW,
     ON_SECONDARY,
+    ON_SECONDARY_THIN,
+    
     BACKGROUND,
     BACKGROUND_HOVER,
     BACKGROUND_SHADOW,
     ON_BACKGROUND,
+    ON_BACKGROUND_THIN,
 
 
 };
@@ -37,6 +42,8 @@ inline wxColour nsGetColor(nsColorType type) {
             return wxColour(0xF9, 0xFD, 0xFF, 0x1F);
         case nsColorType::ON_PRIMARY:
             return wxColour(0xF9, 0xFD, 0xFF);
+        case nsColorType::ON_PRIMARY_THIN:
+            return wxColour(0xF9, 0xFD, 0xFF);  //TODO:色を作る
 
         case nsColorType::SECONDARY:
             return wxColour(0xC5, 0xDE, 0x8C);
@@ -48,6 +55,8 @@ inline wxColour nsGetColor(nsColorType type) {
             return wxColour(0x00, 0x00, 0x00, 0x1F);
         case nsColorType::ON_SECONDARY:
             return wxColour(0xF9, 0xFD, 0xFF);
+        case nsColorType::ON_SECONDARY_THIN:
+            return wxColour(0xF9, 0xFD, 0xFF);  //TODO:色を作る
 
         case nsColorType::BACKGROUND:
             return wxColour(0xF9, 0xFD, 0xFF);
@@ -57,6 +66,8 @@ inline wxColour nsGetColor(nsColorType type) {
             return wxColour(0x00, 0x00, 0x00, 0x1F);
         case nsColorType::ON_BACKGROUND:
             return wxColour(0x00, 0x00, 0x00);
+        case nsColorType::ON_BACKGROUND_THIN:
+            return wxColour(0xAA, 0xAA, 0xAA);
 
         default:
             return wxColour(0x00, 0x00, 0x00);

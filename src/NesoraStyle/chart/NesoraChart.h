@@ -21,6 +21,7 @@ private:
     std::string m_yAxisLabel;
 
     void OnPaint(wxPaintEvent& event);
+    std::tuple<int, double, double>calclateChartSegmentCountAndRange(double origLow, double origHisg);
 public:
     nsChartControl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize);
     void SetData(const std::vector<double>& data);

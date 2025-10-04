@@ -24,6 +24,7 @@ MyFrame::MyFrame()
 
     nsChartControl* chart = new nsChartControl(panel, wxID_ANY, wxDefaultPosition, this->FromDIP(wxSize(800, 400)));
     chart->SetTitle("Sample Chart");
+    chart->SetData({ 0.34, -0.17, 0.98, 0.33 });
 
     sizer->Add(chart, 1, wxEXPAND | wxALL, 5);
 

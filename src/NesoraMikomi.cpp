@@ -15,11 +15,18 @@ MyFrame::MyFrame()
     wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1000, 300));
     panel->SetBackgroundColour(nsGetColor(nsColorType::PRIMARY));
     
-    wxButton *button = new wxButton(panel, wxID_EXIT, _("Exit"), wxPoint(20, 20));
-    button->SetFocus();
-    nsButton *nsbutton = new nsButton(panel, ID_EXIT, _("Exit"), wxPoint(20, 60));
-    nsbutton->SetFocus();
+    wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
+    nsChartControl* chart = new nsChartControl(panel, wxID_ANY, wxDefaultPosition, this->FromDIP(wxSize(800, 400)));
+    chart->SetTitle("Sample Chart");
+    chart->SetData({ 0.34, -0.17, 0.98, 0.33 });
+    chart->ShowTitle(true);
+    chart->ShowGrid(true);
+    chart->ShowLabel(true);
+
+    sizer->Add(chart, 1, wxEXPAND | wxALL, 5);
+
+    panel->SetSizer(sizer);
     CreateStatusBar();
     SetStatusText("Welcome to wxWidgets!");
 

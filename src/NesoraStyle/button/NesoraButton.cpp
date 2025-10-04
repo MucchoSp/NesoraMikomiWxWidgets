@@ -22,23 +22,27 @@ void nsButton::onPaint(wxPaintEvent& event) {
 void nsButton::onMouseUp(wxMouseEvent& event) {
     mouseDown = false;
     wxWindow::Refresh();
+    event.Skip();
     // std::cout << "Released!" << std::endl;
 }
 
 void nsButton::onMouseDown(wxMouseEvent& event) {
     mouseDown = true;
     wxWindow::Refresh();
+    event.Skip();
     // std::cout << "Clicked!" << std::endl;
 }
 
 void nsButton::onMouseEnter(wxMouseEvent& event) {
     mouseHover = true;
     wxWindow::Refresh();
+    event.Skip();
     // std::cout << "Enter!" << std::endl;
 }
 
 void nsButton::onMouseLeave(wxMouseEvent& event) {
     mouseHover = false;
     wxWindow::Refresh();
+    event.Skip();
     // std::cout << "Leave!" << std::endl;
 }

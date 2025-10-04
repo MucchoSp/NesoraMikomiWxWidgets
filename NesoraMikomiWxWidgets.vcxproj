@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\NesoraMikomi.cpp" />
     <ClCompile Include="src\NesoraStyle\button\NesoraButton.cpp" />
+    <ClCompile Include="src\NesoraStyle\chart\NesoraChart.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\NesoraMikomi.h" />

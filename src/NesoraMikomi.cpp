@@ -1,4 +1,4 @@
-#include "NesoraMikomi.h"
+﻿#include "NesoraMikomi.h"
 
 wxIMPLEMENT_APP(MyApp);
 

@@ -20,6 +20,17 @@ private:
     std::string m_xAxisLabel;
     std::string m_yAxisLabel;
 
+    wxColour background_color = nsGetColor(nsColorType::BACKGROUND_HOVER);
+    wxColour title_color = nsGetColor(nsColorType::ON_BACKGROUND);
+    wxColour label_color = nsGetColor(nsColorType::ON_BACKGROUND);
+    wxColour grid_color = nsGetColor(nsColorType::ON_BACKGROUND_THIN);
+    wxColour frame_color = nsGetColor(nsColorType::ON_BACKGROUND);
+    wxColour graph_color = nsGetColor(nsColorType::PRIMARY);
+
+    bool title_enabled = true;
+    bool label_enabled = true;
+    bool grid_enabled = true;
+
     void OnPaint(wxPaintEvent& event);
     std::tuple<int, double, double>calclateChartSegmentCountAndRange(double origLow, double origHisg);
 public:
@@ -30,6 +41,16 @@ public:
     void SetXAxisLabel(const std::string& label);
     void SetYAxisLabel(const std::string& label);
 
+    void ShowTitle(bool enbled);
+    void ShowLabel(bool enbled);
+    void ShowGrid(bool enbled);
+
+    void SetBackgroundColor(const wxColour& pen);
+    void SetTitleColor(const wxColour& pen);
+    void SetLabelColor(const wxColour& pen);
+    void SetGridColor(const wxColour& pen);
+    void SetFrameColor(const wxColour& pen);
+    void SetGraphColor(const wxColour& pen);
 };
 
 #endif // NESORA_CHART_H

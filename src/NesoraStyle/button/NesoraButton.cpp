@@ -1,4 +1,4 @@
-#include "NesoraButton.h"
+﻿#include "NesoraButton.h"
 
 void nsButton::onPaint(wxPaintEvent& event) {
     wxAutoBufferedPaintDC dc(this);

@@ -13,18 +13,21 @@ MyFrame::MyFrame()
     MenuSetup();
 
     wxPanel * panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(1000, 300));
-    panel->SetBackgroundColour(nsGetColor(nsColorType::PRIMARY));
+    panel->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     
     wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
-    nsChartControl* chart = new nsChartControl(panel, wxID_ANY, wxDefaultPosition, this->FromDIP(wxSize(800, 400)));
-    chart->SetTitle("Sample Chart");
-    chart->SetData({ 0.34, -0.17, 0.98, 0.33 });
-    chart->ShowTitle(true);
-    chart->ShowGrid(true);
-    chart->ShowLabel(true);
+    text = new wxStaticText(panel, wxID_ANY, "50");
+    text->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
+    sizer->Add(text, 0, wxALIGN_CENTER);
 
-    sizer->Add(chart, 1, wxEXPAND | wxALL, 5);
+    slider = new nsSlider(panel, ID_SLIDER, 50, 0, 100, wxDefaultPosition, wxSize(300, 15));
+    slider->Show();
+    sizer->Add(slider, 0, wxEXPAND | wxALL, 5);
+
+    slider_sample = new wxSlider(panel, ID_SLIDER, 50, 0, 100);
+    slider_sample->Show();
+    sizer->Add(slider_sample, 0, wxEXPAND | wxALL, 5);
 
     panel->SetSizer(sizer);
     CreateStatusBar();
@@ -32,6 +35,7 @@ MyFrame::MyFrame()
 
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnExit, this, ID_EXIT);
+    Bind(wxEVT_COMMAND_SLIDER_UPDATED, &MyFrame::OnSlide, this, ID_SLIDER);
 }
 
 void MyFrame::MenuSetup() {
@@ -64,4 +68,9 @@ void MyFrame::OnAbout(wxCommandEvent& event) {
 
 void MyFrame::OnHello(wxCommandEvent& event) {
     wxLogMessage("Hello world from wxWidgets!");
+}
+
+void MyFrame::OnSlide(wxCommandEvent& event) {
+    text->SetLabel(std::to_string(slider->GetValue()));
+    slider_sample->SetValue(slider->GetValue());
 }

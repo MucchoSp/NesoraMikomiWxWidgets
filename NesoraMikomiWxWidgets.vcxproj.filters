@@ -27,6 +27,9 @@
     <ClInclude Include="src\NesoraStyle\chart\NesoraChart.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="src\NesoraStyle\slider\NesoraSlider.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="src\Nesora\source\NesoraSource.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -39,6 +42,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\NesoraStyle\chart\NesoraChart.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NesoraStyle\slider\NesoraSlider.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\Nesora\source\NesoraSource.cpp">

@@ -22,6 +22,8 @@ public:
 
         min_value = minValue;
         max_value = maxValue;
+        lower_limit = minValue;
+        upper_limit = maxValue;
         current_value = value;
 
         Connect(wxEVT_PAINT, wxPaintEventHandler(nsSlider::onPaint));

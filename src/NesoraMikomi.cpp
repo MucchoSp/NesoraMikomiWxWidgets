@@ -73,7 +73,7 @@ void MyFrame::RosenbergWavePanelSetup() {
     t1param = new wxStaticText(globalPanel, wxID_ANY, "0.25");
     t1param->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     t1sliderSizer->Add(t1param, 0, wxEXPAND | wxALL, 5);
-    t1slider = new nsSlider(globalPanel, ID_T1SLIDER, 25, 0, 50, wxDefaultPosition, wxSize(300, 15));
+    t1slider = new nsSlider(globalPanel, ID_T1SLIDER, 25, 0, 100, wxDefaultPosition, wxSize(300, 15));
     t1slider->Show();
     t1sliderSizer->Add(t1slider, 0, wxEXPAND | wxALL, 5);
     sizer->Add(t1sliderSizer, 0, wxEXPAND | wxALL);
@@ -94,7 +94,7 @@ void MyFrame::RosenbergWavePanelSetup() {
 
     globalPanel->SetSizer(sizer);
 
-
+    
 }
 
 
@@ -132,14 +132,57 @@ void MyFrame::OnT1Slide(wxCommandEvent& event) {
 
 void MyFrame::OnT2Slide(wxCommandEvent& event) {
     t2param->SetLabel(to_string_with_precision((double)t2slider->GetValue() / 100.0, 2));
-    t1slider->SetRange(0, t2slider->GetValue());
+    t1slider->SetLimit(0, t2slider->GetValue());
     OnT1Slide(event);
 }
 
 void MyFrame::OnPlayButton(wxCommandEvent& event) {
-
+    InitAudioDevice();
 }
 
 void MyFrame::OnStopButton(wxCommandEvent& event) {
+    UninitAudioDevice();
+}
 
+
+void MyFrame::InitAudioDevice() {
+    deviceConfig = ma_device_config_init(ma_device_type_playback);
+    deviceConfig.playback.format = ma_format_f32;
+    deviceConfig.playback.channels = 1;
+    deviceConfig.sampleRate = 48000;
+    deviceConfig.dataCallback = MyFrame::data_callback;
+    deviceConfig.pUserData = this;
+
+    if (ma_device_init(NULL, &deviceConfig, &device) != MA_SUCCESS) {
+        wxLogMessage("Failed to open playback device.");
+        return;
+    }
+
+    if (ma_device_start(&device) != MA_SUCCESS) {
+        wxLogMessage("Failed to start playback device.");
+        ma_device_uninit(&device);
+        return;
+    }
+}
+
+void MyFrame::UninitAudioDevice() {
+    ma_device_uninit(&device);
+}
+
+void MyFrame::data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
+    float* out = (float*)pOutput;
+    (void)pInput;
+
+    MyFrame* frame = (MyFrame*)pDevice->pUserData;
+    static size_t pos = 0;
+    for (ma_uint32 i = 0; i < frameCount; i++) {
+        if (pos >= frame->wave.size()) {
+            out[i] = 0;
+            pos = 0;
+        }
+        else {
+            out[i] = (float)frame->wave[pos] * 0.5;
+            pos++;
+        }
+    }
 }

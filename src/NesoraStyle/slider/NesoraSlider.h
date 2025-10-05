@@ -18,11 +18,13 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize) : wxControl(parent, id, pos, size, wxFULL_REPAINT_ON_RESIZE) {
         SetBackgroundStyle(wxBG_STYLE_PAINT);
-        SetOwnForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
+        SetOwnForegroundColour(background_color);
 
-        this->minValue = minValue;
-        this->maxValue = maxValue;
-        this->currentValue = value;
+        min_value = minValue;
+        max_value = maxValue;
+        lower_limit = minValue;
+        upper_limit = maxValue;
+        current_value = value;
 
         Connect(wxEVT_PAINT, wxPaintEventHandler(nsSlider::onPaint));
         Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(nsSlider::onLeftDown));
@@ -31,23 +33,43 @@ public:
     }
 
     int GetValue() const {
-        return currentValue;
+        return current_value;
     }
     int GetMin() const {
-        return minValue;
+        return min_value;
     }
     int GetMax() const {
-        return maxValue;
+        return max_value;
+    }
+    int GetRange() const {
+        return max_value - min_value;
+    }
+    int GetLowerLimit() const {
+        return lower_limit;
+    }
+    int GetUpperLimit() const {
+        return upper_limit;
+    }
+    int GetLimitRange() const {
+        return upper_limit - lower_limit;
     }
     void SetValue(int value);
     void SetRange(int minValue, int maxValue);
+    void SetLimit(int minValue, int maxValue);
 
 private:
 
-    int minValue;
-    int maxValue;
-    int currentValue;
-    int tabWidth = 10;
+    int min_value;
+    int max_value;
+    int current_value;
+    int tab_width = 10;
+    int lower_limit;
+    int upper_limit;
+
+    wxColour background_color = nsGetColor(nsColorType::BACKGROUND);
+    wxColour bar_background_color = nsGetColor(nsColorType::PRIMARY);
+    wxColour bar_background_disabled_color = nsGetColor(nsColorType::PRIMARY_VARIANT);
+    wxColour tab_color = nsGetColor(nsColorType::SECONDARY);
 
     void onPaint(wxPaintEvent& event);
     void onLeftDown(wxMouseEvent& event);

@@ -24,6 +24,9 @@
     <ClInclude Include="src\NesoraStyle\NesoraColor.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="src\NesoraStyle\chart\NesoraChart.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\NesoraMikomi.cpp">

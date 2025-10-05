@@ -23,6 +23,7 @@ MyFrame::MyFrame()
 
     slider = new nsSlider(panel, ID_SLIDER, 50, 0, 100, wxDefaultPosition, wxSize(300, 15));
     slider->Show();
+    slider->SetLimit(10, 70);
     sizer->Add(slider, 0, wxEXPAND | wxALL, 5);
 
     slider_sample = new wxSlider(panel, ID_SLIDER, 50, 0, 100);

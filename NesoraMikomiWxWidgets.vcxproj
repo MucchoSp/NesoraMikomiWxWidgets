@@ -26,6 +26,7 @@
     <ClCompile Include="src\Nesora\source\NesoraSource.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lib\miniaudio.h" />
     <ClInclude Include="src\NesoraMikomi.h" />
     <ClInclude Include="src\NesoraStyle\button\NesoraButton.h" />
     <ClInclude Include="src\NesoraStyle\chart\NesoraChart.h" />

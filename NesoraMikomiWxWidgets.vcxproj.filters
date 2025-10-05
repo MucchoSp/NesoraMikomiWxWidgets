@@ -33,6 +33,9 @@
     <ClInclude Include="src\Nesora\source\NesoraSource.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="lib\miniaudio.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\NesoraMikomi.cpp">

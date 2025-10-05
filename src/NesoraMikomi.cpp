@@ -94,7 +94,7 @@ void MyFrame::RosenbergWavePanelSetup() {
 
     globalPanel->SetSizer(sizer);
 
-
+    
 }
 
 
@@ -137,9 +137,52 @@ void MyFrame::OnT2Slide(wxCommandEvent& event) {
 }
 
 void MyFrame::OnPlayButton(wxCommandEvent& event) {
-
+    InitAudioDevice();
 }
 
 void MyFrame::OnStopButton(wxCommandEvent& event) {
+    UninitAudioDevice();
+}
 
+
+void MyFrame::InitAudioDevice() {
+    deviceConfig = ma_device_config_init(ma_device_type_playback);
+    deviceConfig.playback.format = ma_format_f32;
+    deviceConfig.playback.channels = 1;
+    deviceConfig.sampleRate = 48000;
+    deviceConfig.dataCallback = MyFrame::data_callback;
+    deviceConfig.pUserData = this;
+
+    if (ma_device_init(NULL, &deviceConfig, &device) != MA_SUCCESS) {
+        wxLogMessage("Failed to open playback device.");
+        return;
+    }
+
+    if (ma_device_start(&device) != MA_SUCCESS) {
+        wxLogMessage("Failed to start playback device.");
+        ma_device_uninit(&device);
+        return;
+    }
+}
+
+void MyFrame::UninitAudioDevice() {
+    ma_device_uninit(&device);
+}
+
+void MyFrame::data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
+    float* out = (float*)pOutput;
+    (void)pInput;
+
+    MyFrame* frame = (MyFrame*)pDevice->pUserData;
+    static size_t pos = 0;
+    for (ma_uint32 i = 0; i < frameCount; i++) {
+        if (pos >= frame->wave.size()) {
+            out[i] = 0;
+            pos = 0;
+        }
+        else {
+            out[i] = (float)frame->wave[pos];
+            pos++;
+        }
+    }
 }

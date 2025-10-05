@@ -3,24 +3,60 @@
 void nsSlider::onPaint(wxPaintEvent& event) {
     wxAutoBufferedPaintDC dc(this);
     int w, h;
-    GetClientSize(&w, &h);
-    wxRect rect(0, 0, w, h);
+    GetSize(&w, &h);
+    
     dc.SetBrush(wxBrush(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
     dc.SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
-
-    //dc.DrawLine(0, h / 2, w, h / 2);
-
-    //rect = DoGetBestClientSize();
+    wxRect rect(0, 0, w, h);
     dc.DrawRectangle(rect);
 
     dc.SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));
     dc.SetPen(wxPen(nsGetColor(nsColorType::PRIMARY)));
-
-    dc.DrawRectangle(w * this->GetValue() / (this->GetMax() - this->GetMin()) - 5, 0, 10, h);
-    dc.DrawLabel(GetLabel(), rect, wxALIGN_CENTRE_HORIZONTAL | wxALIGN_CENTRE_VERTICAL);
+    dc.DrawRectangle((w - tabWidth) * this->GetValue() / (this->GetMax() - this->GetMin()), 0, tabWidth, h);
 }
 
-void nsSlider::onSlide(wxScrollEvent& event) {
-    wxWindow::Refresh();
-    event.Skip();
+void nsSlider::SetValue(int value) {
+    if (value < minValue) value = minValue;
+    if (value > maxValue) value = maxValue;
+    currentValue = value;
+    Refresh();
+
+    wxCommandEvent event(wxEVT_COMMAND_SLIDER_UPDATED, GetId());
+    event.SetEventObject(this);
+    event.SetInt(currentValue);
+    ProcessCommand(event);
 }
+
+void nsSlider::SetRange(int minValue, int maxValue) {
+    this->minValue = minValue;
+    this->maxValue = maxValue;
+    if (currentValue < minValue) currentValue = minValue;
+    if (currentValue > maxValue) currentValue = maxValue;
+    Refresh();
+}
+
+void nsSlider::onLeftDown(wxMouseEvent& event) {
+    int w, h;
+    GetSize(&w, &h);
+    int x = event.GetX();
+    int value = (x * (this->GetMax() - this->GetMin())) / w;
+    SetValue(value);
+    CaptureMouse();
+}
+
+void nsSlider::onLeftUp(wxMouseEvent& event) {
+    if (HasCapture()) {
+        ReleaseMouse();
+    }
+}
+
+void nsSlider::onMouseMove(wxMouseEvent& event) {
+    if (event.Dragging() && HasCapture()) {
+        int w, h;
+        GetSize(&w, &h);
+        int x = event.GetX();
+        int value = (x * (this->GetMax() - this->GetMin())) / w;
+        SetValue(value);
+    }
+}
+

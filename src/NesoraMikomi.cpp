@@ -21,11 +21,11 @@ MyFrame::MyFrame()
     text->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     sizer->Add(text, 0, wxALIGN_CENTER);
 
-    slider = new nsSlider(panel, ID_SLIDER, 50, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_LABELS);
+    slider = new nsSlider(panel, ID_SLIDER, 50, 0, 100, wxDefaultPosition, wxSize(300, 15));
     slider->Show();
     sizer->Add(slider, 0, wxEXPAND | wxALL, 5);
 
-    slider_sample = new wxSlider(panel, ID_SLIDER, 50, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_LABELS);
+    slider_sample = new wxSlider(panel, ID_SLIDER, 50, 0, 100);
     slider_sample->Show();
     sizer->Add(slider_sample, 0, wxEXPAND | wxALL, 5);
 

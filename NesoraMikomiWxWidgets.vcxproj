@@ -21,11 +21,13 @@
   <ItemGroup>
     <ClCompile Include="src\NesoraMikomi.cpp" />
     <ClCompile Include="src\NesoraStyle\button\NesoraButton.cpp" />
+    <ClCompile Include="src\Nesora\source\NesoraSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\NesoraMikomi.h" />
     <ClInclude Include="src\NesoraStyle\button\NesoraButton.h" />
     <ClInclude Include="src\NesoraStyle\NesoraColor.h" />
+    <ClInclude Include="src\Nesora\source\NesoraSource.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

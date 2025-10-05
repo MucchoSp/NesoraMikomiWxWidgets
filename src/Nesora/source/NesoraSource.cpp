@@ -3,8 +3,8 @@
 double NesoraRosenbergWave::Utterance(double radian) {
     if (radian < t1)
         return (3.0 * std::pow(radian / t1, 2.0) - 2.0 * std::pow(radian / t1, 3.0)) + a0;
-    else if (radian < t1 + t2)
-        return (1.0 - std::pow((radian - t1) / t2, 2.0)) + a0;
+    else if (radian < t2)
+        return (1.0 - std::pow((radian - t1) / (t2 - t1), 2.0)) + a0;
     else
         return a0;
 }

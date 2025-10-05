@@ -1,10 +1,16 @@
 ﻿#pragma once
 #include <wx/wx.h>
+#include <wx/sound.h>
+
+#include <sstream>
+
 
 #include "NesoraStyle/button/NesoraButton.h"
 #include "NesoraStyle/chart/NesoraChart.h"
 #include "NesoraStyle//slider/NesoraSlider.h"
 #include "NesoraStyle/NesoraColor.h"
+
+#include "Nesora/source/NesoraSource.h"
 
 class MyApp : public wxApp {
 public:
@@ -17,19 +23,41 @@ public:
 
 private:
     void MenuSetup();
+    void RosenbergWavePanelSetup();
 
-    wxStaticText* text;
-    nsSlider* slider;
-    wxSlider* slider_sample;
+
+    wxPanel* globalPanel;
+
+    nsChartControl* chart;
+
+    wxStaticText* t1param;
+    wxStaticText* t2param;
+    nsSlider* t1slider;
+    nsSlider* t2slider;
+    nsButton* playButton;
+    nsButton* stopButton;
 
     void OnHello(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
-    void OnSlide(wxCommandEvent& event);
+
+    void OnT1Slide(wxCommandEvent& event);
+    void OnT2Slide(wxCommandEvent& event);
+
+    void OnPlayButton(wxCommandEvent& event);
+    void OnStopButton(wxCommandEvent& event);
+
+
+    NesoraRosenbergWave source_wave;
+    std::vector<double> wave;// 48000 / 261.6
+    
 };
 
 enum {
     ID_Hello = 1,
     ID_EXIT,
-    ID_SLIDER
+    ID_T1SLIDER,
+    ID_T2SLIDER,
+    ID_PLAY_BUTTON,
+    ID_STOP_BUTTON
 };

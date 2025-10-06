@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="lib\miniaudio_split\miniaudio.c" />
+    <ClCompile Include="src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp" />
     <ClCompile Include="src\NesoraMikomi.cpp" />
     <ClCompile Include="src\NesoraStyle\button\NesoraButton.cpp" />
     <ClCompile Include="src\NesoraStyle\chart\NesoraChart.cpp" />
@@ -26,7 +28,8 @@
     <ClCompile Include="src\Nesora\source\NesoraSource.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\miniaudio.h" />
+    <ClInclude Include="lib\miniaudio_split\miniaudio.h" />
+    <ClInclude Include="src\NesoraLayout\voicemake\NesoraVoiceMakePanel.h" />
     <ClInclude Include="src\NesoraMikomi.h" />
     <ClInclude Include="src\NesoraStyle\button\NesoraButton.h" />
     <ClInclude Include="src\NesoraStyle\chart\NesoraChart.h" />

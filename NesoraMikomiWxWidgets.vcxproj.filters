@@ -39,6 +39,9 @@
     <ClInclude Include="lib\miniaudio_split\miniaudio.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="src\NesoraLayout\toolselecter\NesoraToolChangePanel.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\NesoraMikomi.cpp">
@@ -60,6 +63,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="lib\miniaudio_split\miniaudio.c">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NesoraLayout\toolselecter\NesoraToolChangePanel.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

@@ -30,6 +30,7 @@ private:
 
 
     wxPanel* globalPanel;
+    wxPanel* toolSelector;
 
     void OnHello(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);

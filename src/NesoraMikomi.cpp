@@ -16,9 +16,13 @@ MyFrame::MyFrame()
     globalPanel->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
 
     wxSizer* main_sizre = new wxBoxSizer(wxVERTICAL);
-    
-    voicemakepanel = new nsVoiceMakePanel(globalPanel, nsID_VOICE_MAKE_PANEL, wxDefaultPosition, wxSize(1000, 300));
-    main_sizre->Add(voicemakepanel, 1, wxEXPAND | wxALL);
+
+    toolSelector = new wxPanel(globalPanel, wxID_ANY, wxDefaultPosition, wxSize(1000, 24));
+    toolSelector->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
+    main_sizre->Add(toolSelector, 0, wxEXPAND | wxALL);
+
+    voicemakepanel = new nsVoiceMakePanel(globalPanel, nsID_VOICE_MAKE_PANEL);
+    main_sizre->Add(voicemakepanel, 0, wxEXPAND | wxALL);
 
     globalPanel->SetSizer(main_sizre);
 

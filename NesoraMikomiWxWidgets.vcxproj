@@ -25,6 +25,7 @@
     <ClCompile Include="src\NesoraMikomi.cpp" />
     <ClCompile Include="src\NesoraStyle\button\NesoraButton.cpp" />
     <ClCompile Include="src\NesoraStyle\chart\NesoraChart.cpp" />
+    <ClCompile Include="src\NesoraStyle\chart\NesoraSimpleChart.cpp" />
     <ClCompile Include="src\NesoraStyle\slider\NesoraSlider.cpp" />
     <ClCompile Include="src\Nesora\source\NesoraSource.cpp" />
   </ItemGroup>
@@ -35,6 +36,7 @@
     <ClInclude Include="src\NesoraMikomi.h" />
     <ClInclude Include="src\NesoraStyle\button\NesoraButton.h" />
     <ClInclude Include="src\NesoraStyle\chart\NesoraChart.h" />
+    <ClInclude Include="src\NesoraStyle\chart\NesoraSimpleChart.h" />
     <ClInclude Include="src\NesoraStyle\NesoraColor.h" />
     <ClInclude Include="src\NesoraStyle\slider\NesoraSlider.h" />
     <ClInclude Include="src\Nesora\source\NesoraSource.h" />

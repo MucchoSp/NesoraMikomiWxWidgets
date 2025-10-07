@@ -6,6 +6,7 @@
 
 #include "NesoraStyle/button/NesoraButton.h"
 #include "NesoraStyle/chart/NesoraChart.h"
+#include "NesoraStyle/chart/NesoraSimpleChart.h"
 #include "NesoraStyle/slider/NesoraSlider.h"
 #include "NesoraStyle/NesoraColor.h"
 

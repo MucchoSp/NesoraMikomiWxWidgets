@@ -3,6 +3,7 @@
 
 #include "NesoraStyle/button/NesoraButton.h"
 #include "NesoraStyle/chart/NesoraChart.h"
+#include "NesoraStyle/chart/NesoraSimpleChart.h"
 #include "NesoraStyle/NesoraColor.h"
 
 class MyApp : public wxApp {

@@ -17,12 +17,8 @@ MyFrame::MyFrame()
     
     wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
-    nsChartControl* chart = new nsChartControl(panel, wxID_ANY, wxDefaultPosition, this->FromDIP(wxSize(800, 400)));
-    chart->SetTitle("Sample Chart");
+    nsSimpleChartControl* chart = new nsSimpleChartControl(panel, wxID_ANY, wxDefaultPosition, this->FromDIP(wxSize(800, 400)));
     chart->SetData({ 0.34, -0.17, 0.98, 0.33 });
-    chart->ShowTitle(true);
-    chart->ShowGrid(true);
-    chart->ShowLabel(true);
 
     sizer->Add(chart, 1, wxEXPAND | wxALL, 5);
 

@@ -16,10 +16,11 @@ MyFrame::MyFrame()
     globalPanel->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
 
     wxSizer* main_sizre = new wxBoxSizer(wxVERTICAL);
+    wxSizer* tool_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-    toolSelector = new wxPanel(globalPanel, wxID_ANY, wxDefaultPosition, wxSize(1000, 24));
-    toolSelector->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
-    main_sizre->Add(toolSelector, 0, wxEXPAND | wxALL);
+    tool_sizer->Add(new nsButton(globalPanel, nsID_SPEAK_BUTTON, "話す"), 0, wxALL, 5);
+    tool_sizer->Add(new nsButton(globalPanel, nsID_VOICE_MAKE_BUTTON, "作る"), 0, wxALL, 5);
+    main_sizre->Add(tool_sizer, 0, wxEXPAND | wxALL);
 
     voicemakepanel = new nsVoiceMakePanel(globalPanel, nsID_VOICE_MAKE_PANEL);
     main_sizre->Add(voicemakepanel, 0, wxEXPAND | wxALL);
@@ -31,6 +32,8 @@ MyFrame::MyFrame()
 
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnExit, this, ID_EXIT);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnSpeakButton, this, nsID_SPEAK_BUTTON);
+    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &MyFrame::OnMakeButton, this, nsID_VOICE_MAKE_BUTTON);
 }
 
 void MyFrame::MenuSetup() {
@@ -63,4 +66,12 @@ void MyFrame::OnAbout(wxCommandEvent& event) {
 
 void MyFrame::OnHello(wxCommandEvent& event) {
     wxLogMessage("Hello world from wxWidgets!");
+}
+
+void MyFrame::OnSpeakButton(wxCommandEvent& event) {
+    wxLogMessage("Speak button clicked!");
+}
+
+void MyFrame::OnMakeButton(wxCommandEvent& event) {
+    wxLogMessage("Make button clicked!");
 }

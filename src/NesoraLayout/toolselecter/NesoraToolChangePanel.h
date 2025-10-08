@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef NESORA_TOOL_CHANGE_PANEL_H
 #define NESORA_TOOL_CHANGE_PANEL_H
@@ -9,13 +9,13 @@
 #include "../../NesoraStyle/NesoraColor.h"
 
 
-class nsVoiceMakePanel : public wxPanel {
+class nsToolChangePanel : public wxPanel {
 public:
-    nsVoiceMakePanel() {
+    nsToolChangePanel() {
         Init();
     }
 
-    nsVoiceMakePanel(wxWindow* parent,
+    nsToolChangePanel(wxWindow* parent,
         wxWindowID winid = wxID_ANY,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
@@ -29,13 +29,9 @@ public:
 
 private:
 
-};
+    nsButton* speakButton;
+    nsButton* makeButton;
 
-enum {
-    ID_VOICEMAKEPANEL_ROSENBERGWAVE_T1SLIDER = 100,
-    ID_VOICEMAKEPANEL_ROSENBERGWAVE_T2SLIDER,
-    ID_VOICEMAKEPANEL_ROSENBERGWAVE_PLAY_BUTTON,
-    ID_VOICEMAKEPANEL_ROSENBERGWAVE_STOP_BUTTON
 };
 
 #endif // NESORA_TOOL_CHANGE_PANEL_H

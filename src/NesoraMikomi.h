@@ -10,6 +10,7 @@
 #include "NesoraStyle/slider/NesoraSlider.h"
 #include "NesoraStyle/NesoraColor.h"
 
+#include "NesoraLayout/NesoraIDs.h"
 #include "NesoraLayout/voicemake/NesoraVoiceMakePanel.h"
 
 #include "Nesora/source/NesoraSource.h"
@@ -33,14 +34,13 @@ private:
     wxPanel* globalPanel;
     wxPanel* toolSelector;
 
+    nsButton* speakButton;
+    nsButton* makeButton;
+
     void OnHello(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
+    void OnSpeakButton(wxCommandEvent& event);
+    void OnMakeButton(wxCommandEvent& event);
 
-};
-
-enum {
-    ID_Hello = 1,
-    ID_EXIT,
-    nsID_VOICE_MAKE_PANEL
 };

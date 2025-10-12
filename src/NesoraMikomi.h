@@ -11,6 +11,7 @@
 #include "NesoraStyle/NesoraColor.h"
 
 #include "NesoraLayout/NesoraIDs.h"
+#include "NesoraStyle/toolbar/NesoraToolBar.hpp"
 #include "NesoraLayout/voicemake/NesoraVoiceMakePanel.h"
 
 #include "Nesora/source/NesoraSource.h"
@@ -41,6 +42,7 @@ private:
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnSpeakButton(wxCommandEvent& event);
+    void OnSingButton(wxCommandEvent& event);
     void OnMakeButton(wxCommandEvent& event);
 
 };

@@ -20,7 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lib\miniaudio_split\miniaudio.c" />
-    <ClCompile Include="src\NesoraLayout\toolselecter\NesoraToolChangePanel.cpp" />
+    <ClCompile Include="src\NesoraLayout\frame\NesoraMainFrame.cpp" />
+    <ClCompile Include="src\NesoraLayout\sing\NesoraSingPanel.cpp" />
+    <ClCompile Include="src\NesoraLayout\speak\NesoraSpeakPanel.cpp" />
     <ClCompile Include="src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp" />
     <ClCompile Include="src\NesoraMikomi.cpp" />
     <ClCompile Include="src\NesoraStyle\button\NesoraButton.cpp" />
@@ -31,7 +33,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\miniaudio_split\miniaudio.h" />
-    <ClInclude Include="src\NesoraLayout\toolselecter\NesoraToolChangePanel.h" />
+    <ClInclude Include="src\NesoraLayout\frame\NesoraMainFrame.h" />
+    <ClInclude Include="src\NesoraLayout\sing\NesoraSingPanel.h" />
+    <ClInclude Include="src\NesoraLayout\speak\NesoraSpeakPanel.h" />
     <ClInclude Include="src\NesoraLayout\voicemake\NesoraVoiceMakePanel.h" />
     <ClInclude Include="src\NesoraMikomi.h" />
     <ClInclude Include="src\NesoraStyle\button\NesoraButton.h" />

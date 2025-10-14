@@ -19,41 +19,46 @@ void nsVoiceMakePanel::RosenbergWavePanelSetup() {
     for (int i = 0;i < wave.size();i++)
         wave[i] = source_wave.Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away));
 
-    wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+    wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    wxStaticBoxSizer* sourceSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, "Rosenberg Wave");
     wxSizer* t1sliderSizer = new wxBoxSizer(wxHORIZONTAL);
     wxSizer* t2sliderSizer = new wxBoxSizer(wxHORIZONTAL);
     wxSizer* sliderSizer = new wxBoxSizer(wxVERTICAL);
     wxSizer* playButtonSizer = new wxBoxSizer(wxVERTICAL);
 
-    t1param = new wxStaticText(this, wxID_ANY, "0.25");
+    t1param = new wxStaticText(sourceSizer->GetStaticBox(), wxID_ANY, "0.25");
     t1param->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     t1sliderSizer->Add(t1param, 0, wxEXPAND | wxALL, 5);
-    t1slider = new nsSlider(this, nsID_VOICEMAKEPANEL_ROSENBERGWAVE_T1SLIDER, 25, 0, 100, wxDefaultPosition, wxSize(200, 15));
+    t1slider = new nsSlider(sourceSizer->GetStaticBox(), nsID_VOICEMAKEPANEL_ROSENBERGWAVE_T1SLIDER, 25, 0, 100, wxDefaultPosition, wxSize(200, 15));
     t1slider->SetLimit(0, 50);
     t1slider->Show();
     t1sliderSizer->Add(t1slider, 1, wxEXPAND | wxALL, 5);
     sliderSizer->Add(t1sliderSizer, 0, wxEXPAND | wxALL);
 
-    t2param = new wxStaticText(this, wxID_ANY, "0.50");
+    t2param = new wxStaticText(sourceSizer->GetStaticBox(), wxID_ANY, "0.50");
     t2param->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     t2sliderSizer->Add(t2param, 0, wxEXPAND | wxALL, 5);
-    t2slider = new nsSlider(this, nsID_VOICEMAKEPANEL_ROSENBERGWAVE_T2SLIDER, 50, 1, 100, wxDefaultPosition, wxSize(200, 15));
+    t2slider = new nsSlider(sourceSizer->GetStaticBox(), nsID_VOICEMAKEPANEL_ROSENBERGWAVE_T2SLIDER, 50, 1, 100, wxDefaultPosition, wxSize(200, 15));
     t2slider->Show();
     t2sliderSizer->Add(t2slider, 1, wxEXPAND | wxALL, 5);
     sliderSizer->Add(t2sliderSizer, 0, wxEXPAND | wxALL);
 
-    playButton = new nsButton(this, nsID_VOICEMAKEPANEL_ROSENBERGWAVE_PLAY_BUTTON, "Play");
-    stopButton = new nsButton(this, nsID_VOICEMAKEPANEL_ROSENBERGWAVE_STOP_BUTTON, "Stop");
+    playButton = new nsButton(sourceSizer->GetStaticBox(), nsID_VOICEMAKEPANEL_ROSENBERGWAVE_PLAY_BUTTON, "Play");
+    stopButton = new nsButton(sourceSizer->GetStaticBox(), nsID_VOICEMAKEPANEL_ROSENBERGWAVE_STOP_BUTTON, "Stop");
     playButtonSizer->Add(playButton, 1, wxEXPAND | wxALL);
     playButtonSizer->Add(stopButton, 1, wxEXPAND | wxALL);
-    
-    
-    chart = new nsSimpleChartControl(this, wxID_ANY, wxDefaultPosition, wxSize(200, 24));
+
+    chart = new nsSimpleChartControl(sourceSizer->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxSize(200, 24));
     chart->SetData(wave);
+
+    sourceSizer->Add(playButtonSizer, 0, wxEXPAND | wxALL);
+    sourceSizer->Add(sliderSizer, 1, wxEXPAND | wxALL);
+    sourceSizer->Add(chart, 0, wxEXPAND | wxALL);
+    sizer->Add(sourceSizer, 0, wxEXPAND | wxALL);
     
-    sizer->Add(playButtonSizer, 0, wxEXPAND | wxALL);
-    sizer->Add(sliderSizer, 1, wxEXPAND | wxALL);
-    sizer->Add(chart, 0, wxEXPAND | wxALL);
+    wxPanel* spacer = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(16, 16));
+    spacer->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
+    sizer->Add(spacer, 1, wxEXPAND | wxALL);
 
     this->SetSizer(sizer);
 }

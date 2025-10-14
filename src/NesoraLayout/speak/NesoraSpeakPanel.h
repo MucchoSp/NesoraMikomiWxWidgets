@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef NESORA_SING_PANEL_H
-#define NESORA_SING_PANEL_H
+#ifndef NESORA_SPEAK_PANEL_H
+#define NESORA_SPEAK_PANEL_H
 
 #include <wx/wx.h>
 
@@ -16,9 +16,9 @@
 
 #include "../../Nesora/source/NesoraSource.h"
 
-class nsSingPanel : public wxPanel {
+class nsSpeakPanel : public wxPanel {
 public:
-    nsSingPanel(wxWindow* parent,
+    nsSpeakPanel(wxWindow* parent,
         wxWindowID winid = wxID_ANY,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
@@ -31,4 +31,4 @@ public:
 private:
 };
 
-#endif // NESORA_SING_PANEL_H
+#endif // NESORA_SPEAK_PANEL_H

@@ -11,38 +11,12 @@
 #include "NesoraStyle/NesoraColor.h"
 
 #include "NesoraLayout/NesoraIDs.h"
-#include "NesoraStyle/toolbar/NesoraToolBar.hpp"
 #include "NesoraLayout/voicemake/NesoraVoiceMakePanel.h"
+#include "NesoraLayout/frame/NesoraMainFrame.h"
 
 #include "Nesora/source/NesoraSource.h"
 
 class MyApp : public wxApp {
 public:
     bool OnInit() override;
-};
-
-class MyFrame : public wxFrame {
-public:
-    MyFrame();
-
-private:
-
-    nsVoiceMakePanel* voicemakepanel;
-
-    void MenuSetup();
-
-
-    wxPanel* globalPanel;
-    wxPanel* toolSelector;
-
-    nsButton* speakButton;
-    nsButton* makeButton;
-
-    void OnHello(wxCommandEvent& event);
-    void OnExit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
-    void OnSpeakButton(wxCommandEvent& event);
-    void OnSingButton(wxCommandEvent& event);
-    void OnMakeButton(wxCommandEvent& event);
-
 };

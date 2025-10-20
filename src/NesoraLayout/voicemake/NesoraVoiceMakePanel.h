@@ -7,19 +7,21 @@
 
 #include <sstream>
 
-#define MINIAUDIO_IMPLEMENTATION
-#include "../../../lib/miniaudio_split/miniaudio.h"
+#include "../../NesoraStyle/NesoraStyle.h"
 
-#include "../../NesoraStyle/button/NesoraButton.h"
-#include "../../NesoraStyle/chart/NesoraChart.h"
-#include "../../NesoraStyle/chart/NesoraSimpleChart.h"
-#include "../../NesoraStyle/slider/NesoraSlider.h"
-#include "../../NesoraStyle/NesoraColor.h"
-
+#include "NesoraRosenbergWavePanel.h"
+#include "NesoraFormantFilterPanel.h"
 #include "../NesoraIDs.h"
 
 #include "../../Nesora/source/NesoraSource.h"
 
+
+
+
+
+
+
+// MARK:nsVoiceMakePanel
 
 class nsVoiceMakePanel : public wxPanel {
 public:
@@ -39,38 +41,12 @@ public:
 
     void Init();
 
-    void RosenbergWavePanelSetup();
-
 private:
 
-    nsSimpleChartControl* chart;
-
-    wxStaticText* t1param;
-    wxStaticText* t2param;
-    nsSlider* t1slider;
-    nsSlider* t2slider;
-    nsButton* playButton;
-    nsButton* stopButton;
-
-
-    NesoraRosenbergWave source_wave;
     std::vector<double> wave;// 48000 / 261.6
 
-    ma_device device;
-    ma_device_config deviceConfig;
-
-
-    void OnT1Slide(wxCommandEvent& event);
-    void OnT2Slide(wxCommandEvent& event);
-
-    void OnPlayButton(wxCommandEvent& event);
-    void OnStopButton(wxCommandEvent& event);
-
-
-    void InitAudioDevice();
-    void UninitAudioDevice();
-
-    static void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
+    wxPanel* sourceSoundPanel;
+    wxPanel* filterPanel;
 
 };
 

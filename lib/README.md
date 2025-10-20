@@ -8,7 +8,7 @@ GUI全般に使用しています。
 - ライセンス:wxWindows Library Licence, Version 3.1
 - ホームページ:https://wxwidgets.org/
 - 追加日:2025/9/28
-- ディレクトリ:ちょっとでかいので別の場所に置いてます
+- ディレクトリ:wxWidgets
 
 ## miniaudio
 音声の再生に使用しています。

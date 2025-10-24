@@ -34,7 +34,7 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
     std::vector<double> response;
     response.reserve(num_samples);
     for (int n = 0; n < num_samples; ++n) {
-        double omega = (M_PI * n) / num_samples;
+        double omega = (M_PI * (double)n) / (double)num_samples;
         std::complex<double> numerator(0.0, 0.0);
         std::complex<double> denominator(0.0, 0.0);
 

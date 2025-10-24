@@ -11,6 +11,7 @@
 
 #include "NesoraRosenbergWavePanel.h"
 #include "NesoraFormantFilterPanel.h"
+#include "NesoraIIRFilterPanel.h"
 #include "../NesoraIDs.h"
 
 #include "../../Nesora/source/NesoraSource.h"
@@ -18,7 +19,33 @@
 
 
 
+class nsVoiceMakePlayInterfacePanel : public wxPanel {
+public:
+    nsVoiceMakePlayInterfacePanel() {
+        Init();
+    }
 
+    nsVoiceMakePlayInterfacePanel(wxWindow* parent,
+        wxWindowID winid = wxID_ANY,
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxDefaultSize,
+        long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name)
+    {
+        Init();
+    }
+
+    void Init();
+
+private:
+
+    void OnPlayButtonClicked(wxCommandEvent& event);
+    void OnStopButtonClicked(wxCommandEvent& event);
+
+    wxButton* playButton;
+    wxButton* stopButton;
+    wxStaticText* statusText;
+};
 
 
 // MARK:nsVoiceMakePanel
@@ -47,6 +74,7 @@ private:
 
     wxPanel* sourceSoundPanel;
     wxPanel* filterPanel;
+    wxPanel* playInterfacePanel;
 
 };
 

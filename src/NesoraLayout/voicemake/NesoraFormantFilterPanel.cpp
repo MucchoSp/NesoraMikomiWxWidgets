@@ -1,6 +1,8 @@
 #include "NesoraFormantFilterPanel.h"
 
 
+// MARK:nsFormantFilter
+
 void nsFormantFilter::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
 
@@ -37,6 +39,7 @@ void nsFormantFilter::OnAddButtonEvent(wxCommandEvent& event) {
 nsFormantFilterChartControl::nsFormantFilterChartControl(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size)
     : wxWindow(parent, id, pos, size, wxFULL_REPAINT_ON_RESIZE) {
     SetBackgroundStyle(wxBG_STYLE_PAINT);
+
     Bind(wxEVT_PAINT, &nsFormantFilterChartControl::OnPaint, this);
     Bind(wxEVT_MOTION, &nsFormantFilterChartControl::OnMouseMove, this);
     Bind(wxEVT_LEAVE_WINDOW, &nsFormantFilterChartControl::OnMouseLeave, this);
@@ -90,14 +93,14 @@ void nsFormantFilterChartControl::OnPaint(wxPaintEvent& event) {
         chartAreaToValue = normalizedToValue;
         chartAreaToValue.Concat(chartAreaToNormalized);
 
-        if(paramater_updated) {
+        // if(paramater_updated) {
             for(int i = 0;i < paramaters.size();i++) {
                 wxPoint2DDouble hitbox = valueToChartArea.TransformPoint({filter->GetParamater()[i].f1_frequency, filter->GetParamater()[i].f1_amplitude});
                 paramaters[i].top_hit_box = {hitbox.m_x - 5, hitbox.m_y - 5, 10, 10};
             }
 
             paramater_updated = false;
-        }
+        // }
 
         gc->SetPen(wxPen(grid_color));
         gc->SetFont(*wxNORMAL_FONT, label_color);

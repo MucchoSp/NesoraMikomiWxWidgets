@@ -30,6 +30,24 @@ struct nsFormantFilterChartControlParamaters {
 // MARK:nsFormantFilterChartControl
 
 class nsFormantFilterChartControl : public wxWindow {
+public:
+    nsFormantFilterChartControl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize);
+    
+    void SetMarginX(double mx);
+    void SetMarginY(double my);
+
+    void SetBackgroundColor(const wxColour& pen);
+    void SetLabelColor(const wxColour& pen);
+    void SetGridColor(const wxColour& pen);
+    void SetFrameColor(const wxColour& pen);
+    void SetGraphColor(const wxColour& pen);
+    void SetParamaters(NesoraFormantFilter* paramaters);
+
+    NesoraFormantFilter* GetParamaters() const;
+    
+    void MakeData();
+
+    void RefreshChart();
 private:
     std::vector<double> m_data;
     std::vector<std::string> m_labels;
@@ -70,24 +88,6 @@ private:
     std::tuple<int, double, double>calclateChartSegmentCountAndRange(double origLow, double origHisg);
 
     void calclateGaussianWave(size_t);
-public:
-    nsFormantFilterChartControl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize);
-    
-    void SetMarginX(double mx);
-    void SetMarginY(double my);
-
-    void SetBackgroundColor(const wxColour& pen);
-    void SetLabelColor(const wxColour& pen);
-    void SetGridColor(const wxColour& pen);
-    void SetFrameColor(const wxColour& pen);
-    void SetGraphColor(const wxColour& pen);
-    void SetParamaters(NesoraFormantFilter* paramaters);
-
-    NesoraFormantFilter* GetParamaters() const;
-    
-    void MakeData();
-
-    void RefreshChart();
 };
 
 

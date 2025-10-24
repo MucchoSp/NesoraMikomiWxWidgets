@@ -38,11 +38,14 @@ public:
 
     std::vector<double> GetFilter(double dx, size_t N) const;
 
+    void GenerateKernel();
     double Filter(double x);
 
 private:
 
     std::vector<NesoraFormantParam> paramaters;
+    std::vector<double> kernel;
+    std::vector<double> inputwave_buffer;
 
 };
 

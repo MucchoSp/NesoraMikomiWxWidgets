@@ -4,7 +4,9 @@
 #define NESORA_H
 
 #include "filter/NesoraFilter.h"
+#include "filter/NesoraIIRFilter.h"
 #include "source/NesoraSource.h"
+#include "voice/NesoraVoice.h"
 
 
 constexpr double nsPI = 3.14159265358979323;

@@ -9,19 +9,21 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
     long style,
     const wxString& name) : wxWindow(parent, winid, pos, size, style, name) {
         SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
-        filter = new NesoraIIRFilter({{1, 0}}, 
-                                    {{1.0, 0}, {0.9, 0.1}}); // 初期化例: フィードバック係数0.9の1次IIRフィルタ
+        filter = new NesoraIIRFilter({{1, 0}, {0.9, 0.1}, {0.9, -0.1}}, 
+                                    {{1.0, 0}, {0.9, 0.1}, {0.9, -0.1}}); // 初期化例: フィードバック係数0.9の1次IIRフィルタ
 
         selectedPeakControlPointIndex = -1;
         selectedDipControlPointIndex = -1;
         paramater_updated = false;
-        peakControlPoints.resize(filter->GetBCoefficients().size());
-        dipControlPoints.resize(filter->GetACoefficients().size());
+        peakControlPoints.resize(filter->GetACoefficients().size() / 2 + 1);
+        dipControlPoints.resize(filter->GetBCoefficients().size() / 2 + 1);
+        std::cout << "Peak control points size: " << peakControlPoints.size() << std::endl;
+        std::cout << "Dip control points size: " << dipControlPoints.size() << std::endl;
         for(int i = 0;i < peakControlPoints.size();i++) {
-            peakControlPoints[i] = wxRect2DDouble(0, 0, 10, 10);
+            peakControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
         }
         for(int i = 0;i < dipControlPoints.size();i++) {
-            dipControlPoints[i] = wxRect2DDouble(0, 0, 10, 10);
+            dipControlPoints[i] = wxRect2DDouble(50 * i, 20, 10, 10);
         }
 
         Bind(wxEVT_PAINT, &nsIIRFrequencyResponseControl::OnPaint, this);
@@ -39,7 +41,7 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
     dc.SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
     dc.DrawRectangle(0, 0, size.GetWidth(), size.GetHeight());
 
-    frequencyResponse = filter->CalculateFrequencyResponse(size.GetWidth() * 2);
+    frequencyResponse = filter->CalculateFrequencyResponse(size.GetWidth());
 
     for(auto& val : frequencyResponse) {
         val = std::log10(val + 1e-10); // Avoid log(0)
@@ -50,30 +52,22 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
         gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND), 2));
         wxGraphicsPath path = gc->CreatePath();
         path.MoveToPoint(0, size.GetHeight() / 2 - frequencyResponse[0] * (size.GetHeight() / 2));
-        for (size_t i = 1; i < frequencyResponse.size() / 2; ++i) {
+        for (size_t i = 1; i < frequencyResponse.size(); ++i) {
             path.AddLineToPoint(i, size.GetHeight() / 2 - frequencyResponse[i] * (size.GetHeight() / 2));
         }
         gc->StrokePath(path);
 
-        std::vector<std::complex<double>> aCoeffs = filter->GetACoefficients();
-        std::vector<std::complex<double>> bCoeffs = filter->GetBCoefficients();
-
-        for (double i = 1;i < bCoeffs.size();i++) {
+        for (size_t i = 1; i < peakControlPoints.size(); ++i) {
             gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));
             gc->DrawEllipse(peakControlPoints[i].m_x, peakControlPoints[i].m_y, 10, 10);
         }
-
-        for (double i = 1;i < aCoeffs.size();i++) {
+        for (size_t i = 1; i < dipControlPoints.size(); ++i) {
             gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
             gc->DrawEllipse(dipControlPoints[i].m_x, dipControlPoints[i].m_y, 10, 10);
         }
 
-
         delete gc;
     }
-
-    // Draw frequency response here using filter data
-    // (Implementation of drawing the frequency response is omitted for brevity)
 }
 
 void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
@@ -95,18 +89,28 @@ void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
             
             double r = ((double)GetClientSize().GetHeight() - peakControlPoints[selectedPeakControlPointIndex].m_y) / (double)GetClientSize().GetHeight();
             double theta = peakControlPoints[selectedPeakControlPointIndex].m_x / (double)GetClientSize().GetWidth() * M_PI;
-            filter->GetBCoefficients()[selectedPeakControlPointIndex] = -2.0 * std::cos(theta) * r;
-            filter->GetBCoefficients()[selectedPeakControlPointIndex + 1] = r * r;
-            std::cout << "Updated B Coefficients: " << filter->GetBCoefficients()[selectedPeakControlPointIndex - 1] << ", " << filter->GetBCoefficients()[selectedPeakControlPointIndex] << ", " << filter->GetBCoefficients()[selectedPeakControlPointIndex + 1] <<
-                ", " << r << ", " << theta << std::endl;
+            filter->GetACoefficients()[selectedPeakControlPointIndex * 2 - 1] = std::complex<double>(-2.0 * std::cos(theta) * r, 0.0);
+            filter->GetACoefficients()[selectedPeakControlPointIndex * 2] = std::complex<double>(r * r, 0.0);
         }
         if (selectedDipControlPointIndex != -1) {
-            dipControlPoints[selectedDipControlPointIndex].m_x = (double)event.GetX();
-            dipControlPoints[selectedDipControlPointIndex].m_y = (double)event.GetY();
-            double r = ((double)GetClientSize().GetHeight() - dipControlPoints[selectedDipControlPointIndex].m_y) / (double)GetClientSize().GetHeight();
-            double theta = (dipControlPoints[selectedDipControlPointIndex].m_x) / (double)GetClientSize().GetWidth() * M_PI;
-            filter->GetACoefficients()[selectedDipControlPointIndex] = -2.0 * std::cos(theta) * r;
-            filter->GetACoefficients()[selectedDipControlPointIndex + 1] = r * r;
+            if(event.GetX() < 0)
+                dipControlPoints[selectedDipControlPointIndex].m_x = 0;
+            else if(event.GetX() > GetClientSize().GetWidth())
+                dipControlPoints[selectedDipControlPointIndex].m_x = GetClientSize().GetWidth() - 5;
+            else
+                dipControlPoints[selectedDipControlPointIndex].m_x = (double)event.GetX() - 5;
+
+            if(event.GetY() < 0)
+                dipControlPoints[selectedDipControlPointIndex].m_y = 0;
+            else if(event.GetY() > GetClientSize().GetHeight())
+                dipControlPoints[selectedDipControlPointIndex].m_y = GetClientSize().GetHeight() - 5;
+            else
+                dipControlPoints[selectedDipControlPointIndex].m_y = (double)event.GetY() - 5;
+
+            double r = dipControlPoints[selectedDipControlPointIndex].m_y / (double)GetClientSize().GetHeight();
+            double theta = dipControlPoints[selectedDipControlPointIndex].m_x / (double)GetClientSize().GetWidth() * M_PI;
+            filter->GetBCoefficients()[selectedDipControlPointIndex * 2 - 1] = std::complex<double>(-2.0 * std::cos(theta) * r, 0.0);
+            filter->GetBCoefficients()[selectedDipControlPointIndex * 2] = std::complex<double>(r * r, 0.0);
         }
 
         paramater_updated = true;

@@ -32,24 +32,38 @@ void NesoraIIRFilter::Reset() {
 
 std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples) const {
     std::vector<double> response;
+    if (num_samples <= 0) return response;
     response.reserve(num_samples);
+
+    // 0..pi を num_samples 点でサンプリング（端点 pi を含む）
     for (int n = 0; n < num_samples; ++n) {
-        double omega = (M_PI * (double)n) / (double)num_samples;
-        std::complex<double> numerator(0.0, 0.0);
-        std::complex<double> denominator(0.0, 0.0);
+        double omega;
+        if (num_samples == 1) omega = 0.0;
+        else omega = M_PI * static_cast<double>(n) / static_cast<double>(num_samples - 1);
 
-        // 分子の計算
-        for (size_t k = 0; k < b_coefficients.size(); ++k) {
-            numerator += b_coefficients[k] * std::exp(std::complex<double>(0.0, -omega * k));
+        // z^{-1} = e^{-j omega}
+        std::complex<double> z_inv = std::exp(std::complex<double>(0.0, -omega));
+
+        // Horner 法で多項式を評価（z^{-1} を変数として）
+        auto eval_poly = [&](const std::vector<std::complex<double>>& coef) -> std::complex<double> {
+            if (coef.empty()) return std::complex<double>(0.0, 0.0);
+            std::complex<double> p = coef.back();
+            for (int k = static_cast<int>(coef.size()) - 2; k >= 0; --k) {
+                p = p * z_inv + coef[k];
+            }
+            return p;
+        };
+
+        std::complex<double> numerator = eval_poly(b_coefficients);
+        std::complex<double> denominator = eval_poly(a_coefficients);
+
+        double mag;
+        if (std::abs(denominator) < 1e-300) {
+            mag = std::numeric_limits<double>::infinity(); // or a very large number
+        } else {
+            mag = std::abs(numerator / denominator);
         }
-
-        // 分母の計算
-        for (size_t k = 0; k < a_coefficients.size(); ++k) {
-            denominator += a_coefficients[k] * std::exp(std::complex<double>(0.0, -omega * k));
-        }
-
-        std::complex<double> H = numerator / denominator;
-        response.push_back(std::abs(H));
+        response.push_back(mag);
     }
     return response;
 }

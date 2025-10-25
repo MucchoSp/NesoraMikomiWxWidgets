@@ -1,0 +1,6 @@
+[submodule "lib/pocketfft"]
+	path = lib/pocketfft
+	url = https://github.com/mreineck/pocketfft
+[submodule "lib/wxWidgets"]
+	path = lib/wxWidgets
+	url = https://github.com/wxWidgets/wxWidgets

@@ -19,19 +19,42 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="lib\miniaudio_split\miniaudio.c" />
+    <ClCompile Include="src\NesoraLayout\frame\NesoraMainFrame.cpp" />
+    <ClCompile Include="src\NesoraLayout\sing\NesoraSingPanel.cpp" />
+    <ClCompile Include="src\NesoraLayout\speak\NesoraSpeakPanel.cpp" />
+    <ClCompile Include="src\NesoraLayout\voicemake\NesoraFormantFilterPanel.cpp" />
+    <ClCompile Include="src\NesoraLayout\voicemake\NesoraIIRFilterPanel.cpp" />
+    <ClCompile Include="src\NesoraLayout\voicemake\NesoraRosenbergWavePanel.cpp" />
+    <ClCompile Include="src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp" />
     <ClCompile Include="src\NesoraMikomi.cpp" />
     <ClCompile Include="src\NesoraStyle\button\NesoraButton.cpp" />
     <ClCompile Include="src\NesoraStyle\chart\NesoraChart.cpp" />
+    <ClCompile Include="src\NesoraStyle\chart\NesoraSimpleChart.cpp" />
     <ClCompile Include="src\NesoraStyle\slider\NesoraSlider.cpp" />
+    <ClCompile Include="src\Nesora\filter\NesoraFilter.cpp" />
+    <ClCompile Include="src\Nesora\filter\NesoraIIRFilter.cpp" />
     <ClCompile Include="src\Nesora\source\NesoraSource.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\miniaudio.h" />
+    <ClInclude Include="lib\miniaudio_split\miniaudio.h" />
+    <ClInclude Include="src\NesoraLayout\frame\NesoraMainFrame.h" />
+    <ClInclude Include="src\NesoraLayout\sing\NesoraSingPanel.h" />
+    <ClInclude Include="src\NesoraLayout\speak\NesoraSpeakPanel.h" />
+    <ClInclude Include="src\NesoraLayout\voicemake\NesoraFormantFilterPanel.h" />
+    <ClInclude Include="src\NesoraLayout\voicemake\NesoraIIRFilterPanel.h" />
+    <ClInclude Include="src\NesoraLayout\voicemake\NesoraRosenbergWavePanel.h" />
+    <ClInclude Include="src\NesoraLayout\voicemake\NesoraVoiceMakePanel.h" />
     <ClInclude Include="src\NesoraMikomi.h" />
     <ClInclude Include="src\NesoraStyle\button\NesoraButton.h" />
     <ClInclude Include="src\NesoraStyle\chart\NesoraChart.h" />
+    <ClInclude Include="src\NesoraStyle\chart\NesoraSimpleChart.h" />
     <ClInclude Include="src\NesoraStyle\NesoraColor.h" />
     <ClInclude Include="src\NesoraStyle\slider\NesoraSlider.h" />
+    <ClInclude Include="src\Nesora\filter\NesoraFilter.h" />
+    <ClInclude Include="src\Nesora\filter\NesoraIIRFilter.h" />
+    <ClInclude Include="src\Nesora\Nesora.h" />
+    <ClInclude Include="src\Nesora\NesoraDefines.h" />
     <ClInclude Include="src\Nesora\source\NesoraSource.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -104,12 +127,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\wxWidgets-3.2.8\include\msvc;D:\wxWidgets-3.2.8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)lib\wxWidgets\include\msvc;$(ProjectDir)lib\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\wxWidgets-3.2.8\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\wxWidgets\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -120,26 +144,30 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\wxWidgets-3.2.8\include\msvc;D:\wxWidgets-3.2.8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)lib\wxWidgets\include\msvc;$(ProjectDir)lib\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\wxWidgets-3.2.8\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\wxWidgets\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__WXMSW__;WXUSINGDLL;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)lib\wxWidgets\include\msvc;$(ProjectDir)lib\miniaudio_split$(ProjectDir);$(ProjectDir)lib\pocketfft;$(ProjectDir)lib\wxWidgets\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\\wxWidgets\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,14 +176,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__WXMSW__;WXUSINGDLL;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)lib\wxWidgets\include\msvc;$(ProjectDir)lib\miniaudio_split$(ProjectDir);$(ProjectDir)lib\pocketfft;$(ProjectDir)lib\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\\wxWidgets\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

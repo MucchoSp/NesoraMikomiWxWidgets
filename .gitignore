@@ -369,6 +369,12 @@ build/
 # macのシステムファイルを無視
 .DS_Store
 
+# Visual Studio Code settingsを無視
+.vscode/
+
+# たぶんgithub関係
+.github/
+
 # macでの開発でしか使っていないファイルを無視
 # CMakeLists.txt
 # CMakePresets.json

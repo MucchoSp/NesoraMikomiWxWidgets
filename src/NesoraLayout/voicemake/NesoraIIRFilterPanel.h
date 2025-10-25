@@ -4,6 +4,7 @@
 #define NESORA_IIR_FILTER_PANEL_H
 
 #include <wx/wx.h>
+#include <wx/dcbuffer.h>
 
 #include <sstream>
 
@@ -36,8 +37,10 @@ private:
 
     std::vector<wxRect2DDouble> peakControlPoints;
     int selectedPeakControlPointIndex;
+    int prevSelectedPeakControlPointIndex;
     std::vector<wxRect2DDouble> dipControlPoints;
     int selectedDipControlPointIndex;
+    int prevSelectedDipControlPointIndex;
 
     bool paramater_updated;
 

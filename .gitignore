@@ -372,6 +372,9 @@ build/
 # Visual Studio Code settingsを無視
 .vscode/
 
+# たぶんgithub関係
+.github/
+
 # macでの開発でしか使っていないファイルを無視
 # CMakeLists.txt
 # CMakePresets.json

@@ -34,7 +34,9 @@ public:
     std::vector<std::complex<double>>& GetBCoefficients();
     void Reset();
 
-    std::vector<double> CalculateFrequencyResponse(int num_samples) const;
+    std::vector<double> CalculateFrequencyResponse(int num_samples);
+
+    std::vector<double> GetResponse() const;
 
     double Filter(double x) override;
 private:
@@ -45,6 +47,8 @@ private:
 
     std::vector<std::complex<double>> a_coefficients;
     std::vector<std::complex<double>> b_coefficients;
+
+    std::vector<double> response;
 };
 
 #endif // NESORA_IIRFILTER_H

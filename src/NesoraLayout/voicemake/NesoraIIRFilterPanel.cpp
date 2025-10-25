@@ -8,44 +8,42 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
     const wxSize& size,
     long style,
     const wxString& name) : wxWindow(parent, winid, pos, size, style, name) {
-        SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
-        filter = new NesoraIIRFilter({{1, 0}, {0.9, 0.1}, {0.9, -0.1}}, 
-                                    {{1.0, 0}, {0.9, 0.1}, {0.9, -0.1}}); // 初期化例: フィードバック係数0.9の1次IIRフィルタ
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
+    SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
+    SetDoubleBuffered(true);
+    filter = new NesoraIIRFilter({ {1, 0}, {0.9, 0.1}, {0.9, -0.1} }, { {1.0, 0}, {0.9, 0.1}, {0.9, -0.1} });
 
-        selectedPeakControlPointIndex = -1;
-        selectedDipControlPointIndex = -1;
-        paramater_updated = false;
-        peakControlPoints.resize(filter->GetACoefficients().size() / 2 + 1);
-        dipControlPoints.resize(filter->GetBCoefficients().size() / 2 + 1);
-        std::cout << "Peak control points size: " << peakControlPoints.size() << std::endl;
-        std::cout << "Dip control points size: " << dipControlPoints.size() << std::endl;
-        for(int i = 0;i < peakControlPoints.size();i++) {
-            peakControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
-        }
-        for(int i = 0;i < dipControlPoints.size();i++) {
-            dipControlPoints[i] = wxRect2DDouble(50 * i, 20, 10, 10);
-        }
+    selectedPeakControlPointIndex = -1;
+    selectedDipControlPointIndex = -1;
+    paramater_updated = false;
+    prevSelectedPeakControlPointIndex = -1;
+    prevSelectedDipControlPointIndex = -1;
+    peakControlPoints.resize(filter->GetACoefficients().size() / 2 + 1);
+    dipControlPoints.resize(filter->GetBCoefficients().size() / 2 + 1);
+    for(int i = 0;i < peakControlPoints.size();i++) {
+        peakControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
+    }
+    for(int i = 0;i < dipControlPoints.size();i++) {
+        dipControlPoints[i] = wxRect2DDouble(50 * i, 20, 10, 10);
+    }
+    filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
 
-        Bind(wxEVT_PAINT, &nsIIRFrequencyResponseControl::OnPaint, this);
-        Bind(wxEVT_MOTION, &nsIIRFrequencyResponseControl::OnMouseMove, this);
-        Bind(wxEVT_LEAVE_WINDOW, &nsIIRFrequencyResponseControl::OnMouseLeave, this);
-        Bind(wxEVT_LEFT_DOWN, &nsIIRFrequencyResponseControl::OnMouseDown, this);
-        Bind(wxEVT_LEFT_UP, &nsIIRFrequencyResponseControl::OnMouseUp, this);
-        Bind(wxEVT_MOUSEWHEEL, &nsIIRFrequencyResponseControl::OnMouseWheel, this);
+    Bind(wxEVT_PAINT, &nsIIRFrequencyResponseControl::OnPaint, this);
+    Bind(wxEVT_MOTION, &nsIIRFrequencyResponseControl::OnMouseMove, this);
+    Bind(wxEVT_LEAVE_WINDOW, &nsIIRFrequencyResponseControl::OnMouseLeave, this);
+    Bind(wxEVT_LEFT_DOWN, &nsIIRFrequencyResponseControl::OnMouseDown, this);
+    Bind(wxEVT_LEFT_UP, &nsIIRFrequencyResponseControl::OnMouseUp, this);
+    Bind(wxEVT_MOUSEWHEEL, &nsIIRFrequencyResponseControl::OnMouseWheel, this);
 }
 
 void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
-    wxPaintDC dc(this);
+    wxAutoBufferedPaintDC dc(this);
     wxSize size = GetClientSize();
     dc.SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
     dc.SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
     dc.DrawRectangle(0, 0, size.GetWidth(), size.GetHeight());
 
-    frequencyResponse = filter->CalculateFrequencyResponse(size.GetWidth());
-
-    for(auto& val : frequencyResponse) {
-        val = std::log10(val + 1e-10); // Avoid log(0)
-    }
+    frequencyResponse = filter->GetResponse();
 
     wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
     if (gc) {
@@ -71,6 +69,9 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
 }
 
 void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
+    int oldPeak = selectedPeakControlPointIndex;
+    int oldDip = selectedDipControlPointIndex;
+
     if (event.Dragging() && HasCapture()) {
         if (selectedPeakControlPointIndex != -1) {
             if(event.GetX() < 0)
@@ -112,8 +113,8 @@ void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
             filter->GetBCoefficients()[selectedDipControlPointIndex * 2 - 1] = std::complex<double>(-2.0 * std::cos(theta) * r, 0.0);
             filter->GetBCoefficients()[selectedDipControlPointIndex * 2] = std::complex<double>(r * r, 0.0);
         }
-
-        paramater_updated = true;
+            filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+            paramater_updated = true;
     }
     else {
         selectedPeakControlPointIndex = -1;
@@ -131,8 +132,10 @@ void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
             }
         }
     }
-    
-    wxWindow::Refresh();
+
+    if ((event.Dragging() && HasCapture()) || oldPeak != selectedPeakControlPointIndex || oldDip != selectedDipControlPointIndex) {
+        Refresh(false);
+    }
     event.Skip();
 }
 

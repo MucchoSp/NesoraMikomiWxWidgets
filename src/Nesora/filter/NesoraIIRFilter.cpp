@@ -30,8 +30,12 @@ void NesoraIIRFilter::Reset() {
     std::fill(input_history.begin(), input_history.end(), 0.0);
 }
 
-std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples) const {
-    std::vector<double> response;
+std::vector<double> NesoraIIRFilter::GetResponse() const {
+    return response;
+}
+
+std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples) {
+    response.clear();
     if (num_samples <= 0) return response;
     response.reserve(num_samples);
 
@@ -65,6 +69,11 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
         }
         response.push_back(mag);
     }
+
+    for (auto& val : response) {
+        val = std::log10(val + 1e-10); // Avoid log(0)
+    }
+
     return response;
 }
 

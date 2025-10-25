@@ -45,6 +45,9 @@ private:
     bool paramater_updated;
     bool shiftKeyDown;
 
+    double samplingFrequency = NesoraDefaultSamplingFrequency;
+    double nyquistFrequency = NesoraDefaultNyquistFrequency;
+
     void OnPaint(wxPaintEvent& event);
 
     void OnMouseMove(wxMouseEvent& event);
@@ -79,6 +82,9 @@ public:
         // UninitAudioDevice();
     }
     void Init();
+
+    NesoraIIRFilter* GetIIRFilter();
+
 private:
     nsIIRFrequencyResponseControl* iirFilter;
 };

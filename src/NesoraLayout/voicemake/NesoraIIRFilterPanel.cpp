@@ -11,7 +11,7 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     SetDoubleBuffered(true);
-    filter = new NesoraIIRFilter({ 1.0 }, { 1.0 });
+    filter = new NesoraIIRFilter({ 1.0 }, { 1.0 }, samplingFrequency);
 
     selectedPeakControlPointIndex = -1;
     selectedDipControlPointIndex = -1;
@@ -53,6 +53,13 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
 
     wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
     if (gc) {
+        gc->SetBrush(wxBrush(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
+        gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
+        for (int i = 0;i < nyquistFrequency / 1000;i++) {
+            wxPoint2DDouble linePoints[] = { {(wxDouble)i * 1000.0 * (wxDouble)size.GetWidth() / (wxDouble)nyquistFrequency,0.0}, {(wxDouble)i * 1000.0 * (wxDouble)size.GetWidth() / (wxDouble)nyquistFrequency,static_cast<wxDouble>(size.GetHeight())} };
+            gc->StrokeLines(2, linePoints);
+        }
+
         gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND), 2));
         wxGraphicsPath path = gc->CreatePath();
         path.MoveToPoint(0, size.GetHeight() / 2 - frequencyResponse[0] * (size.GetHeight() / 2));
@@ -83,14 +90,14 @@ void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
             peakControlPoints[selectedPeakControlPointIndex].m_x = std::min(std::max((double)event.GetX() - 5, 0.0), (double)GetClientSize().GetWidth() - 5.0);
             peakControlPoints[selectedPeakControlPointIndex].m_y = std::min(std::max((double)event.GetY() - 5, 0.0), (double)GetClientSize().GetHeight() - 5.0);
             
-            filter->GetPeaks()[selectedPeakControlPointIndex - 1].theta = peakControlPoints[selectedPeakControlPointIndex].m_x / (double)GetClientSize().GetWidth() * M_PI;
+            filter->GetPeaks()[selectedPeakControlPointIndex - 1].theta = peakControlPoints[selectedPeakControlPointIndex].m_x / (double)GetClientSize().GetWidth() * nsPI;
             filter->GetPeaks()[selectedPeakControlPointIndex - 1].r = ((double)GetClientSize().GetHeight() - peakControlPoints[selectedPeakControlPointIndex].m_y) / (double)GetClientSize().GetHeight();
         }
         if (selectedDipControlPointIndex != -1) {
             dipControlPoints[selectedDipControlPointIndex].m_x = std::min(std::max((double)event.GetX() - 5, 0.0), (double)GetClientSize().GetWidth() - 5.0);
             dipControlPoints[selectedDipControlPointIndex].m_y = std::min(std::max((double)event.GetY() - 5, 0.0), (double)GetClientSize().GetHeight() - 5.0);
 
-            filter->GetDips()[selectedDipControlPointIndex - 1].theta = dipControlPoints[selectedDipControlPointIndex].m_x / (double)GetClientSize().GetWidth() * M_PI;
+            filter->GetDips()[selectedDipControlPointIndex - 1].theta = dipControlPoints[selectedDipControlPointIndex].m_x / (double)GetClientSize().GetWidth() * nsPI;
             filter->GetDips()[selectedDipControlPointIndex - 1].r = dipControlPoints[selectedDipControlPointIndex].m_y / (double)GetClientSize().GetHeight();
         }
         filter->CalculateCoefficientsFromPDs();
@@ -179,7 +186,7 @@ void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
             dipControlPoints.push_back(wxRect2DDouble(event.GetX() - 5, event.GetY() - 5, 10, 10));
             filter->GetDips().push_back(NesoraIIRFilterPD{
                 (double)event.GetY() / (double)GetClientSize().GetHeight(),
-                (event.GetX() / (double)GetClientSize().GetWidth()) * M_PI,
+                (event.GetX() / (double)GetClientSize().GetWidth()) * nsPI,
             });
             filter->CalculateCoefficientsFromPDs();
             filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
@@ -187,7 +194,7 @@ void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
             peakControlPoints.push_back(wxRect2DDouble(event.GetX() - 5, event.GetY() - 5, 10, 10));
             filter->GetPeaks().push_back(NesoraIIRFilterPD{
                 ((double)GetClientSize().GetHeight() - event.GetY()) / (double)GetClientSize().GetHeight(),
-                (event.GetX() / (double)GetClientSize().GetWidth()) * M_PI,
+                (event.GetX() / (double)GetClientSize().GetWidth()) * nsPI,
             });
             filter->CalculateCoefficientsFromPDs();
             filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
@@ -227,6 +234,10 @@ void nsIIRFilterPanel::Init() {
     sourceSizer->Add(iirFilter, 1, wxEXPAND | wxALL);
     
     this->SetSizer(sourceSizer);
+}
+
+NesoraIIRFilter* nsIIRFilterPanel::GetIIRFilter() {
+    return iirFilter->filter;
 }
 
 

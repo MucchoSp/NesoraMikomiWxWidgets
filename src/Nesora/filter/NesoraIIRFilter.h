@@ -19,19 +19,21 @@ struct NesoraIIRFilterPD {
 class NesoraIIRFilter : public NesoraFilterBase {
 public:
     NesoraIIRFilter(){}
-    NesoraIIRFilter(double feedback_coefficient) {
+    NesoraIIRFilter(double feedback_coefficient, double smpl) {
         // 単純な1次IIRフィルタの例: y[n] = x[n] + feedback_coefficient * y[n-1]
         a_coefficients = {1.0, -feedback_coefficient}; // 分母係数
         b_coefficients = {1.0}; // 分子係数
         history.resize(a_coefficients.size() - 1, 0.0);
         output_history.resize(a_coefficients.size() - 1, 0.0);
         input_history.resize(b_coefficients.size() - 1, 0.0);
+        samplingFrequency = smpl;
     }
-    NesoraIIRFilter(const std::vector<double>& a_coeffs, const std::vector<double>& b_coeffs) {
+    NesoraIIRFilter(const std::vector<double>& a_coeffs, const std::vector<double>& b_coeffs, double smpl) {
         SetCoefficients(a_coeffs, b_coeffs);
         history.resize(a_coefficients.size() - 1, 0.0);
         output_history.resize(a_coefficients.size() - 1, 0.0);
         input_history.resize(b_coefficients.size() - 1, 0.0);
+        samplingFrequency = smpl;
     }
 
     void SetCoefficients(const std::vector<double>& a_coeffs, const std::vector<double>& b_coeffs);
@@ -51,6 +53,8 @@ public:
     double Filter(double x) override;
 private:
 
+    double samplingFrequency = NesoraDefaultSamplingFrequency;
+
     std::vector<double> history;
     std::vector<double> output_history;
     std::vector<double> input_history;
@@ -62,6 +66,8 @@ private:
 
     std::vector<NesoraIIRFilterPD> peaks;
     std::vector<NesoraIIRFilterPD> dips;
+
+    double Gain = 1;
 };
 
 #endif // NESORA_IIRFILTER_H

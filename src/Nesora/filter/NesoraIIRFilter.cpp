@@ -49,6 +49,9 @@ void NesoraIIRFilter::CalculateCoefficientsFromPDs() {
         }
         a_coefficients = new_a;
     }
+    double A1 = 0.0;
+    for (auto& ak : a_coefficients)
+        A1 += ak;
 
     // 分子係数の計算
     b_coefficients = {1.0};
@@ -64,6 +67,12 @@ void NesoraIIRFilter::CalculateCoefficientsFromPDs() {
         }
         b_coefficients = new_b;
     }
+    double B1 = 0.0;
+    for (auto& bk : b_coefficients)
+        B1 += bk;
+    Gain = A1 / B1;
+    for (auto& bk : b_coefficients)
+        bk = bk * Gain;
 }
 
 std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples) {

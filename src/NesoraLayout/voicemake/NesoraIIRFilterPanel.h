@@ -55,8 +55,6 @@ private:
     void OnRightDown(wxMouseEvent& event);
     void OnRightUp(wxMouseEvent& event);
     void OnSize(wxSizeEvent& event);
-    void OnKeyDown(wxKeyEvent& event);
-    void OnKeyUp(wxKeyEvent& event);
 
 };
 

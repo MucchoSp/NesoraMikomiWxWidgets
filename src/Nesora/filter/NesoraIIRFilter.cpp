@@ -39,7 +39,7 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
     for (int n = 0; n < num_samples; ++n) {
         double omega;
         if (num_samples == 1) omega = 0.0;
-        else omega = M_PI * static_cast<double>(n) / static_cast<double>(num_samples - 1);
+        else omega = nsPI * static_cast<double>(n) / static_cast<double>(num_samples - 1);
 
         // z^{-1} = e^{-j omega}
         std::complex<double> z_inv = std::exp(std::complex<double>(0.0, -omega));

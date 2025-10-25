@@ -34,9 +34,8 @@ inline double integrand(double omega, double b, double sigma, double n) {
 }
 
 inline double numerical_integration(double b, double sigma, double n, int N = 10000) {
-    double pi = M_PI;
-    double delta_omega = pi / static_cast<double>(N);
-    double sum = (integrand(0.0, b, sigma, n) + integrand(pi, b, sigma, n)) / 2.0;
+    double delta_omega = nsPI / static_cast<double>(N);
+    double sum = (integrand(0.0, b, sigma, n) + integrand(nsPI, b, sigma, n)) / 2.0;
 
     for (int k = 1; k < N; ++k) {
         double omega_k = k * delta_omega;
@@ -54,7 +53,7 @@ double calculate_h_n(double a, double b, double sigma, double n) {
 
     double integral_result = numerical_integration(b, sigma, n);
 
-    double coefficient = (a / M_PI) * std::exp((b * b - b) / (2.0 * sigma * sigma));
+    double coefficient = (a / nsPI) * std::exp((b * b - b) / (2.0 * sigma * sigma));
     
     return coefficient * integral_result;
 }

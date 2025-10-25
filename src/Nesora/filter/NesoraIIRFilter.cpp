@@ -1,6 +1,6 @@
 #include "NesoraIIRFilter.h"
 
-void NesoraIIRFilter::SetCoefficients(const std::vector<std::complex<double>>& a_coeffs, const std::vector<std::complex<double>>& b_coeffs) {
+void NesoraIIRFilter::SetCoefficients(const std::vector<double>& a_coeffs, const std::vector<double>& b_coeffs) {
     a_coefficients = a_coeffs;
     b_coefficients = b_coeffs;
     history.resize(a_coefficients.size() - 1, 0.0);
@@ -8,20 +8,20 @@ void NesoraIIRFilter::SetCoefficients(const std::vector<std::complex<double>>& a
     input_history.resize(b_coefficients.size() - 1, 0.0);
 }
 
-std::vector<std::complex<double>> NesoraIIRFilter::GetACoefficients() const {
-    return a_coefficients;
+std::vector<NesoraIIRFilterPD> NesoraIIRFilter::GetPeaks() const {
+    return peaks;
 }
 
-std::vector<std::complex<double>>& NesoraIIRFilter::GetACoefficients() {
-    return a_coefficients;
+std::vector<NesoraIIRFilterPD>& NesoraIIRFilter::GetPeaks() {
+    return peaks;
 }
 
-std::vector<std::complex<double>> NesoraIIRFilter::GetBCoefficients() const {
-    return b_coefficients;
+std::vector<NesoraIIRFilterPD> NesoraIIRFilter::GetDips() const {
+    return dips;
 }
 
-std::vector<std::complex<double>>& NesoraIIRFilter::GetBCoefficients() {
-    return b_coefficients;
+std::vector<NesoraIIRFilterPD>& NesoraIIRFilter::GetDips() {
+    return dips;
 }
 
 void NesoraIIRFilter::Reset() {
@@ -34,12 +34,43 @@ std::vector<double> NesoraIIRFilter::GetResponse() const {
     return response;
 }
 
+void NesoraIIRFilter::CalculateCoefficientsFromPDs() {
+    // 分母係数の計算
+    a_coefficients = {1.0};
+    for (const auto& peak : peaks) {
+        double r = peak.r;
+        double theta = peak.theta;
+        std::vector<double> second_order = {1.0, -2.0 * r * std::cos(theta), r * r};
+        std::vector<double> new_a(a_coefficients.size() + 2, 0.0);
+        for (size_t i = 0; i < a_coefficients.size(); ++i) {
+            for (size_t j = 0; j < second_order.size(); ++j) {
+                new_a[i + j] += a_coefficients[i] * second_order[j];
+            }
+        }
+        a_coefficients = new_a;
+    }
+
+    // 分子係数の計算
+    b_coefficients = {1.0};
+    for (const auto& dip : dips) {
+        double r = dip.r;
+        double theta = dip.theta;
+        std::vector<double> second_order = {1.0, -2.0 * r * std::cos(theta), r * r};
+        std::vector<double> new_b(b_coefficients.size() + 2, 0.0);
+        for (size_t i = 0; i < b_coefficients.size(); ++i) {
+            for (size_t j = 0; j < second_order.size(); ++j) {
+                new_b[i + j] += b_coefficients[i] * second_order[j];
+            }
+        }
+        b_coefficients = new_b;
+    }
+}
+
 std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples) {
     response.clear();
     if (num_samples <= 0) return response;
     response.reserve(num_samples);
 
-    // 0..pi を num_samples 点でサンプリング（端点 pi を含む）
     for (int n = 0; n < num_samples; ++n) {
         double omega;
         if (num_samples == 1) omega = 0.0;
@@ -49,7 +80,7 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
         std::complex<double> z_inv = std::exp(std::complex<double>(0.0, -omega));
 
         // Horner 法で多項式を評価（z^{-1} を変数として）
-        auto eval_poly = [&](const std::vector<std::complex<double>>& coef) -> std::complex<double> {
+        auto eval_poly = [&](const std::vector<double>& coef) -> std::complex<double> {
             if (coef.empty()) return std::complex<double>(0.0, 0.0);
             std::complex<double> p = coef.back();
             for (int k = static_cast<int>(coef.size()) - 2; k >= 0; --k) {
@@ -71,42 +102,8 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
     }
 
     for (auto& val : response) {
-        val = std::log10(val + 1e-10); // Avoid log(0)
+        val = std::log10(val + 1e-10) * 0.5; // Avoid log(0)
     }
 
     return response;
-}
-
-double NesoraIIRFilter::Filter(double x) {
-    // 分子部分の計算
-    double numerator = 0.0;
-    numerator += b_coefficients[0].real() * x;
-    for (size_t i = 0; i < input_history.size(); ++i) {
-        numerator += b_coefficients[i + 1].real() * input_history[i];
-    }
-
-    // 分母部分の計算
-    double denominator = 0.0;
-    for (size_t i = 0; i < output_history.size(); ++i) {
-        denominator += a_coefficients[i + 1].real() * output_history[i];
-    }
-
-    double y = (numerator - denominator) / a_coefficients[0].real();
-
-    // 履歴の更新
-    if (!input_history.empty()) {
-        for (size_t i = input_history.size() - 1; i > 0; --i) {
-            input_history[i] = input_history[i - 1];
-        }
-        input_history[0] = x;
-    }
-
-    if (!output_history.empty()) {
-        for (size_t i = output_history.size() - 1; i > 0; --i) {
-            output_history[i] = output_history[i - 1];
-        }
-        output_history[0] = y;
-    }
-
-    return y;
 }

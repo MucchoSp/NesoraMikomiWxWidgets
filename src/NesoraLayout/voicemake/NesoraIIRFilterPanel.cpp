@@ -11,22 +11,24 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     SetDoubleBuffered(true);
-    filter = new NesoraIIRFilter({ {1, 0}, {0.9, 0.1}, {0.9, -0.1} }, { {1.0, 0}, {0.9, 0.1}, {0.9, -0.1} });
+    filter = new NesoraIIRFilter({ 1.0 }, { 1.0 });
 
     selectedPeakControlPointIndex = -1;
     selectedDipControlPointIndex = -1;
     paramater_updated = false;
     prevSelectedPeakControlPointIndex = -1;
     prevSelectedDipControlPointIndex = -1;
-    peakControlPoints.resize(filter->GetACoefficients().size() / 2 + 1);
-    dipControlPoints.resize(filter->GetBCoefficients().size() / 2 + 1);
+    peakControlPoints.resize(1);
+    dipControlPoints.resize(1);
     for(int i = 0;i < peakControlPoints.size();i++) {
         peakControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
     }
     for(int i = 0;i < dipControlPoints.size();i++) {
-        dipControlPoints[i] = wxRect2DDouble(50 * i, 20, 10, 10);
+        dipControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
     }
+    filter->CalculateCoefficientsFromPDs();
     filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+    shiftKeyDown = false;
 
     Bind(wxEVT_PAINT, &nsIIRFrequencyResponseControl::OnPaint, this);
     Bind(wxEVT_MOTION, &nsIIRFrequencyResponseControl::OnMouseMove, this);
@@ -34,6 +36,11 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
     Bind(wxEVT_LEFT_DOWN, &nsIIRFrequencyResponseControl::OnMouseDown, this);
     Bind(wxEVT_LEFT_UP, &nsIIRFrequencyResponseControl::OnMouseUp, this);
     Bind(wxEVT_MOUSEWHEEL, &nsIIRFrequencyResponseControl::OnMouseWheel, this);
+    Bind(wxEVT_RIGHT_UP, &nsIIRFrequencyResponseControl::OnRightUp, this);
+    Bind(wxEVT_RIGHT_DOWN, &nsIIRFrequencyResponseControl::OnRightDown, this);
+    Bind(wxEVT_SIZE, &nsIIRFrequencyResponseControl::OnSize, this);
+    Bind(wxEVT_KEY_DOWN, &nsIIRFrequencyResponseControl::OnKeyDown, this);
+    Bind(wxEVT_KEY_UP, &nsIIRFrequencyResponseControl::OnKeyUp, this);
 }
 
 void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
@@ -74,47 +81,22 @@ void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
 
     if (event.Dragging() && HasCapture()) {
         if (selectedPeakControlPointIndex != -1) {
-            if(event.GetX() < 0)
-                peakControlPoints[selectedPeakControlPointIndex].m_x = 0;
-            else if(event.GetX() > GetClientSize().GetWidth())
-                peakControlPoints[selectedPeakControlPointIndex].m_x = GetClientSize().GetWidth() - 5;
-            else
-                peakControlPoints[selectedPeakControlPointIndex].m_x = (double)event.GetX() - 5;
-
-            if(event.GetY() < 0)
-                peakControlPoints[selectedPeakControlPointIndex].m_y = 0;
-            else if(event.GetY() > GetClientSize().GetHeight())
-                peakControlPoints[selectedPeakControlPointIndex].m_y = GetClientSize().GetHeight() - 5;
-            else
-                peakControlPoints[selectedPeakControlPointIndex].m_y = (double)event.GetY() - 5;
+            peakControlPoints[selectedPeakControlPointIndex].m_x = std::min(std::max((double)event.GetX() - 5, 0.0), (double)GetClientSize().GetWidth() - 5.0);
+            peakControlPoints[selectedPeakControlPointIndex].m_y = std::min(std::max((double)event.GetY() - 5, 0.0), (double)GetClientSize().GetHeight() - 5.0);
             
-            double r = ((double)GetClientSize().GetHeight() - peakControlPoints[selectedPeakControlPointIndex].m_y) / (double)GetClientSize().GetHeight();
-            double theta = peakControlPoints[selectedPeakControlPointIndex].m_x / (double)GetClientSize().GetWidth() * M_PI;
-            filter->GetACoefficients()[selectedPeakControlPointIndex * 2 - 1] = std::complex<double>(-2.0 * std::cos(theta) * r, 0.0);
-            filter->GetACoefficients()[selectedPeakControlPointIndex * 2] = std::complex<double>(r * r, 0.0);
+            filter->GetPeaks()[selectedPeakControlPointIndex - 1].theta = peakControlPoints[selectedPeakControlPointIndex].m_x / (double)GetClientSize().GetWidth() * M_PI;
+            filter->GetPeaks()[selectedPeakControlPointIndex - 1].r = ((double)GetClientSize().GetHeight() - peakControlPoints[selectedPeakControlPointIndex].m_y) / (double)GetClientSize().GetHeight();
         }
         if (selectedDipControlPointIndex != -1) {
-            if(event.GetX() < 0)
-                dipControlPoints[selectedDipControlPointIndex].m_x = 0;
-            else if(event.GetX() > GetClientSize().GetWidth())
-                dipControlPoints[selectedDipControlPointIndex].m_x = GetClientSize().GetWidth() - 5;
-            else
-                dipControlPoints[selectedDipControlPointIndex].m_x = (double)event.GetX() - 5;
+            dipControlPoints[selectedDipControlPointIndex].m_x = std::min(std::max((double)event.GetX() - 5, 0.0), (double)GetClientSize().GetWidth() - 5.0);
+            dipControlPoints[selectedDipControlPointIndex].m_y = std::min(std::max((double)event.GetY() - 5, 0.0), (double)GetClientSize().GetHeight() - 5.0);
 
-            if(event.GetY() < 0)
-                dipControlPoints[selectedDipControlPointIndex].m_y = 0;
-            else if(event.GetY() > GetClientSize().GetHeight())
-                dipControlPoints[selectedDipControlPointIndex].m_y = GetClientSize().GetHeight() - 5;
-            else
-                dipControlPoints[selectedDipControlPointIndex].m_y = (double)event.GetY() - 5;
-
-            double r = dipControlPoints[selectedDipControlPointIndex].m_y / (double)GetClientSize().GetHeight();
-            double theta = dipControlPoints[selectedDipControlPointIndex].m_x / (double)GetClientSize().GetWidth() * M_PI;
-            filter->GetBCoefficients()[selectedDipControlPointIndex * 2 - 1] = std::complex<double>(-2.0 * std::cos(theta) * r, 0.0);
-            filter->GetBCoefficients()[selectedDipControlPointIndex * 2] = std::complex<double>(r * r, 0.0);
+            filter->GetDips()[selectedDipControlPointIndex - 1].theta = dipControlPoints[selectedDipControlPointIndex].m_x / (double)GetClientSize().GetWidth() * M_PI;
+            filter->GetDips()[selectedDipControlPointIndex - 1].r = dipControlPoints[selectedDipControlPointIndex].m_y / (double)GetClientSize().GetHeight();
         }
-            filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
-            paramater_updated = true;
+        filter->CalculateCoefficientsFromPDs();
+        filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+        paramater_updated = true;
     }
     else {
         selectedPeakControlPointIndex = -1;
@@ -161,9 +143,83 @@ void nsIIRFrequencyResponseControl::OnMouseWheel(wxMouseEvent& event) {
     // Handle mouse wheel event
 }
 
+void nsIIRFrequencyResponseControl::OnSize(wxSizeEvent& event) {
+    filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+    wxWindow::Refresh();
+    event.Skip();
+}
 
+void nsIIRFrequencyResponseControl::OnRightUp(wxMouseEvent& event) {
+    wxWindow::Refresh();
+    event.Skip();
+}
 
+void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
+    if(selectedPeakControlPointIndex != -1) {
+        peakControlPoints.erase(peakControlPoints.begin() + selectedPeakControlPointIndex);
+        filter->GetPeaks().erase(filter->GetPeaks().begin() + selectedPeakControlPointIndex - 1);
+        filter->CalculateCoefficientsFromPDs();
+        filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+    } else if (selectedDipControlPointIndex != -1) {
+        dipControlPoints.erase(dipControlPoints.begin() + selectedDipControlPointIndex);
+        filter->GetDips().erase(filter->GetDips().begin() + selectedDipControlPointIndex - 1);
+        filter->CalculateCoefficientsFromPDs();
+        filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+    } else {
+        if(shiftKeyDown) {
+            dipControlPoints.push_back(wxRect2DDouble(event.GetX() - 5, event.GetY() - 5, 10, 10));
+            filter->GetDips().push_back(NesoraIIRFilterPD{
+                .theta = (event.GetX() / (double)GetClientSize().GetWidth()) * M_PI,
+                .r = (double)event.GetY() / (double)GetClientSize().GetHeight()
+            });
+            filter->CalculateCoefficientsFromPDs();
+            filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+        } else {
+            peakControlPoints.push_back(wxRect2DDouble(event.GetX() - 5, event.GetY() - 5, 10, 10));
+            filter->GetPeaks().push_back(NesoraIIRFilterPD{
+                .theta = (event.GetX() / (double)GetClientSize().GetWidth()) * M_PI,
+                .r = ((double)GetClientSize().GetHeight() - event.GetY()) / (double)GetClientSize().GetHeight()
+            });
+            filter->CalculateCoefficientsFromPDs();
+            filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+        }
+    }
 
+    selectedPeakControlPointIndex = -1;
+    selectedDipControlPointIndex = -1;
+    for(int i = 1;i < peakControlPoints.size();i++) {
+        if(nsHitTest(peakControlPoints[i], event.GetX(), event.GetY())) {
+            selectedPeakControlPointIndex = i;
+            break;
+        }
+    }
+    for(int i = 1;i < dipControlPoints.size();i++) {
+        if(nsHitTest(dipControlPoints[i], event.GetX(), event.GetY())) {
+            selectedDipControlPointIndex = i;
+            break;
+        }
+    }
+    
+    wxWindow::Refresh();
+    event.Skip();
+}
+
+void nsIIRFrequencyResponseControl::OnKeyDown(wxKeyEvent& event) {
+    std::cout << "Key Down: " << event.GetKeyCode() << std::endl;
+    // Handle key down event
+    if (event.GetKeyCode() == WXK_SHIFT) {
+        shiftKeyDown = true;
+    }
+    event.Skip();
+}
+
+void nsIIRFrequencyResponseControl::OnKeyUp(wxKeyEvent& event) {
+    // Handle key up event
+    if (event.GetKeyCode() == WXK_SHIFT) {
+        shiftKeyDown = false;
+    }
+    event.Skip();
+}
 
 
 
@@ -173,13 +229,9 @@ void nsIIRFilterPanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
 
     wxStaticBoxSizer* sourceSizer = new wxStaticBoxSizer(wxVERTICAL, this, _("IIR Filter"));
-    wxSizer* buttonsSizer = new wxBoxSizer(wxHORIZONTAL);
 
     iirFilter = new nsIIRFrequencyResponseControl(sourceSizer->GetStaticBox());
-    addButton = new nsButton(sourceSizer->GetStaticBox(), wxID_ANY, _("Add IIR Filter"));
-    buttonsSizer->Add(addButton, 0, wxALL, 4);
     sourceSizer->Add(iirFilter, 1, wxEXPAND | wxALL);
-    sourceSizer->Add(buttonsSizer, 0, wxALIGN_RIGHT);
     
     this->SetSizer(sourceSizer);
 }

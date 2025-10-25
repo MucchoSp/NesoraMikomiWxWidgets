@@ -43,6 +43,7 @@ private:
     int prevSelectedDipControlPointIndex;
 
     bool paramater_updated;
+    bool shiftKeyDown;
 
     void OnPaint(wxPaintEvent& event);
 
@@ -51,6 +52,11 @@ private:
     void OnMouseDown(wxMouseEvent& event);
     void OnMouseUp(wxMouseEvent& event);
     void OnMouseWheel(wxMouseEvent& event);
+    void OnRightDown(wxMouseEvent& event);
+    void OnRightUp(wxMouseEvent& event);
+    void OnSize(wxSizeEvent& event);
+    void OnKeyDown(wxKeyEvent& event);
+    void OnKeyUp(wxKeyEvent& event);
 
 };
 
@@ -77,7 +83,6 @@ public:
     void Init();
 private:
     nsIIRFrequencyResponseControl* iirFilter;
-    nsButton* addButton;
 };
 
 

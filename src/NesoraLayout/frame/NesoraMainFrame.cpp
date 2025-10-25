@@ -22,6 +22,9 @@ nsMainFrame::nsMainFrame()
     singButton = new nsToolBarButton(toolSelectorPanel, nsID_SING_BUTTON, _("Sing"), wxPoint(10, 10), wxSize(100, 30));
     speakButton = new nsToolBarButton(toolSelectorPanel, nsID_SPEAK_BUTTON, _("Talk"), wxPoint(120, 10), wxSize(100, 30));
     makeButton = new nsToolBarButton(toolSelectorPanel, nsID_VOICE_MAKE_BUTTON, _("Make Voice"), wxPoint(230, 10), wxSize(100, 30));
+    singButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnSingButton, this);
+    speakButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnSpeakButton, this);
+    makeButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnMakeButton, this);
     toolbar_sizer->Add(singButton, 0, wxALL, 5);
     toolbar_sizer->Add(speakButton, 0, wxALL, 5);
     toolbar_sizer->Add(makeButton, 0, wxALL, 5);
@@ -36,13 +39,10 @@ nsMainFrame::nsMainFrame()
     SetSizer(main_sizer);
 
     CreateStatusBar();
-    SetStatusText("Welcome to wxWidgets!");
+    SetStatusText("Welcome to Nesora 1-0!");
 
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnExit, this, ID_EXIT);
-    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnSingButton, this, nsID_SING_BUTTON);
-    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnSpeakButton, this, nsID_SPEAK_BUTTON);
-    Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnMakeButton, this, nsID_VOICE_MAKE_BUTTON);
 
     wxCommandEvent evt;
     OnMakeButton(evt);

@@ -20,10 +20,10 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
     prevSelectedDipControlPointIndex = -1;
     peakControlPoints.resize(1);
     dipControlPoints.resize(1);
-    for(int i = 0;i < peakControlPoints.size();i++) {
+    for(size_t i = 0;i < peakControlPoints.size();i++) {
         peakControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
     }
-    for(int i = 0;i < dipControlPoints.size();i++) {
+    for(size_t i = 0;i < dipControlPoints.size();i++) {
         dipControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
     }
     filter->CalculateCoefficientsFromPDs();
@@ -39,8 +39,7 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
     Bind(wxEVT_RIGHT_UP, &nsIIRFrequencyResponseControl::OnRightUp, this);
     Bind(wxEVT_RIGHT_DOWN, &nsIIRFrequencyResponseControl::OnRightDown, this);
     Bind(wxEVT_SIZE, &nsIIRFrequencyResponseControl::OnSize, this);
-    Bind(wxEVT_KEY_DOWN, &nsIIRFrequencyResponseControl::OnKeyDown, this);
-    Bind(wxEVT_KEY_UP, &nsIIRFrequencyResponseControl::OnKeyUp, this);
+
 }
 
 void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
@@ -101,13 +100,13 @@ void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
     else {
         selectedPeakControlPointIndex = -1;
         selectedDipControlPointIndex = -1;
-        for(int i = 1;i < peakControlPoints.size();i++) {
+        for(size_t i = 1;i < peakControlPoints.size();i++) {
             if(nsHitTest(peakControlPoints[i], event.GetX(), event.GetY())) {
                 selectedPeakControlPointIndex = i;
                 break;
             }
         }
-        for(int i = 1;i < dipControlPoints.size();i++) {
+        for(size_t i = 1;i < dipControlPoints.size();i++) {
             if(nsHitTest(dipControlPoints[i], event.GetX(), event.GetY())) {
                 selectedDipControlPointIndex = i;
                 break;
@@ -145,6 +144,16 @@ void nsIIRFrequencyResponseControl::OnMouseWheel(wxMouseEvent& event) {
 
 void nsIIRFrequencyResponseControl::OnSize(wxSizeEvent& event) {
     filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+
+    for (int i = 1;i < peakControlPoints.size();i++) {
+        peakControlPoints[i].m_x = filter->GetPeaks()[i - 1].theta / nsPI * (double)GetClientSize().GetWidth();
+        peakControlPoints[i].m_y = -filter->GetPeaks()[i - 1].r * (double)GetClientSize().GetHeight() + (double)GetClientSize().GetHeight();
+    }
+    for (int i = 1;i < dipControlPoints.size();i++) {
+        dipControlPoints[i].m_x = filter->GetDips()[i - 1].theta / nsPI * (double)GetClientSize().GetWidth();
+        dipControlPoints[i].m_y = filter->GetDips()[i - 1].r * (double)GetClientSize().GetHeight();
+    }
+
     wxWindow::Refresh();
     event.Skip();
 }
@@ -166,19 +175,19 @@ void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
         filter->CalculateCoefficientsFromPDs();
         filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
     } else {
-        if(shiftKeyDown) {
+        if(wxGetKeyState(WXK_SHIFT)) {
             dipControlPoints.push_back(wxRect2DDouble(event.GetX() - 5, event.GetY() - 5, 10, 10));
             filter->GetDips().push_back(NesoraIIRFilterPD{
-                .theta = (event.GetX() / (double)GetClientSize().GetWidth()) * M_PI,
-                .r = (double)event.GetY() / (double)GetClientSize().GetHeight()
+                (double)event.GetY() / (double)GetClientSize().GetHeight(),
+                (event.GetX() / (double)GetClientSize().GetWidth()) * M_PI,
             });
             filter->CalculateCoefficientsFromPDs();
             filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
         } else {
             peakControlPoints.push_back(wxRect2DDouble(event.GetX() - 5, event.GetY() - 5, 10, 10));
             filter->GetPeaks().push_back(NesoraIIRFilterPD{
-                .theta = (event.GetX() / (double)GetClientSize().GetWidth()) * M_PI,
-                .r = ((double)GetClientSize().GetHeight() - event.GetY()) / (double)GetClientSize().GetHeight()
+                ((double)GetClientSize().GetHeight() - event.GetY()) / (double)GetClientSize().GetHeight(),
+                (event.GetX() / (double)GetClientSize().GetWidth()) * M_PI,
             });
             filter->CalculateCoefficientsFromPDs();
             filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
@@ -187,13 +196,13 @@ void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
 
     selectedPeakControlPointIndex = -1;
     selectedDipControlPointIndex = -1;
-    for(int i = 1;i < peakControlPoints.size();i++) {
+    for(size_t i = 1;i < peakControlPoints.size();i++) {
         if(nsHitTest(peakControlPoints[i], event.GetX(), event.GetY())) {
             selectedPeakControlPointIndex = i;
             break;
         }
     }
-    for(int i = 1;i < dipControlPoints.size();i++) {
+    for(size_t i = 1;i < dipControlPoints.size();i++) {
         if(nsHitTest(dipControlPoints[i], event.GetX(), event.GetY())) {
             selectedDipControlPointIndex = i;
             break;
@@ -204,22 +213,6 @@ void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
     event.Skip();
 }
 
-void nsIIRFrequencyResponseControl::OnKeyDown(wxKeyEvent& event) {
-    std::cout << "Key Down: " << event.GetKeyCode() << std::endl;
-    // Handle key down event
-    if (event.GetKeyCode() == WXK_SHIFT) {
-        shiftKeyDown = true;
-    }
-    event.Skip();
-}
-
-void nsIIRFrequencyResponseControl::OnKeyUp(wxKeyEvent& event) {
-    // Handle key up event
-    if (event.GetKeyCode() == WXK_SHIFT) {
-        shiftKeyDown = false;
-    }
-    event.Skip();
-}
 
 
 

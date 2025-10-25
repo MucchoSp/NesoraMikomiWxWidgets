@@ -17,7 +17,7 @@ void nsRosenbergWavePanel::Init() {
     source_wave.SetParamater(0.25, 0.5, 0);
     wave.resize(183);// 48000/261.6
     double throw_away;
-    for (int i = 0;i < wave.size();i++)
+    for (size_t i = 0;i < wave.size();i++)
         wave[i] = source_wave.Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away));
 
     wxStaticBoxSizer* sourceSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Rosenberg Wave"));
@@ -83,7 +83,7 @@ void nsRosenbergWavePanel::OnT1Slide(wxCommandEvent& event) {
     source_wave.SetParamater((double)t1slider->GetValue() / 100.0, (double)t2slider->GetValue() / 100.0, 0);
 
     double throw_away;
-    for (int i = 0;i < wave.size();i++)
+    for (size_t i = 0;i < wave.size();i++)
         wave[i] = source_wave.Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away));
     chart->SetData(wave);
 }

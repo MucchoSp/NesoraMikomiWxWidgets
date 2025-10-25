@@ -94,7 +94,7 @@ void nsFormantFilterChartControl::OnPaint(wxPaintEvent& event) {
         chartAreaToValue.Concat(chartAreaToNormalized);
 
         // if(paramater_updated) {
-            for(int i = 0;i < paramaters.size();i++) {
+            for(size_t i = 0;i < paramaters.size();i++) {
                 wxPoint2DDouble hitbox = valueToChartArea.TransformPoint({filter->GetParamater()[i].f1_frequency, filter->GetParamater()[i].f1_amplitude});
                 paramaters[i].top_hit_box = {hitbox.m_x - 5, hitbox.m_y - 5, 10, 10};
             }
@@ -121,7 +121,7 @@ void nsFormantFilterChartControl::OnPaint(wxPaintEvent& event) {
             gc->DrawText(text, chartArea.GetLeft() - labelsToChartAreaMargin - tw, lineStartPoint.m_y - th / 2.0);
         }
 
-        for(int i = 0;i < paramaters.size();i++) {
+        for(size_t i = 0;i < paramaters.size();i++) {
             gc->SetPen(wxPen(second_graph_color));
             if(paramaters[i].top_hit_box_is_hit)
                 gc->SetBrush(wxBrush(second_graph_color2));
@@ -132,8 +132,7 @@ void nsFormantFilterChartControl::OnPaint(wxPaintEvent& event) {
             const size_t gaussianPointArraySize = paramaters[i].gaussian_wave.size();
             wxPoint2DDouble* gaussianPointArray = new wxPoint2DDouble[gaussianPointArraySize];
 
-            for (int j = 0;j < gaussianPointArraySize;j++) {
-                
+            for (size_t j = 0;j < gaussianPointArraySize;j++) {
                 gaussianPointArray[j] = valueToChartArea.TransformPoint({ static_cast<double>(j+filter->GetParamater()[i].f1_frequency-gaussianPointArraySize / 2),paramaters[i].gaussian_wave[j] });
             }
             gc->SetPen(wxPen(second_graph_color));
@@ -149,7 +148,7 @@ void nsFormantFilterChartControl::OnPaint(wxPaintEvent& event) {
         const size_t pointArraySize = m_data.size();
         wxPoint2DDouble* pointArray = new wxPoint2DDouble[pointArraySize];
 
-        for (int i = 0;i < pointArraySize;i++)
+        for (size_t i = 0;i < pointArraySize;i++)
             pointArray[i] = valueToChartArea.TransformPoint({ static_cast<double>(i),m_data[i] });
         gc->SetPen(wxPen(graph_color));
         gc->StrokeLines(m_data.size(), pointArray);
@@ -256,7 +255,7 @@ void nsFormantFilterChartControl::OnMouseMove(wxMouseEvent& event) {
         paramater_updated = true;
     }
     else {
-        for(int i = 0;i < paramaters.size();i++) {
+        for(size_t i = 0;i < paramaters.size();i++) {
             if(nsHitTest(paramaters[i].top_hit_box, event.GetX(), event.GetY())) {
                 paramaters[i].top_hit_box_is_hit = true;
                 dragging_param = i;
@@ -280,7 +279,7 @@ void nsFormantFilterChartControl::OnMouseMove(wxMouseEvent& event) {
 }
 
 void nsFormantFilterChartControl::OnMouseWheel(wxMouseEvent& event) {
-    for(int i = 0;i < paramaters.size();i++) {
+    for(size_t i = 0;i < paramaters.size();i++) {
         if(paramaters[i].top_hit_box_is_hit) {
             int delta = event.GetWheelRotation() / event.GetWheelDelta();
             filter->GetParamater()[i].f1_bandwidth += delta * 10;
@@ -300,7 +299,7 @@ void nsFormantFilterChartControl::calclateGaussianWave(size_t i) {
     int N = filter->GetParamater()[i].f1_bandwidth * 8;
     paramaters[i].gaussian_wave.resize(N);
     double b = filter->GetParamater()[i].f1_frequency - N / 2.0;
-    for(size_t k = 0;k < N;k++) {
+    for(int k = 0;k < N;k++) {
         paramaters[i].gaussian_wave[k] = filter->GetParamater()[i].f1_amplitude * exp(-(0.5 * (((double)k + b) * dx - filter->GetParamater()[i].f1_frequency) * ((double)((double)k + b) * dx - filter->GetParamater()[i].f1_frequency)) / (filter->GetParamater()[i].f1_bandwidth * filter->GetParamater()[i].f1_bandwidth));
     }
 }

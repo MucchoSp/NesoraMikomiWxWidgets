@@ -48,7 +48,7 @@ public:
 
     std::vector<double> GetResponse() const;
 
-    double Filter(double x) override {return 0.0; /* 未実装 */ }
+    double Filter(double x) override;
 private:
 
     std::vector<double> history;

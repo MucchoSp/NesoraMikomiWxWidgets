@@ -107,3 +107,36 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
 
     return response;
 }
+
+double NesoraIIRFilter::Filter(double x) {
+    // 入力履歴の更新
+    input_history.insert(input_history.begin(), x);
+    if (input_history.size() > b_coefficients.size() - 1) {
+        input_history.pop_back();
+    }
+
+    // 出力計算
+    double y = 0.0;
+
+    // 分子部分
+    y += b_coefficients[0] * x;
+    for (size_t i = 1; i < b_coefficients.size(); ++i) {
+        y += b_coefficients[i] * input_history[i - 1];
+    }
+
+    // 分母部分
+    for (size_t i = 1; i < a_coefficients.size(); ++i) {
+        y -= a_coefficients[i] * output_history[i - 1];
+    }
+
+    // 出力履歴の更新
+    output_history.insert(output_history.begin(), y);
+    if (output_history.size() > a_coefficients.size() - 1) {
+        output_history.pop_back();
+    }
+
+    return y;
+}
+
+
+

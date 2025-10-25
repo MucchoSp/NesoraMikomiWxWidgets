@@ -30,8 +30,8 @@ public:
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
         const wxString& name = wxASCII_STR(wxPanelNameStr));
     
-private:
     NesoraIIRFilter* filter;
+private:
 
     std::vector<double> frequencyResponse;
 

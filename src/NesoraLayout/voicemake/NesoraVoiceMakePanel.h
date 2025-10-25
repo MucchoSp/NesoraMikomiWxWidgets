@@ -37,14 +37,15 @@ public:
 
     void Init();
 
-private:
-
-    void OnPlayButtonClicked(wxCommandEvent& event);
-    void OnStopButtonClicked(wxCommandEvent& event);
-
     wxButton* playButton;
     wxButton* stopButton;
     wxStaticText* statusText;
+    nsSlider* volume;
+
+private:
+
+    void OnVolumeSlide(wxCommandEvent& event);
+
 };
 
 
@@ -66,15 +67,30 @@ public:
         Init();
     }
 
+    ~nsVoiceMakePanel() {
+        UninitAudioDevice();
+    }
+
     void Init();
 
 private:
 
     std::vector<double> wave;// 48000 / 261.6
 
-    wxPanel* sourceSoundPanel;
-    wxPanel* filterPanel;
-    wxPanel* playInterfacePanel;
+    nsRosenbergWavePanel* sourceSoundPanel;
+    nsIIRFilterPanel* filterPanel;
+    nsVoiceMakePlayInterfacePanel* playInterfacePanel;
+
+    void OnPlayButtonClicked(wxCommandEvent& event);
+    void OnStopButtonClicked(wxCommandEvent& event);
+
+    void InitAudioDevice();
+    void UninitAudioDevice();
+
+    ma_device device;
+    ma_device_config deviceConfig;
+
+    static void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
 
 };
 

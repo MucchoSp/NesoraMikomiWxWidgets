@@ -46,7 +46,7 @@ void nsSimpleChartControl::OnPaint(wxPaintEvent& event) {
         wxAffineMatrix2D valueToChartArea = normalizedToChartArea;
         valueToChartArea.Concat(valueToNormalized);
 
-        for (int i = 0;i < pointArraySize;i++)
+        for (size_t i = 0;i < pointArraySize;i++)
             pointArray[i] = valueToChartArea.TransformPoint({ static_cast<double>(i),m_data[i] });
         gc->SetPen(wxPen(graph_color));
         gc->StrokeLines(m_data.size(), pointArray);

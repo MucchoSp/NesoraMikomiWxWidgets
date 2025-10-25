@@ -4,6 +4,7 @@
 #define NESORA_IIR_FILTER_PANEL_H
 
 #include <wx/wx.h>
+#include <wx/dcbuffer.h>
 
 #include <sstream>
 
@@ -29,17 +30,23 @@ public:
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
         const wxString& name = wxASCII_STR(wxPanelNameStr));
     
-private:
     NesoraIIRFilter* filter;
+private:
 
     std::vector<double> frequencyResponse;
 
     std::vector<wxRect2DDouble> peakControlPoints;
     int selectedPeakControlPointIndex;
+    int prevSelectedPeakControlPointIndex;
     std::vector<wxRect2DDouble> dipControlPoints;
     int selectedDipControlPointIndex;
+    int prevSelectedDipControlPointIndex;
 
     bool paramater_updated;
+    bool shiftKeyDown;
+
+    double samplingFrequency = NesoraDefaultSamplingFrequency;
+    double nyquistFrequency = NesoraDefaultNyquistFrequency;
 
     void OnPaint(wxPaintEvent& event);
 
@@ -48,6 +55,9 @@ private:
     void OnMouseDown(wxMouseEvent& event);
     void OnMouseUp(wxMouseEvent& event);
     void OnMouseWheel(wxMouseEvent& event);
+    void OnRightDown(wxMouseEvent& event);
+    void OnRightUp(wxMouseEvent& event);
+    void OnSize(wxSizeEvent& event);
 
 };
 
@@ -72,9 +82,11 @@ public:
         // UninitAudioDevice();
     }
     void Init();
+
+    NesoraIIRFilter* GetIIRFilter();
+
 private:
     nsIIRFrequencyResponseControl* iirFilter;
-    nsButton* addButton;
 };
 
 

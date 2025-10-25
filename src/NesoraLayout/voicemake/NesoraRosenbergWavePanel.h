@@ -36,12 +36,12 @@ public:
 
 
     ~nsRosenbergWavePanel() {
-        UninitAudioDevice();
     }
 
     void Init();
     
-    static void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
+    std::vector<double> GetWave() const;
+
 private:
     nsSimpleChartControl* chart;
 
@@ -51,24 +51,13 @@ private:
     nsSlider* pitch_slider;
     nsSlider* t1slider;
     nsSlider* t2slider;
-    nsButton* playButton;
-    nsButton* stopButton;
 
     NesoraRosenbergWave source_wave;
     std::vector<double> wave;// 48000 / 261.6
 
-    ma_device device;
-    ma_device_config deviceConfig;
-
     void OnPitchSlide(wxCommandEvent& event);
     void OnT1Slide(wxCommandEvent& event);
     void OnT2Slide(wxCommandEvent& event);
-
-    void OnPlayButton(wxCommandEvent& event);
-    void OnStopButton(wxCommandEvent& event);
-
-    void InitAudioDevice();
-    void UninitAudioDevice();
 };
 
 #endif // NESORA_ROSENBERG_WAVE_PANEL_H

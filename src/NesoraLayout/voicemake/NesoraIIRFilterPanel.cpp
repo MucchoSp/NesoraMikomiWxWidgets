@@ -42,6 +42,42 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
 
 }
 
+void nsIIRFrequencyResponseControl::SyncControlPointsFromFilter() {
+    // Ensure control point vectors match the filter's peaks/dips counts.
+    size_t peakCount = filter ? filter->GetPeaks().size() : 0;
+    size_t dipCount = filter ? filter->GetDips().size() : 0;
+
+    // The UI stores an extra element at index 0 (unused), so size = count + 1
+    peakControlPoints.resize(peakCount + 1);
+    dipControlPoints.resize(dipCount + 1);
+
+    // Initialize control point rectangles based on current filter PDs
+    if (filter) {
+        for (size_t i = 1; i < peakControlPoints.size(); ++i) {
+            const auto& p = filter->GetPeaks()[i - 1];
+            peakControlPoints[i].m_x = p.theta / nsPI * (double)GetClientSize().GetWidth();
+            peakControlPoints[i].m_y = -p.r * (double)GetClientSize().GetHeight() + (double)GetClientSize().GetHeight();
+            peakControlPoints[i].m_width = 10;
+            peakControlPoints[i].m_height = 10;
+        }
+        for (size_t i = 1; i < dipControlPoints.size(); ++i) {
+            const auto& d = filter->GetDips()[i - 1];
+            dipControlPoints[i].m_x = d.theta / nsPI * (double)GetClientSize().GetWidth();
+            dipControlPoints[i].m_y = d.r * (double)GetClientSize().GetHeight();
+            dipControlPoints[i].m_width = 10;
+            dipControlPoints[i].m_height = 10;
+        }
+    } else {
+        // default positions
+        for (size_t i = 1; i < peakControlPoints.size(); ++i) {
+            peakControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
+        }
+        for (size_t i = 1; i < dipControlPoints.size(); ++i) {
+            dipControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
+        }
+    }
+}
+
 void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
     wxAutoBufferedPaintDC dc(this);
     wxSize size = GetClientSize();
@@ -237,8 +273,14 @@ void nsIIRFilterPanel::Init() {
 }
 
 void nsIIRFilterPanel::Update() {
-    iirFilter->Refresh(false);
-    std::cout << "IIR Filter Params:" << iirFilter->filter->GetPeaks().size() << std::endl;
+    // Sync control points from the filter data so UI matches the filter state
+    if (iirFilter) {
+        iirFilter->SyncControlPointsFromFilter();
+        iirFilter->Refresh(false);
+        if (iirFilter->filter) {
+            std::cout << "IIR Filter Params:" << iirFilter->filter->GetPeaks().size() << std::endl;
+        }
+    }
 }
 
 NesoraIIRFilter* nsIIRFilterPanel::GetIIRFilter() {

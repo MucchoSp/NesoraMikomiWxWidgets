@@ -149,19 +149,19 @@ double NesoraIIRFilter::Filter(double x) {
 
 std::vector<unsigned char> NesoraIIRFilter::SaveData() {
     std::vector<unsigned char> data;
-
-    // Save a_coefficients
-    size_t a_size = a_coefficients.size();
-    data.insert(data.end(), reinterpret_cast<unsigned char*>(&a_size), reinterpret_cast<unsigned char*>(&a_size) + sizeof(size_t));
-    for (const auto& a : a_coefficients) {
-        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&a), reinterpret_cast<const unsigned char*>(&a) + sizeof(double));
+    // Save peaks (r, theta) and dips (r, theta) so UI control points can be restored
+    size_t peaks_size = peaks.size();
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&peaks_size), reinterpret_cast<unsigned char*>(&peaks_size) + sizeof(size_t));
+    for (const auto& p : peaks) {
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&p.r), reinterpret_cast<const unsigned char*>(&p.r) + sizeof(double));
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&p.theta), reinterpret_cast<const unsigned char*>(&p.theta) + sizeof(double));
     }
 
-    // Save b_coefficients
-    size_t b_size = b_coefficients.size();
-    data.insert(data.end(), reinterpret_cast<unsigned char*>(&b_size), reinterpret_cast<unsigned char*>(&b_size) + sizeof(size_t));
-    for (const auto& b : b_coefficients) {
-        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&b), reinterpret_cast<const unsigned char*>(&b) + sizeof(double));
+    size_t dips_size = dips.size();
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&dips_size), reinterpret_cast<unsigned char*>(&dips_size) + sizeof(size_t));
+    for (const auto& d : dips) {
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&d.r), reinterpret_cast<const unsigned char*>(&d.r) + sizeof(double));
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&d.theta), reinterpret_cast<const unsigned char*>(&d.theta) + sizeof(double));
     }
 
     return data;
@@ -169,31 +169,70 @@ std::vector<unsigned char> NesoraIIRFilter::SaveData() {
 
 void NesoraIIRFilter::LoadData(const std::vector<unsigned char>& data) {
     size_t offset = 0;
+    const size_t total = data.size();
 
-    // Load a_coefficients
-    size_t a_size;
-    std::memcpy(&a_size, data.data() + offset, sizeof(size_t));
-    offset += sizeof(size_t);
-    a_coefficients.resize(a_size);
-    for (size_t i = 0; i < a_size; ++i) {
-        std::memcpy(&a_coefficients[i], data.data() + offset, sizeof(double));
+    auto read_size = [&](size_t &out) -> bool {
+        if (offset + sizeof(size_t) > total) return false;
+        std::memcpy(&out, data.data() + offset, sizeof(size_t));
+        offset += sizeof(size_t);
+        return true;
+    };
+
+    // Load peaks
+    size_t peaks_size = 0;
+    if (!read_size(peaks_size)) {
+        std::cerr << "NesoraIIRFilter::LoadData: insufficient data for peaks_size" << std::endl;
+        return;
+    }
+    if (offset + peaks_size * sizeof(double) * 2 > total) {
+        std::cerr << "NesoraIIRFilter::LoadData: peaks data exceeds buffer" << std::endl;
+        return;
+    }
+    peaks.clear();
+    for (size_t i = 0; i < peaks_size; ++i) {
+        NesoraIIRFilterPD p;
+        std::memcpy(&p.r, data.data() + offset, sizeof(double));
         offset += sizeof(double);
+        std::memcpy(&p.theta, data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+        peaks.push_back(p);
     }
 
-    // Load b_coefficients
-    size_t b_size;
-    std::memcpy(&b_size, data.data() + offset, sizeof(size_t));
-    offset += sizeof(size_t);
-    b_coefficients.resize(b_size);
-    for (size_t i = 0; i < b_size; ++i) {
-        std::memcpy(&b_coefficients[i], data.data() + offset, sizeof(double));
+    // Load dips
+    size_t dips_size = 0;
+    if (!read_size(dips_size)) {
+        std::cerr << "NesoraIIRFilter::LoadData: insufficient data for dips_size" << std::endl;
+        return;
+    }
+    if (offset + dips_size * sizeof(double) * 2 > total) {
+        std::cerr << "NesoraIIRFilter::LoadData: dips data exceeds buffer" << std::endl;
+        return;
+    }
+    dips.clear();
+    for (size_t i = 0; i < dips_size; ++i) {
+        NesoraIIRFilterPD d;
+        std::memcpy(&d.r, data.data() + offset, sizeof(double));
         offset += sizeof(double);
+        std::memcpy(&d.theta, data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+        dips.push_back(d);
     }
 
-    // Resize history buffers
-    history.resize(a_coefficients.size() - 1, 0.0);
-    output_history.resize(a_coefficients.size() - 1, 0.0);
-    input_history.resize(b_coefficients.size() - 1, 0.0);
+    // Recalculate coefficients from PDs and prepare histories
+    CalculateCoefficientsFromPDs();
+    CalculateFrequencyResponse(512); // reasonable default until UI recalculates with actual width
+    if (a_coefficients.size() >= 1) {
+        history.resize(a_coefficients.size() - 1, 0.0);
+        output_history.resize(a_coefficients.size() - 1, 0.0);
+    } else {
+        history.clear();
+        output_history.clear();
+    }
+    if (b_coefficients.size() >= 1) {
+        input_history.resize(b_coefficients.size() - 1, 0.0);
+    } else {
+        input_history.clear();
+    }
 }
 
 

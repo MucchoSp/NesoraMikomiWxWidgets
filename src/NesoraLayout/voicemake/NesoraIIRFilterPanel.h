@@ -31,6 +31,8 @@ public:
         const wxString& name = wxASCII_STR(wxPanelNameStr)); 
 
     NesoraIIRFilter* filter;
+    // Sync control point geometry from the underlying filter's peaks/dips
+    void SyncControlPointsFromFilter();
 private:
     
     std::vector<double> frequencyResponse;

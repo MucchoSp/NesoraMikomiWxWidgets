@@ -5,9 +5,9 @@ void nsSpeakPanel::Init() {
 }
 
 void nsSpeakPanel::OnSave(wxCommandEvent& event) {
-    wxLogMessage(_T("喋るパネルの保存する処理は実装されていませんよ！"));
+    wxLogMessage(_T(""));
 }
 
 void nsSpeakPanel::OnOpen(wxCommandEvent& event) {
-    wxLogMessage(_T("喋るパネルの開く処理は実装されていませんよ！"));
+    wxLogMessage(_T(""));
 }

@@ -66,10 +66,32 @@ void nsRosenbergWavePanel::Init() {
 }
 
 void nsRosenbergWavePanel::Update() {
-    pitch_slider->SetValue((int)GetPitch());
-    t1slider->SetValue((int)(source_wave->GetT1() * 1000.0));
-    t2slider->SetValue((int)(source_wave->GetT2() * 1000.0));
-    std::cout << "Rosenberg paramater: Pitch " << GetPitch() << " Hz, T1 " << source_wave->GetT1() << ", T2 " << source_wave->GetT2() << std::endl;
+    // Directly sync sliders/labels and regenerate waveform from source parameters
+    if (!source_wave) return;
+
+    double loaded_t1 = source_wave->GetT1();
+    double loaded_t2 = source_wave->GetT2();
+    double loaded_a0 = source_wave->GetA0();
+    
+    // Ensure limits are consistent
+    t1slider->SetLimit(0, static_cast<int>(loaded_t2 * 1000.0));
+
+    // Update slider values and labels
+    t1slider->SetValue(static_cast<int>(loaded_t1 * 1000.0));
+    t2slider->SetValue(static_cast<int>(loaded_t2 * 1000.0));
+    t1param->SetLabel(to_string_with_precision(loaded_t1, 3));
+    t2param->SetLabel(to_string_with_precision(loaded_t2, 3));
+
+    // Apply parameters to source explicitly and regenerate waveform
+    source_wave->SetParamater(loaded_t1, loaded_t2, loaded_a0);
+
+    double throw_away;
+    for (size_t i = 0; i < wave.size(); i++) {
+        wave[i] = source_wave->Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away));
+    }
+    chart->SetData(wave);
+
+    std::cout << "Rosenberg parameter: Pitch " << GetPitch() << " Hz, T1 " << loaded_t1 << ", T2 " << loaded_t2 << std::endl;
 }
 
 

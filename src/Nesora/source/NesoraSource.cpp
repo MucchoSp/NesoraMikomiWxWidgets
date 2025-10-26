@@ -38,8 +38,13 @@ std::vector<unsigned char> NesoraRosenbergWave::SaveData() {
 }
 
 void NesoraRosenbergWave::LoadData(const std::vector<unsigned char>& data) {
-    size_t offset = 0;
+    const size_t needed = sizeof(double) * 3;
+    if (data.size() < needed) {
+        std::cerr << "RosenbergWave::LoadData: insufficient data (" << data.size() << " bytes)" << std::endl;
+        return;
+    }
 
+    size_t offset = 0;
     std::memcpy(&t1, data.data() + offset, sizeof(double));
     offset += sizeof(double);
     std::memcpy(&t2, data.data() + offset, sizeof(double));

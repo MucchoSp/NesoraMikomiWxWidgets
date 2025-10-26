@@ -143,7 +143,11 @@ void nsVoiceMakePanel::OnOpen(wxCommandEvent& event) {
 
     voice->LoadVoiceData(fileData);
 
+    // Update both source and filter panels so UI reflects loaded data
     sourceSoundPanel->Update();
+    if (filterPanel) {
+        filterPanel->Update();
+    }
 
     wxLogMessage("Voice loaded from '%s'.", openFileDialog.GetPath());
 }

@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <complex>
+#include <iostream>
 
 #include "NesoraFilter.h"
 

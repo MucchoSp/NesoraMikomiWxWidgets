@@ -14,11 +14,11 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
 void nsRosenbergWavePanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
 
-    source_wave.SetParamater(0.25, 0.5, -0.5);
+    source_wave->SetParamater(0.25, 0.5, -0.5);
     wave.resize(183);// 48000/261.6
     double throw_away;
     for (size_t i = 0;i < wave.size();i++)
-        wave[i] = source_wave.Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away));
+        wave[i] = source_wave->Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away));
 
     wxStaticBoxSizer* sourceSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Rosenberg Wave"));
     wxSizer* pitch_sliderSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -64,6 +64,12 @@ void nsRosenbergWavePanel::Init() {
     this->SetSizer(sourceSizer);
 }
 
+void nsRosenbergWavePanel::Update() {
+    pitch_slider->SetValue((int)GetPitch());
+    t1slider->SetValue((int)(source_wave->GetT1() * 10000.0));
+    t2slider->SetValue((int)(source_wave->GetT2() * 10000.0));
+}
+
 
 void nsRosenbergWavePanel::OnPitchSlide(wxCommandEvent& event) {
     pitch_param->SetLabel(to_string_with_precision((double)pitch_slider->GetValue(), 0) + " Hz");
@@ -73,11 +79,11 @@ void nsRosenbergWavePanel::OnPitchSlide(wxCommandEvent& event) {
 
 void nsRosenbergWavePanel::OnT1Slide(wxCommandEvent& event) {
     t1param->SetLabel(to_string_with_precision((double)t1slider->GetValue() / 1000.0, 3));
-    source_wave.SetParamater((double)t1slider->GetValue() / 1000.0, (double)t2slider->GetValue() / 1000.0, 0);
+    source_wave->SetParamater((double)t1slider->GetValue() / 1000.0, (double)t2slider->GetValue() / 1000.0, 0);
 
     double throw_away;
     for (size_t i = 0;i < wave.size();i++)
-        wave[i] = source_wave.Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away));
+        wave[i] = source_wave->Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away));
     chart->SetData(wave);
 }
 
@@ -92,7 +98,7 @@ std::vector<double> nsRosenbergWavePanel::GetWave() const {
 }
 
 NesoraRosenbergWave* nsRosenbergWavePanel::GetSource() {
-    return &source_wave;
+    return source_wave;
 }
 
 double nsRosenbergWavePanel::GetPitch() const {

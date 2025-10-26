@@ -36,7 +36,7 @@ void nsVoiceMakePlayInterfacePanel::OnVolumeSlide(wxCommandEvent& event) {
 
 
 
-
+// MARK: nsVoiceMakePanel
 
 void nsVoiceMakePanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
@@ -101,4 +101,49 @@ void nsVoiceMakePanel::data_callback(ma_device* pDevice, void* pOutput, const vo
     for (ma_uint32 i = 0; i < frameCount; i++) {
         out[i] = (float)frame->voice->Synthesize(frame->sourceSoundPanel->GetPitch(), NesoraDefaultSamplingFrequency) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
     }
+}
+
+void nsVoiceMakePanel::OnSave(wxCommandEvent& event) {
+    wxFileDialog saveFileDialog(this, _("Save Voice"), "", "",
+        "Nesora Voice Files (*.nsvo)|*.nsvo", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+    if (saveFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxFileOutputStream output_stream(saveFileDialog.GetPath());
+    if (!output_stream.IsOk()) {
+        wxLogError("Cannot save current voice to file '%s'.", saveFileDialog.GetPath());
+        return;
+    }
+    
+    std::vector<unsigned char> voiceData = voice->GetVoiceData();
+    output_stream.Write(voiceData.data(), voiceData.size());
+    output_stream.Close();
+
+    wxLogMessage("Voice saved to '%s'.", saveFileDialog.GetPath());
+}
+
+void nsVoiceMakePanel::OnOpen(wxCommandEvent& event) {
+    wxFileDialog openFileDialog(this, _("Open Voice"), "", "",
+        "Nesora Voice Files (*.nsvo)|*.nsvo", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxFileInputStream input_stream(openFileDialog.GetPath());
+    if (!input_stream.IsOk()) {
+        wxLogError("Cannot open file '%s'.", openFileDialog.GetPath());
+        return;
+    }
+
+    std::vector<unsigned char> fileData;
+    size_t fileSize = input_stream.GetSize();
+    fileData.resize(fileSize);
+    input_stream.Read(fileData.data(), fileSize);
+
+    voice->LoadVoiceData(fileData);
+
+    sourceSoundPanel->Update();
+
+    wxLogMessage("Voice loaded from '%s'.", openFileDialog.GetPath());
 }

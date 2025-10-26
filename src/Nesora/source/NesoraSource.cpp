@@ -15,6 +15,18 @@ void NesoraRosenbergWave::SetParamater(double tau1, double tau2, double a0) {
     this->a0 = a0;
 }
 
+double NesoraRosenbergWave::GetT1() const {
+    return t1;
+}
+
+double NesoraRosenbergWave::GetT2() const {
+    return t2;
+}
+
+double NesoraRosenbergWave::GetA0() const {
+    return a0;
+}
+
 std::vector<unsigned char> NesoraRosenbergWave::SaveData() {
     std::vector<unsigned char> data;
 
@@ -34,5 +46,6 @@ void NesoraRosenbergWave::LoadData(const std::vector<unsigned char>& data) {
     offset += sizeof(double);
     std::memcpy(&a0, data.data() + offset, sizeof(double));
     offset += sizeof(double);
+    std::cout << "Loaded RosenbergWave: t1=" << t1 << ", t2=" << t2 << ", a0=" << a0 << std::endl;
 }
 

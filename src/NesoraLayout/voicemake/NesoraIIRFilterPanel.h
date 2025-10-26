@@ -82,6 +82,7 @@ public:
         // UninitAudioDevice();
     }
     void Init();
+    void Update();
 
     NesoraIIRFilter* GetIIRFilter();
 

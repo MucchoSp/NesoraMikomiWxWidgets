@@ -236,6 +236,11 @@ void nsIIRFilterPanel::Init() {
     this->SetSizer(sourceSizer);
 }
 
+void nsIIRFilterPanel::Update() {
+    iirFilter->Refresh(false);
+    std::cout << "IIR Filter Params:" << iirFilter->filter->GetPeaks().size() << std::endl;
+}
+
 NesoraIIRFilter* nsIIRFilterPanel::GetIIRFilter() {
     return iirFilter->filter;
 }

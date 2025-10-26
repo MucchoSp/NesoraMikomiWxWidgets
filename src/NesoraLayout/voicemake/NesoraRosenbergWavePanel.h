@@ -39,6 +39,7 @@ public:
     }
 
     void Init();
+    void Update();
     
     std::vector<double> GetWave() const;
     NesoraRosenbergWave* GetSource();
@@ -55,7 +56,7 @@ private:
     nsSlider* t1slider;
     nsSlider* t2slider;
 
-    NesoraRosenbergWave source_wave;
+    NesoraRosenbergWave* source_wave;
     std::vector<double> wave;// 48000 / 261.6
 
     void OnPitchSlide(wxCommandEvent& event);

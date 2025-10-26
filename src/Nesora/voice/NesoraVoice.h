@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
+#include <iostream>
 
 #include "../Nesora.h"
 
@@ -34,6 +35,12 @@ public:
 
     void SaveVoiceData(const std::string& filename);
     void LoadVoiceData(const std::string& filename);
+
+    std::vector<unsigned char> GetVoiceData();
+    void LoadVoiceData(const std::vector<unsigned char>& fileData);
+
+    NesoraSourceBase* GetSource() const { return source; }
+    NesoraFilterBase* GetFilter() const { return filter; }
 
 private:
 

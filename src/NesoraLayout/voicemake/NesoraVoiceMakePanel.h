@@ -4,6 +4,8 @@
 #define NESORA_VOICE_MAKE_PANEL_H
 
 #include <wx/wx.h>
+#include <wx/filedlg.h>
+#include <wx/wfstream.h>
 
 #include <sstream>
 
@@ -72,6 +74,8 @@ public:
     }
 
     void Init();
+    void OnSave(wxCommandEvent& event);
+    void OnOpen(wxCommandEvent& event);
 
 private:
 

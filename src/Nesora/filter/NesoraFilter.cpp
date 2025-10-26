@@ -145,3 +145,42 @@ double NesoraFormantFilter::Filter(double x) {
 
     return output;
 }
+
+std::vector<unsigned char> NesoraFormantFilter::SaveData() {
+    std::vector<unsigned char> data;
+
+    size_t param_size = paramaters.size();
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&param_size), reinterpret_cast<unsigned char*>(&param_size) + sizeof(size_t));
+
+    for (const auto& param : paramaters) {
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&param.f1_frequency), reinterpret_cast<const unsigned char*>(&param.f1_frequency) + sizeof(double));
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&param.f1_bandwidth), reinterpret_cast<const unsigned char*>(&param.f1_bandwidth) + sizeof(double));
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&param.f1_amplitude), reinterpret_cast<const unsigned char*>(&param.f1_amplitude) + sizeof(double));
+    }
+
+    return data;
+}
+
+void NesoraFormantFilter::LoadData(const std::vector<unsigned char>& data) {
+    paramaters.clear();
+
+    size_t offset = 0;
+
+    size_t param_size;
+    std::memcpy(&param_size, data.data() + offset, sizeof(size_t));
+    offset += sizeof(size_t);
+
+    for (size_t i = 0; i < param_size; ++i) {
+        NesoraFormantParam param;
+        std::memcpy(&param.f1_frequency, data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+        std::memcpy(&param.f1_bandwidth, data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+        std::memcpy(&param.f1_amplitude, data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+
+        paramaters.push_back(param);
+    }
+
+    GenerateKernel();
+}

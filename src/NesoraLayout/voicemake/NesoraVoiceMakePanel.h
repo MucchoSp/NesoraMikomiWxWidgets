@@ -80,6 +80,7 @@ private:
     nsRosenbergWavePanel* sourceSoundPanel;
     nsIIRFilterPanel* filterPanel;
     nsVoiceMakePlayInterfacePanel* playInterfacePanel;
+    NesoraMikomiVoice* voice;
 
     void OnPlayButtonClicked(wxCommandEvent& event);
     void OnStopButtonClicked(wxCommandEvent& event);

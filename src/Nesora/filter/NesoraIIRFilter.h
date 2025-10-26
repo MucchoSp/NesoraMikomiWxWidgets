@@ -51,6 +51,10 @@ public:
     std::vector<double> GetResponse() const;
 
     double Filter(double x) override;
+
+    std::vector<unsigned char> SaveData() override;
+    void LoadData(const std::vector<unsigned char>& data) override;
+
 private:
 
     double samplingFrequency = NesoraDefaultSamplingFrequency;

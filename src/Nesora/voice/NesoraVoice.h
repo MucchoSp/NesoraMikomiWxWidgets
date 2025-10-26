@@ -1,5 +1,10 @@
 #pragma once
 
+#include <string>
+#include <vector>
+#include <fstream>
+#include <cmath>
+
 #include "../Nesora.h"
 
 #ifndef NESORA_VOICE_H
@@ -13,5 +18,30 @@ public:
 private:
 };
 
+class NesoraMikomiVoice : public NesoraVoice {
+public:
+    NesoraMikomiVoice() {}
+    NesoraMikomiVoice(NesoraSourceBase* src, NesoraFilterBase* flt) : source(src), filter(flt) {}
+    ~NesoraMikomiVoice() {}
+
+    void SetSource(NesoraSourceBase* src);
+    void SetFilter(NesoraFilterBase* flt);
+
+    double Synthesize(double radian);
+    double Synthesize(double frequency, double samplingFrequency);
+    double GetRadian() const { return radian; }
+    void SetRadian(double r) { radian = r; }
+
+    void SaveVoiceData(const std::string& filename);
+    void LoadVoiceData(const std::string& filename);
+
+private:
+
+    NesoraSourceBase* source;
+    NesoraFilterBase* filter;
+
+    double radian = 0.0;
+
+};
 
 #endif // NESORA_VOICE_H

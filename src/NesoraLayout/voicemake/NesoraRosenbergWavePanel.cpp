@@ -91,3 +91,11 @@ std::vector<double> nsRosenbergWavePanel::GetWave() const {
     return wave;
 }
 
+NesoraRosenbergWave* nsRosenbergWavePanel::GetSource() {
+    return &source_wave;
+}
+
+double nsRosenbergWavePanel::GetPitch() const {
+    return (double)pitch_slider->GetValue();
+}
+

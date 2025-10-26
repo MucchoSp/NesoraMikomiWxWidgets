@@ -11,6 +11,10 @@ public:
     NesoraSourceBase(){}
 
     virtual double Utterance(double radian) = 0;
+
+    virtual std::vector<unsigned char> SaveData() = 0;
+    virtual void LoadData(const std::vector<unsigned char>& data) = 0;
+
 private:
 
 
@@ -26,7 +30,10 @@ public:
 
     void SetParamater(double tau1, double tau2, double a0);
 
-    double Utterance(double radian);
+    double Utterance(double radian) override;
+
+    std::vector<unsigned char> SaveData() override;
+    void LoadData(const std::vector<unsigned char>& data) override;
 
 private:
 

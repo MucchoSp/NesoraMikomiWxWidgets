@@ -147,5 +147,54 @@ double NesoraIIRFilter::Filter(double x) {
     return y;
 }
 
+std::vector<unsigned char> NesoraIIRFilter::SaveData() {
+    std::vector<unsigned char> data;
+
+    // Save a_coefficients
+    size_t a_size = a_coefficients.size();
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&a_size), reinterpret_cast<unsigned char*>(&a_size) + sizeof(size_t));
+    for (const auto& a : a_coefficients) {
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&a), reinterpret_cast<const unsigned char*>(&a) + sizeof(double));
+    }
+
+    // Save b_coefficients
+    size_t b_size = b_coefficients.size();
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&b_size), reinterpret_cast<unsigned char*>(&b_size) + sizeof(size_t));
+    for (const auto& b : b_coefficients) {
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&b), reinterpret_cast<const unsigned char*>(&b) + sizeof(double));
+    }
+
+    return data;
+}
+
+void NesoraIIRFilter::LoadData(const std::vector<unsigned char>& data) {
+    size_t offset = 0;
+
+    // Load a_coefficients
+    size_t a_size;
+    std::memcpy(&a_size, data.data() + offset, sizeof(size_t));
+    offset += sizeof(size_t);
+    a_coefficients.resize(a_size);
+    for (size_t i = 0; i < a_size; ++i) {
+        std::memcpy(&a_coefficients[i], data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+    }
+
+    // Load b_coefficients
+    size_t b_size;
+    std::memcpy(&b_size, data.data() + offset, sizeof(size_t));
+    offset += sizeof(size_t);
+    b_coefficients.resize(b_size);
+    for (size_t i = 0; i < b_size; ++i) {
+        std::memcpy(&b_coefficients[i], data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+    }
+
+    // Resize history buffers
+    history.resize(a_coefficients.size() - 1, 0.0);
+    output_history.resize(a_coefficients.size() - 1, 0.0);
+    input_history.resize(b_coefficients.size() - 1, 0.0);
+}
+
 
 

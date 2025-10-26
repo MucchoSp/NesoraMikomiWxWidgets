@@ -12,9 +12,11 @@ public:
     NesoraFilterBase(){}
 
     virtual double Filter(double x) = 0;
+
+    virtual std::vector<unsigned char> SaveData() = 0;
+    virtual void LoadData(const std::vector<unsigned char>& data) = 0;
+
 private:
-
-
 };
 
 
@@ -40,7 +42,10 @@ public:
     std::vector<double> GetFilter(double dx, size_t N) const;
 
     void GenerateKernel();
-    double Filter(double x);
+    double Filter(double x) override;
+
+    std::vector<unsigned char> SaveData() override;
+    void LoadData(const std::vector<unsigned char>& data) override;
 
 private:
 

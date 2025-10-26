@@ -46,6 +46,7 @@ void nsVoiceMakePanel::Init() {
     playInterfacePanel = new nsVoiceMakePlayInterfacePanel(this, wxID_ANY);
     sourceSoundPanel = new nsRosenbergWavePanel(this, wxID_ANY);
     filterPanel = new nsIIRFilterPanel(this, wxID_ANY);
+    voice = new NesoraMikomiVoice(sourceSoundPanel->GetSource(), filterPanel->GetIIRFilter());
 
     horizontalSizer->Add(playInterfacePanel, 0, wxEXPAND | wxALL);
     horizontalSizer->Add(sourceSoundPanel, 1, wxEXPAND | wxALL);
@@ -97,18 +98,7 @@ void nsVoiceMakePanel::data_callback(ma_device* pDevice, void* pOutput, const vo
     (void)pInput;
 
     nsVoiceMakePanel* frame = (nsVoiceMakePanel*)pDevice->pUserData;
-    static size_t pos = 0;
     for (ma_uint32 i = 0; i < frameCount; i++) {
-        if (pos >= frame->sourceSoundPanel->GetWave().size()) {
-            if (i != 0)
-                out[i] = out[i - 1];
-            else
-                out[i] = 0;
-            pos = 0;
-        }
-        else {
-            out[i] = (float)frame->filterPanel->GetIIRFilter()->Filter(frame->sourceSoundPanel->GetWave()[pos]) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
-            pos++;
-        }
+        out[i] = (float)frame->voice->Synthesize(frame->sourceSoundPanel->GetPitch(), NesoraDefaultSamplingFrequency) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
     }
 }

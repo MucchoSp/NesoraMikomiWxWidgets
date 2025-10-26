@@ -41,6 +41,9 @@ public:
     void Init();
     
     std::vector<double> GetWave() const;
+    NesoraRosenbergWave* GetSource();
+
+    double GetPitch() const;
 
 private:
     nsSimpleChartControl* chart;

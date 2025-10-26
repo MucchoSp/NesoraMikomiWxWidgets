@@ -13,6 +13,7 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
 
 void nsRosenbergWavePanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
+    source_wave = new NesoraRosenbergWave();
 
     source_wave->SetParamater(0.25, 0.5, -0.5);
     wave.resize(183);// 48000/261.6
@@ -66,8 +67,9 @@ void nsRosenbergWavePanel::Init() {
 
 void nsRosenbergWavePanel::Update() {
     pitch_slider->SetValue((int)GetPitch());
-    t1slider->SetValue((int)(source_wave->GetT1() * 10000.0));
-    t2slider->SetValue((int)(source_wave->GetT2() * 10000.0));
+    t1slider->SetValue((int)(source_wave->GetT1() * 1000.0));
+    t2slider->SetValue((int)(source_wave->GetT2() * 1000.0));
+    std::cout << "Rosenberg paramater: Pitch " << GetPitch() << " Hz, T1 " << source_wave->GetT1() << ", T2 " << source_wave->GetT2() << std::endl;
 }
 
 

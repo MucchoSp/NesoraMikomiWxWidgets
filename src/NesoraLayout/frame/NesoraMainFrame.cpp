@@ -52,9 +52,9 @@ nsMainFrame::nsMainFrame()
 
 void nsMainFrame::menuSetup() {
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
-    menuFile->Append(wxID_SAVE, "&Save\tCtrl-S", "Save the current file");
-    menuFile->Append(wxID_OPEN, "&Open...\tCtrl-O", "Open a file");
+    menuFile->Append(ID_Hello, _T("&Hello...\tCtrl-H"), _T("Help string shown in status bar for this menu item"));
+    menuFile->Append(wxID_SAVE, _T("&Save\tCtrl-S"), _T("Save the current file"));
+    menuFile->Append(wxID_OPEN, _T("&Open...\tCtrl-O"), _T("Open a file"));
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT);
 
@@ -62,8 +62,8 @@ void nsMainFrame::menuSetup() {
     menuHelp->Append(wxID_ABOUT);
 
     wxMenuBar* menuBar = new wxMenuBar;
-    menuBar->Append(menuFile, _("&File"));
-    menuBar->Append(menuHelp, _("&Help"));
+    menuBar->Append(menuFile, _T("&File"));
+    menuBar->Append(menuHelp, _T("&Help"));
 
     SetMenuBar(menuBar);
 

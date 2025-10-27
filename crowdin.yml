@@ -1,0 +1,3 @@
+files:
+  - source: /locale/NesoraMikomiWxWidgets.pot
+    translation: /locale/%two_letters_code%/NesoraMikomiWxWidgets.po

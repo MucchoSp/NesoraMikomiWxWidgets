@@ -72,6 +72,9 @@
     <ClInclude Include="src\Nesora\NesoraDefines.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="src\Nesora\voice\NesoraVoice.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\NesoraMikomi.cpp">
@@ -120,6 +123,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="src\Nesora\filter\NesoraIIRFilter.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Nesora\voice\NesoraVoice.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

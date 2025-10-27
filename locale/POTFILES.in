@@ -1,0 +1,16 @@
+src\NesoraLayout\frame\NesoraMainFrame.cpp
+src\NesoraLayout\sing\NesoraSingPanel.cpp
+src\NesoraLayout\speak\NesoraSpeakPanel.cpp
+src\NesoraLayout\voicemake\NesoraFormantFilterPanel.cpp
+src\NesoraLayout\voicemake\NesoraIIRFilterPanel.cpp
+src\NesoraLayout\voicemake\NesoraRosenbergWavePanel.cpp
+src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp
+src\NesoraMikomi.cpp
+src\NesoraStyle\button\NesoraButton.cpp
+src\NesoraStyle\chart\NesoraChart.cpp
+src\NesoraStyle\chart\NesoraSimpleChart.cpp
+src\NesoraStyle\slider\NesoraSlider.cpp
+src\Nesora\filter\NesoraFilter.cpp
+src\Nesora\filter\NesoraIIRFilter.cpp
+src\Nesora\source\NesoraSource.cpp
+src\Nesora\voice\NesoraVoice.cpp

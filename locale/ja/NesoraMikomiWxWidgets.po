@@ -1,0 +1,127 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-27 23:48+0900\n"
+"PO-Revision-Date: 2025-10-27 23:53+0900\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:6
+msgid "Nesora 1-0"
+msgstr "音諳 1-0"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:23
+msgid "Sing"
+msgstr "歌う"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:24
+msgid "Talk"
+msgstr "話す"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:25
+msgid "Make Voice"
+msgstr "作る"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:55
+msgid "&Hello...\tCtrl-H"
+msgstr "&ハロー\tCtrl-H"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:55
+msgid "Help string shown in status bar for this menu item"
+msgstr "このメニュー項目についてステータスバーに表示されるヘルプ文字列"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:56
+msgid "&Save\tCtrl-S"
+msgstr "&保存\tCtrl-S"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:56
+msgid "Save the current file"
+msgstr "現在のファイルを保存"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:57
+msgid "&Open...\tCtrl-O"
+msgstr "&開く\tCtrl-O"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:57
+msgid "Open a file"
+msgstr "ファイルを開く"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:65
+msgid "&File"
+msgstr "&ファイル"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:66
+msgid "&Help"
+msgstr "&ヘルプ"
+
+#: src\NesoraLayout\sing\NesoraSingPanel.cpp:4
+msgid "This is the Sing Panel"
+msgstr "これは歌うところになる予定"
+
+#: src\NesoraLayout\sing\NesoraSingPanel.cpp:8
+msgid "The process for saving the singing panel has not yet been implemented..."
+msgstr "歌うパネルの保存する処理はまだ未実装です..."
+
+#: src\NesoraLayout\sing\NesoraSingPanel.cpp:12
+msgid "The process for opening the singing panel has not yet been implemented..."
+msgstr "歌うパネルの開く処理はまだ未実装です..."
+
+#: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:4
+msgid "This is the Speak Panel"
+msgstr "これは話すところになる予定"
+
+#: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:8
+msgid "The process for saving the talking panel has not been implemented!"
+msgstr "喋るパネルの保存する処理は実装されていませんよ！"
+
+#: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:12
+msgid "The process for opening the talking panel has not been implemented!"
+msgstr "喋るパネルの開く処理は実装されていませんよ！"
+
+#: src\NesoraLayout\voicemake\NesoraFormantFilterPanel.cpp:9
+msgid "Formant filter"
+msgstr "フォルマントフィルター"
+
+#: src\NesoraLayout\voicemake\NesoraFormantFilterPanel.cpp:20
+msgid "Add Formant"
+msgstr "フォルマントを追加"
+
+#: src\NesoraLayout\voicemake\NesoraIIRFilterPanel.cpp:298
+msgid "IIR Filter"
+msgstr "IIRフィルター"
+
+#: src\NesoraLayout\voicemake\NesoraRosenbergWavePanel.cpp:24
+msgid "Rosenberg Wave"
+msgstr "ローゼンバーグ波"
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:15
+msgid "Play Interface"
+msgstr "再生など"
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:16
+msgid "Play"
+msgstr "再生"
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:17
+msgid "Stop"
+msgstr "停止"
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:107
+msgid "Save Voice"
+msgstr "声を保存"
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:127
+msgid "Open Voice"
+msgstr "声を開く"

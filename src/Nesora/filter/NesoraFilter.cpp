@@ -37,7 +37,7 @@ inline double numerical_integration(double b, double sigma, double n, int N = 10
     double delta_omega = nsPI / static_cast<double>(N);
     double sum = (integrand(0.0, b, sigma, n) + integrand(nsPI, b, sigma, n)) / 2.0;
 
-    for (int k = 1; k < N; ++k) {
+    for (int k = 1; k < N; k++) {
         double omega_k = k * delta_omega;
         sum += integrand(omega_k, b, sigma, n);
     }
@@ -47,7 +47,7 @@ inline double numerical_integration(double b, double sigma, double n, int N = 10
 
 double calculate_h_n(double a, double b, double sigma, double n) {
     if (sigma <= 0.0) {
-        std::cerr << "Error: sigma must be greater than 0." << std::endl;
+        std::cout << "Error: sigma must be greater than 0." << std::endl;
         return NAN; // Not a Number (計算不能)
     }
 
@@ -64,7 +64,7 @@ std::vector<double> generate_filter_kernel(double a, double b, double sigma, int
 
     double sum = 0.0;
 
-    for (int i = 0; i < kernel_size; ++i) {
+    for (int i = 0; i < kernel_size; i++) {
         int n = i - kernel_radius;
         
         kernel[i] = calculate_h_n(a, b, sigma, static_cast<double>(n));
@@ -72,7 +72,7 @@ std::vector<double> generate_filter_kernel(double a, double b, double sigma, int
     }
     
     if (sum != 0.0) {
-        for (int i = 0; i < kernel_size; ++i) {
+        for (int i = 0; i < kernel_size; i++) {
             kernel[i] /= sum;
         }
     }
@@ -92,8 +92,8 @@ std::vector<double> convolve(const std::vector<double>& signal, const std::vecto
     // y[n] = sum_k (x[k] * h[n-k]) を計算する
     // (実装上は y[n] = sum_k (x[n-k] * h[k]) の方が書きやすい)
     
-    for (int n = 0; n < output.size(); ++n) {
-        for (int k = 0; k < kernel_len; ++k) {
+    for (int n = 0; n < output.size(); n++) {
+        for (int k = 0; k < kernel_len; k++) {
             
             // x(n-k) に対応するインデックス
             int signal_index = n - k;
@@ -144,4 +144,43 @@ double NesoraFormantFilter::Filter(double x) {
     }
 
     return output;
+}
+
+std::vector<unsigned char> NesoraFormantFilter::SaveData() {
+    std::vector<unsigned char> data;
+
+    size_t param_size = paramaters.size();
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&param_size), reinterpret_cast<unsigned char*>(&param_size) + sizeof(size_t));
+
+    for (const auto& param : paramaters) {
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&param.f1_frequency), reinterpret_cast<const unsigned char*>(&param.f1_frequency) + sizeof(double));
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&param.f1_bandwidth), reinterpret_cast<const unsigned char*>(&param.f1_bandwidth) + sizeof(double));
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&param.f1_amplitude), reinterpret_cast<const unsigned char*>(&param.f1_amplitude) + sizeof(double));
+    }
+
+    return data;
+}
+
+void NesoraFormantFilter::LoadData(const std::vector<unsigned char>& data) {
+    paramaters.clear();
+
+    size_t offset = 0;
+
+    size_t param_size;
+    std::memcpy(&param_size, data.data() + offset, sizeof(size_t));
+    offset += sizeof(size_t);
+
+    for (size_t i = 0; i < param_size; i++) {
+        NesoraFormantParam param;
+        std::memcpy(&param.f1_frequency, data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+        std::memcpy(&param.f1_bandwidth, data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+        std::memcpy(&param.f1_amplitude, data.data() + offset, sizeof(double));
+        offset += sizeof(double);
+
+        paramaters.push_back(param);
+    }
+
+    GenerateKernel();
 }

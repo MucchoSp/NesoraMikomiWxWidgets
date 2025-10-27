@@ -28,11 +28,13 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-        const wxString& name = wxASCII_STR(wxPanelNameStr));
-    
-    NesoraIIRFilter* filter;
-private:
+        const wxString& name = wxASCII_STR(wxPanelNameStr)); 
 
+    NesoraIIRFilter* filter;
+    // Sync control point geometry from the underlying filter's peaks/dips
+    void SyncControlPointsFromFilter();
+private:
+    
     std::vector<double> frequencyResponse;
 
     std::vector<wxRect2DDouble> peakControlPoints;
@@ -82,6 +84,7 @@ public:
         // UninitAudioDevice();
     }
     void Init();
+    void Update();
 
     NesoraIIRFilter* GetIIRFilter();
 

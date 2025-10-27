@@ -8,10 +8,7 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "../../../lib/miniaudio_split/miniaudio.h"
 
-#include "../../NesoraStyle/button/NesoraButton.h"
-#include "../../NesoraStyle/NesoraColor.h"
-#include "../../NesoraStyle/chart/NesoraSimpleChart.h"
-#include "../../NesoraStyle/slider/NesoraSlider.h"
+#include "../../NesoraStyle/NesoraStyle.h"
 #include "../../NesoraLayout/NesoraIDs.h"
 
 #include "../../Nesora/source/NesoraSource.h"
@@ -28,6 +25,9 @@ public:
     }
 
     void Init();
+    void OnSave(wxCommandEvent& event);
+    void OnOpen(wxCommandEvent& event);
+
 private:
 };
 

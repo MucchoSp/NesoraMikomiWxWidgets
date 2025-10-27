@@ -12,9 +12,9 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
 void nsVoiceMakePlayInterfacePanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     
-    wxStaticBoxSizer* sizer = new wxStaticBoxSizer(wxVERTICAL, this, "Play Interface");
-    playButton = new nsButton(sizer->GetStaticBox(), wxID_ANY, _T("Play"));
-    stopButton = new nsButton(sizer->GetStaticBox(), wxID_ANY, _T("Stop"));
+    wxStaticBoxSizer* sizer = new wxStaticBoxSizer(wxVERTICAL, this, _("Play Interface"));
+    playButton = new nsButton(sizer->GetStaticBox(), wxID_ANY, _("Play"));
+    stopButton = new nsButton(sizer->GetStaticBox(), wxID_ANY, _("Stop"));
     statusText = new wxStaticText(sizer->GetStaticBox(), wxID_ANY, "0.00 dB");
     statusText->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     statusText->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
@@ -36,7 +36,7 @@ void nsVoiceMakePlayInterfacePanel::OnVolumeSlide(wxCommandEvent& event) {
 
 
 
-
+// MARK: nsVoiceMakePanel
 
 void nsVoiceMakePanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
@@ -46,6 +46,7 @@ void nsVoiceMakePanel::Init() {
     playInterfacePanel = new nsVoiceMakePlayInterfacePanel(this, wxID_ANY);
     sourceSoundPanel = new nsRosenbergWavePanel(this, wxID_ANY);
     filterPanel = new nsIIRFilterPanel(this, wxID_ANY);
+    voice = new NesoraMikomiVoice(sourceSoundPanel->GetSource(), filterPanel->GetIIRFilter());
 
     horizontalSizer->Add(playInterfacePanel, 0, wxEXPAND | wxALL);
     horizontalSizer->Add(sourceSoundPanel, 1, wxEXPAND | wxALL);
@@ -72,7 +73,7 @@ void nsVoiceMakePanel::InitAudioDevice() {
     deviceConfig = ma_device_config_init(ma_device_type_playback);
     deviceConfig.playback.format = ma_format_f32;
     deviceConfig.playback.channels = 1;
-    deviceConfig.sampleRate = 48000;
+    deviceConfig.sampleRate = NesoraDefaultSamplingFrequency;
     deviceConfig.dataCallback = nsVoiceMakePanel::data_callback;
     deviceConfig.pUserData = this;
 
@@ -97,18 +98,55 @@ void nsVoiceMakePanel::data_callback(ma_device* pDevice, void* pOutput, const vo
     (void)pInput;
 
     nsVoiceMakePanel* frame = (nsVoiceMakePanel*)pDevice->pUserData;
-    static size_t pos = 0;
     for (ma_uint32 i = 0; i < frameCount; i++) {
-        if (pos >= frame->sourceSoundPanel->GetWave().size()) {
-            if (i != 0)
-                out[i] = out[i - 1];
-            else
-                out[i] = 0;
-            pos = 0;
-        }
-        else {
-            out[i] = (float)frame->filterPanel->GetIIRFilter()->Filter(frame->sourceSoundPanel->GetWave()[pos]) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
-            pos++;
-        }
+        out[i] = (float)frame->voice->Synthesize(frame->sourceSoundPanel->GetPitch(), NesoraDefaultSamplingFrequency) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
     }
+}
+
+void nsVoiceMakePanel::OnSave(wxCommandEvent& event) {
+    wxFileDialog saveFileDialog(this, _("Save Voice"), "", "",
+        "Nesora Voice Files (*.nsvo)|*.nsvo", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+    if (saveFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxFileOutputStream output_stream(saveFileDialog.GetPath());
+    if (!output_stream.IsOk()) {
+        wxLogError("Cannot save current voice to file '%s'.", saveFileDialog.GetPath());
+        return;
+    }
+    
+    std::vector<unsigned char> voiceData = voice->GetVoiceData();
+    output_stream.Write(voiceData.data(), voiceData.size());
+    output_stream.Close();
+
+    wxLogMessage("Voice saved to '%s'.", saveFileDialog.GetPath());
+}
+
+void nsVoiceMakePanel::OnOpen(wxCommandEvent& event) {
+    wxFileDialog openFileDialog(this, _("Open Voice"), "", "",
+        "Nesora Voice Files (*.nsvo)|*.nsvo", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxFileInputStream input_stream(openFileDialog.GetPath());
+    if (!input_stream.IsOk()) {
+        wxLogError("Cannot open file '%s'.", openFileDialog.GetPath());
+        return;
+    }
+
+    std::vector<unsigned char> fileData;
+    size_t fileSize = input_stream.GetSize();
+    fileData.resize(fileSize);
+    input_stream.Read(fileData.data(), fileSize);
+
+    voice->LoadVoiceData(fileData);
+
+    sourceSoundPanel->Update();
+    if (filterPanel) {
+        filterPanel->Update();
+    }
+
+    wxLogMessage("Voice loaded from '%s'.", openFileDialog.GetPath());
 }

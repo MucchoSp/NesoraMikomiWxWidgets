@@ -91,6 +91,8 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
 
     wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
     if (gc) {
+        wxFont font = GetFont();
+        gc->SetFont(font, nsGetColor(nsColorType::ON_BACKGROUND));
         gc->SetBrush(wxBrush(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
         gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
         for (int i = 0;i < nyquistFrequency / 1000;i++) {
@@ -107,14 +109,41 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
         gc->StrokePath(path);
 
         for (size_t i = 1; i < peakControlPoints.size(); i++) {
-            gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));
-            gc->DrawEllipse(peakControlPoints[i].m_x, peakControlPoints[i].m_y, 10, 10);
+            if(i == selectedPeakControlPointIndex) 
+                gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY_HOVER)));
+            else
+                gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));
+            gc->DrawEllipse(peakControlPoints[i].m_x, peakControlPoints[i].m_y, peakControlPoints[i].m_width, peakControlPoints[i].m_height);
         }
         for (size_t i = 1; i < dipControlPoints.size(); i++) {
-            gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
-            gc->DrawEllipse(dipControlPoints[i].m_x, dipControlPoints[i].m_y, 10, 10);
+            if(i == selectedDipControlPointIndex)
+                gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY_HOVER)));
+            else
+                gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
+            gc->DrawEllipse(dipControlPoints[i].m_x, dipControlPoints[i].m_y, dipControlPoints[i].m_width, dipControlPoints[i].m_height);
         }
 
+        
+        gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
+        gc->SetPen(wxPen(nsGetColor(nsColorType::BACKGROUND_SHADOW)));
+        if(selectedPeakControlPointIndex != -1){
+            wxString outputString = wxString::Format("peak(%0.2fHz, %0.2f)", filter->GetPeaks()[selectedPeakControlPointIndex - 1].theta * NesoraDefaultSamplingFrequency / ns2PI, filter->GetPeaks()[selectedPeakControlPointIndex - 1].r);
+            double tw, th;
+            gc->GetTextExtent(outputString, &tw, &th);
+            int x = peakControlPoints[selectedPeakControlPointIndex].m_x + peakControlPoints[selectedPeakControlPointIndex].m_width + tw < size.GetWidth() ? peakControlPoints[selectedPeakControlPointIndex].m_x + peakControlPoints[selectedPeakControlPointIndex].m_width : peakControlPoints[selectedPeakControlPointIndex].m_x - tw;
+            int y = peakControlPoints[selectedPeakControlPointIndex].m_y + peakControlPoints[selectedPeakControlPointIndex].m_height + th < size.GetHeight() ? peakControlPoints[selectedPeakControlPointIndex].m_y + peakControlPoints[selectedPeakControlPointIndex].m_height : peakControlPoints[selectedPeakControlPointIndex].m_y - th;
+            gc->DrawRectangle(x,y,tw,th);
+            gc->DrawText(outputString, x, y);
+        }
+        if(selectedDipControlPointIndex != -1){
+            wxString outputString = wxString::Format("dip(%0.2fHz, %0.2f)", filter->GetDips()[selectedDipControlPointIndex - 1].theta * NesoraDefaultSamplingFrequency / ns2PI, filter->GetDips()[selectedDipControlPointIndex - 1].r);
+            double tw, th;
+            gc->GetTextExtent(outputString, &tw, &th);
+            int x = dipControlPoints[selectedDipControlPointIndex].m_x + dipControlPoints[selectedDipControlPointIndex].m_width + tw < size.GetWidth() ? dipControlPoints[selectedDipControlPointIndex].m_x + dipControlPoints[selectedDipControlPointIndex].m_width : dipControlPoints[selectedDipControlPointIndex].m_x - tw;
+            int y = dipControlPoints[selectedDipControlPointIndex].m_y + dipControlPoints[selectedDipControlPointIndex].m_height + th < size.GetHeight() ? dipControlPoints[selectedDipControlPointIndex].m_y + dipControlPoints[selectedDipControlPointIndex].m_height : dipControlPoints[selectedDipControlPointIndex].m_y - th;
+            gc->DrawRectangle(x,y,tw,th);
+            gc->DrawText(outputString, x, y);
+        }
         delete gc;
     }
 }
@@ -128,15 +157,15 @@ void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
             peakControlPoints[selectedPeakControlPointIndex].m_x = std::min(std::max((double)event.GetX() - 5, 0.0), (double)GetClientSize().GetWidth() - 5.0);
             peakControlPoints[selectedPeakControlPointIndex].m_y = std::min(std::max((double)event.GetY() - 5, 0.0), (double)GetClientSize().GetHeight() - 5.0);
             
-            filter->GetPeaks()[selectedPeakControlPointIndex - 1].theta = peakControlPoints[selectedPeakControlPointIndex].m_x / (double)GetClientSize().GetWidth() * nsPI;
-            filter->GetPeaks()[selectedPeakControlPointIndex - 1].r = ((double)GetClientSize().GetHeight() - peakControlPoints[selectedPeakControlPointIndex].m_y) / (double)GetClientSize().GetHeight();
+            filter->GetPeaks()[selectedPeakControlPointIndex - 1].theta = (peakControlPoints[selectedPeakControlPointIndex].m_x + 5) / (double)GetClientSize().GetWidth() * nsPI;
+            filter->GetPeaks()[selectedPeakControlPointIndex - 1].r = ((double)GetClientSize().GetHeight() - (peakControlPoints[selectedPeakControlPointIndex].m_y + 5)) / (double)GetClientSize().GetHeight();
         }
         if (selectedDipControlPointIndex != -1) {
             dipControlPoints[selectedDipControlPointIndex].m_x = std::min(std::max((double)event.GetX() - 5, 0.0), (double)GetClientSize().GetWidth() - 5.0);
             dipControlPoints[selectedDipControlPointIndex].m_y = std::min(std::max((double)event.GetY() - 5, 0.0), (double)GetClientSize().GetHeight() - 5.0);
 
-            filter->GetDips()[selectedDipControlPointIndex - 1].theta = dipControlPoints[selectedDipControlPointIndex].m_x / (double)GetClientSize().GetWidth() * nsPI;
-            filter->GetDips()[selectedDipControlPointIndex - 1].r = dipControlPoints[selectedDipControlPointIndex].m_y / (double)GetClientSize().GetHeight();
+            filter->GetDips()[selectedDipControlPointIndex - 1].theta = (dipControlPoints[selectedDipControlPointIndex].m_x + 5) / (double)GetClientSize().GetWidth() * nsPI;
+            filter->GetDips()[selectedDipControlPointIndex - 1].r = (dipControlPoints[selectedDipControlPointIndex].m_y + 5) / (double)GetClientSize().GetHeight();
         }
         filter->CalculateCoefficientsFromPDs();
         filter->CalculateFrequencyResponse(GetClientSize().GetWidth());

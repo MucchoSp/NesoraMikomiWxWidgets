@@ -1,0 +1,2 @@
+potファイルを生成するコマンドはこれ:
+xgettext -k_ --language=c++ --from-code=UTF-8 -o NesoraMikomiWxWidgets.pot -D ../ -f POTFILES.in

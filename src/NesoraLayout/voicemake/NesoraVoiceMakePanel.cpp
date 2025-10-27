@@ -12,9 +12,9 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
 void nsVoiceMakePlayInterfacePanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     
-    wxStaticBoxSizer* sizer = new wxStaticBoxSizer(wxVERTICAL, this, "Play Interface");
-    playButton = new nsButton(sizer->GetStaticBox(), wxID_ANY, _T("Play"));
-    stopButton = new nsButton(sizer->GetStaticBox(), wxID_ANY, _T("Stop"));
+    wxStaticBoxSizer* sizer = new wxStaticBoxSizer(wxVERTICAL, this, _("Play Interface"));
+    playButton = new nsButton(sizer->GetStaticBox(), wxID_ANY, _("Play"));
+    stopButton = new nsButton(sizer->GetStaticBox(), wxID_ANY, _("Stop"));
     statusText = new wxStaticText(sizer->GetStaticBox(), wxID_ANY, "0.00 dB");
     statusText->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     statusText->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));

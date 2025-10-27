@@ -42,16 +42,13 @@ void NesoraIIRFilter::CalculateCoefficientsFromPDs() {
         double theta = peak.theta;
         std::vector<double> second_order = {1.0, -2.0 * r * std::cos(theta), r * r};
         std::vector<double> new_a(a_coefficients.size() + 2, 0.0);
-        for (size_t i = 0; i < a_coefficients.size(); ++i) {
-            for (size_t j = 0; j < second_order.size(); ++j) {
+        for (size_t i = 0; i < a_coefficients.size(); i++) {
+            for (size_t j = 0; j < second_order.size(); j++) {
                 new_a[i + j] += a_coefficients[i] * second_order[j];
             }
         }
         a_coefficients = new_a;
     }
-    double A1 = 0.0;
-    for (auto& ak : a_coefficients)
-        A1 += ak;
 
     // 分子係数の計算
     b_coefficients = {1.0};
@@ -60,15 +57,18 @@ void NesoraIIRFilter::CalculateCoefficientsFromPDs() {
         double theta = dip.theta;
         std::vector<double> second_order = {1.0, -2.0 * r * std::cos(theta), r * r};
         std::vector<double> new_b(b_coefficients.size() + 2, 0.0);
-        for (size_t i = 0; i < b_coefficients.size(); ++i) {
-            for (size_t j = 0; j < second_order.size(); ++j) {
+        for (size_t i = 0; i < b_coefficients.size(); i++) {
+            for (size_t j = 0; j < second_order.size(); j++) {
                 new_b[i + j] += b_coefficients[i] * second_order[j];
             }
         }
         b_coefficients = new_b;
     }
+    double A1 = 0.0;
+    for (const auto& ak : a_coefficients)
+        A1 += ak;
     double B1 = 0.0;
-    for (auto& bk : b_coefficients)
+    for (const auto& bk : b_coefficients)
         B1 += bk;
     Gain = A1 / B1;
     for (auto& bk : b_coefficients)
@@ -80,7 +80,7 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
     if (num_samples <= 0) return response;
     response.reserve(num_samples);
 
-    for (int n = 0; n < num_samples; ++n) {
+    for (int n = 0; n < num_samples; n++) {
         double omega;
         if (num_samples == 1) omega = 0.0;
         else omega = nsPI * static_cast<double>(n) / static_cast<double>(num_samples - 1);
@@ -129,12 +129,12 @@ double NesoraIIRFilter::Filter(double x) {
 
     // 分子部分
     y += b_coefficients[0] * x;
-    for (size_t i = 1; i < b_coefficients.size(); ++i) {
+    for (size_t i = 1; i < std::min(b_coefficients.size(), input_history.size() + 1); i++) {
         y += b_coefficients[i] * input_history[i - 1];
     }
 
     // 分母部分
-    for (size_t i = 1; i < a_coefficients.size(); ++i) {
+    for (size_t i = 1; i < std::min(a_coefficients.size(), output_history.size() + 1); i++) {
         y -= a_coefficients[i] * output_history[i - 1];
     }
 
@@ -181,15 +181,15 @@ void NesoraIIRFilter::LoadData(const std::vector<unsigned char>& data) {
     // Load peaks
     size_t peaks_size = 0;
     if (!read_size(peaks_size)) {
-        std::cerr << "NesoraIIRFilter::LoadData: insufficient data for peaks_size" << std::endl;
+        std::cout << "NesoraIIRFilter::LoadData: insufficient data for peaks_size" << std::endl;
         return;
     }
     if (offset + peaks_size * sizeof(double) * 2 > total) {
-        std::cerr << "NesoraIIRFilter::LoadData: peaks data exceeds buffer" << std::endl;
+        std::cout << "NesoraIIRFilter::LoadData: peaks data exceeds buffer" << std::endl;
         return;
     }
     peaks.clear();
-    for (size_t i = 0; i < peaks_size; ++i) {
+    for (size_t i = 0; i < peaks_size; i++) {
         NesoraIIRFilterPD p;
         std::memcpy(&p.r, data.data() + offset, sizeof(double));
         offset += sizeof(double);
@@ -201,15 +201,15 @@ void NesoraIIRFilter::LoadData(const std::vector<unsigned char>& data) {
     // Load dips
     size_t dips_size = 0;
     if (!read_size(dips_size)) {
-        std::cerr << "NesoraIIRFilter::LoadData: insufficient data for dips_size" << std::endl;
+        std::cout << "NesoraIIRFilter::LoadData: insufficient data for dips_size" << std::endl;
         return;
     }
     if (offset + dips_size * sizeof(double) * 2 > total) {
-        std::cerr << "NesoraIIRFilter::LoadData: dips data exceeds buffer" << std::endl;
+        std::cout << "NesoraIIRFilter::LoadData: dips data exceeds buffer" << std::endl;
         return;
     }
     dips.clear();
-    for (size_t i = 0; i < dips_size; ++i) {
+    for (size_t i = 0; i < dips_size; i++) {
         NesoraIIRFilterPD d;
         std::memcpy(&d.r, data.data() + offset, sizeof(double));
         offset += sizeof(double);
@@ -218,9 +218,6 @@ void NesoraIIRFilter::LoadData(const std::vector<unsigned char>& data) {
         dips.push_back(d);
     }
 
-    // Recalculate coefficients from PDs and prepare histories
-    CalculateCoefficientsFromPDs();
-    CalculateFrequencyResponse(512); // reasonable default until UI recalculates with actual width
     if (a_coefficients.size() >= 1) {
         history.resize(a_coefficients.size() - 1, 0.0);
         output_history.resize(a_coefficients.size() - 1, 0.0);
@@ -233,6 +230,9 @@ void NesoraIIRFilter::LoadData(const std::vector<unsigned char>& data) {
     } else {
         input_history.clear();
     }
+    // Recalculate coefficients from PDs and prepare histories
+    CalculateCoefficientsFromPDs();
+    CalculateFrequencyResponse(512); // reasonable default until UI recalculates with actual width
 }
 
 

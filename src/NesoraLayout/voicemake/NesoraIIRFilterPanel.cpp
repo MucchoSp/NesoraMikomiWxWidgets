@@ -53,14 +53,14 @@ void nsIIRFrequencyResponseControl::SyncControlPointsFromFilter() {
 
     // Initialize control point rectangles based on current filter PDs
     if (filter) {
-        for (size_t i = 1; i < peakControlPoints.size(); ++i) {
+        for (size_t i = 1; i < peakControlPoints.size(); i++) {
             const auto& p = filter->GetPeaks()[i - 1];
             peakControlPoints[i].m_x = p.theta / nsPI * (double)GetClientSize().GetWidth();
             peakControlPoints[i].m_y = -p.r * (double)GetClientSize().GetHeight() + (double)GetClientSize().GetHeight();
             peakControlPoints[i].m_width = 10;
             peakControlPoints[i].m_height = 10;
         }
-        for (size_t i = 1; i < dipControlPoints.size(); ++i) {
+        for (size_t i = 1; i < dipControlPoints.size(); i++) {
             const auto& d = filter->GetDips()[i - 1];
             dipControlPoints[i].m_x = d.theta / nsPI * (double)GetClientSize().GetWidth();
             dipControlPoints[i].m_y = d.r * (double)GetClientSize().GetHeight();
@@ -69,13 +69,15 @@ void nsIIRFrequencyResponseControl::SyncControlPointsFromFilter() {
         }
     } else {
         // default positions
-        for (size_t i = 1; i < peakControlPoints.size(); ++i) {
+        for (size_t i = 1; i < peakControlPoints.size(); i++) {
             peakControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
         }
-        for (size_t i = 1; i < dipControlPoints.size(); ++i) {
+        for (size_t i = 1; i < dipControlPoints.size(); i++) {
             dipControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
         }
     }
+    filter->CalculateCoefficientsFromPDs();
+    filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
 }
 
 void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
@@ -99,16 +101,16 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
         gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND), 2));
         wxGraphicsPath path = gc->CreatePath();
         path.MoveToPoint(0, size.GetHeight() / 2 - frequencyResponse[0] * (size.GetHeight() / 2));
-        for (size_t i = 1; i < frequencyResponse.size(); ++i) {
+        for (size_t i = 1; i < frequencyResponse.size(); i++) {
             path.AddLineToPoint(i, size.GetHeight() / 2 - frequencyResponse[i] * (size.GetHeight() / 2));
         }
         gc->StrokePath(path);
 
-        for (size_t i = 1; i < peakControlPoints.size(); ++i) {
+        for (size_t i = 1; i < peakControlPoints.size(); i++) {
             gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));
             gc->DrawEllipse(peakControlPoints[i].m_x, peakControlPoints[i].m_y, 10, 10);
         }
-        for (size_t i = 1; i < dipControlPoints.size(); ++i) {
+        for (size_t i = 1; i < dipControlPoints.size(); i++) {
             gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
             gc->DrawEllipse(dipControlPoints[i].m_x, dipControlPoints[i].m_y, 10, 10);
         }
@@ -277,9 +279,6 @@ void nsIIRFilterPanel::Update() {
     if (iirFilter) {
         iirFilter->SyncControlPointsFromFilter();
         iirFilter->Refresh(false);
-        if (iirFilter->filter) {
-            std::cout << "IIR Filter Params:" << iirFilter->filter->GetPeaks().size() << std::endl;
-        }
     }
 }
 

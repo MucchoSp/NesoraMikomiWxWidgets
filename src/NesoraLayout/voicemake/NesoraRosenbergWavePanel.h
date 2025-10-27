@@ -6,6 +6,7 @@
 #include <wx/wx.h>
 
 #include <sstream>
+#include <random>
 
 #define MINIAUDIO_IMPLEMENTATION
 #include "../../../lib/miniaudio_split/miniaudio.h"
@@ -50,9 +51,11 @@ private:
     nsSimpleChartControl* chart;
 
     wxStaticText* pitch_param;
+    wxStaticText* phonetic_param;
     wxStaticText* t1param;
     wxStaticText* t2param;
     nsSlider* pitch_slider;
+    nsSlider* phonetic_slider;
     nsSlider* t1slider;
     nsSlider* t2slider;
 
@@ -60,6 +63,7 @@ private:
     std::vector<double> wave;// 48000 / 261.6
 
     void OnPitchSlide(wxCommandEvent& event);
+    void OnPhoneticSlide(wxCommandEvent& event);
     void OnT1Slide(wxCommandEvent& event);
     void OnT2Slide(wxCommandEvent& event);
 };

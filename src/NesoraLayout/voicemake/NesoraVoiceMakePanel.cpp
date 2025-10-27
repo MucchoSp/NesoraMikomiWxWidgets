@@ -73,7 +73,7 @@ void nsVoiceMakePanel::InitAudioDevice() {
     deviceConfig = ma_device_config_init(ma_device_type_playback);
     deviceConfig.playback.format = ma_format_f32;
     deviceConfig.playback.channels = 1;
-    deviceConfig.sampleRate = 48000;
+    deviceConfig.sampleRate = NesoraDefaultSamplingFrequency;
     deviceConfig.dataCallback = nsVoiceMakePanel::data_callback;
     deviceConfig.pUserData = this;
 
@@ -143,7 +143,6 @@ void nsVoiceMakePanel::OnOpen(wxCommandEvent& event) {
 
     voice->LoadVoiceData(fileData);
 
-    // Update both source and filter panels so UI reflects loaded data
     sourceSoundPanel->Update();
     if (filterPanel) {
         filterPanel->Update();

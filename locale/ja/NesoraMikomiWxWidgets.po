@@ -1,22 +1,21 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: nesoramikomi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-27 23:48+0900\n"
-"PO-Revision-Date: 2025-10-27 23:53+0900\n"
+"PO-Revision-Date: 2025-10-27 15:30\n"
 "Last-Translator: \n"
-"Language-Team: \n"
-"Language: ja\n"
+"Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: nesoramikomi\n"
+"X-Crowdin-Project-ID: 841520\n"
+"X-Crowdin-Language: ja\n"
+"X-Crowdin-File: /locale/locale/NesoraMikomiWxWidgets.pot\n"
+"X-Crowdin-File-ID: 6\n"
+"Language: ja_JP\n"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:6
 msgid "Nesora 1-0"
@@ -125,3 +124,4 @@ msgstr "声を保存"
 #: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:127
 msgid "Open Voice"
 msgstr "声を開く"
+

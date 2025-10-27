@@ -1,0 +1,127 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: nesoramikomi\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-27 23:48+0900\n"
+"PO-Revision-Date: 2025-10-27 17:37\n"
+"Last-Translator: \n"
+"Language-Team: Chinese Simplified\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: nesoramikomi\n"
+"X-Crowdin-Project-ID: 841520\n"
+"X-Crowdin-Language: zh-CN\n"
+"X-Crowdin-File: /locale/locale/NesoraMikomiWxWidgets.pot\n"
+"X-Crowdin-File-ID: 6\n"
+"Language: zh_CN\n"
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:6
+msgid "Nesora 1-0"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:23
+msgid "Sing"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:24
+msgid "Talk"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:25
+msgid "Make Voice"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:55
+msgid "&Hello...\tCtrl-H"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:55
+msgid "Help string shown in status bar for this menu item"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:56
+msgid "&Save\tCtrl-S"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:56
+msgid "Save the current file"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:57
+msgid "&Open...\tCtrl-O"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:57
+msgid "Open a file"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:65
+msgid "&File"
+msgstr ""
+
+#: src\NesoraLayout\frame\NesoraMainFrame.cpp:66
+msgid "&Help"
+msgstr ""
+
+#: src\NesoraLayout\sing\NesoraSingPanel.cpp:4
+msgid "This is the Sing Panel"
+msgstr ""
+
+#: src\NesoraLayout\sing\NesoraSingPanel.cpp:8
+msgid "The process for saving the singing panel has not yet been implemented..."
+msgstr ""
+
+#: src\NesoraLayout\sing\NesoraSingPanel.cpp:12
+msgid "The process for opening the singing panel has not yet been implemented..."
+msgstr ""
+
+#: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:4
+msgid "This is the Speak Panel"
+msgstr ""
+
+#: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:8
+msgid "The process for saving the talking panel has not been implemented!"
+msgstr ""
+
+#: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:12
+msgid "The process for opening the talking panel has not been implemented!"
+msgstr ""
+
+#: src\NesoraLayout\voicemake\NesoraFormantFilterPanel.cpp:9
+msgid "Formant filter"
+msgstr ""
+
+#: src\NesoraLayout\voicemake\NesoraFormantFilterPanel.cpp:20
+msgid "Add Formant"
+msgstr ""
+
+#: src\NesoraLayout\voicemake\NesoraIIRFilterPanel.cpp:298
+msgid "IIR Filter"
+msgstr ""
+
+#: src\NesoraLayout\voicemake\NesoraRosenbergWavePanel.cpp:24
+msgid "Rosenberg Wave"
+msgstr ""
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:15
+msgid "Play Interface"
+msgstr ""
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:16
+msgid "Play"
+msgstr ""
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:17
+msgid "Stop"
+msgstr ""
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:107
+msgid "Save Voice"
+msgstr ""
+
+#: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:127
+msgid "Open Voice"
+msgstr ""
+

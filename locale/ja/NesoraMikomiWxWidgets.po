@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: nesoramikomi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-27 23:48+0900\n"
-"PO-Revision-Date: 2025-10-27 17:19\n"
+"PO-Revision-Date: 2025-10-28 18:04\n"
 "Last-Translator: \n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -87,7 +87,7 @@ msgstr "喋るパネルの保存する処理は実装されていませんよ！
 
 #: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:12
 msgid "The process for opening the talking panel has not been implemented!"
-msgstr "喋るパネルの開く処理は実装されていませんよ！"
+msgstr "会話の開く処理は実装されていませんよ！"
 
 #: src\NesoraLayout\voicemake\NesoraFormantFilterPanel.cpp:9
 msgid "Formant filter"

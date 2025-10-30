@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: nesoramikomi\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-27 23:48+0900\n"
-"PO-Revision-Date: 2025-10-27 17:37\n"
+"PO-Revision-Date: 2025-10-30 04:33\n"
 "Last-Translator: \n"
 "Language-Team: English\n"
 "MIME-Version: 1.0\n"
@@ -19,109 +19,109 @@ msgstr ""
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:6
 msgid "Nesora 1-0"
-msgstr ""
+msgstr "Nesora 1-0"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:23
 msgid "Sing"
-msgstr ""
+msgstr "Sing"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:24
 msgid "Talk"
-msgstr ""
+msgstr "Talk"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:25
 msgid "Make Voice"
-msgstr ""
+msgstr "Make Voice"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:55
 msgid "&Hello...\tCtrl-H"
-msgstr ""
+msgstr "&Hello...\tCtrl-H"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:55
 msgid "Help string shown in status bar for this menu item"
-msgstr ""
+msgstr "Help string shown in status bar for this menu item"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:56
 msgid "&Save\tCtrl-S"
-msgstr ""
+msgstr "&Save\tCtrl-S"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:56
 msgid "Save the current file"
-msgstr ""
+msgstr "Save the current file"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:57
 msgid "&Open...\tCtrl-O"
-msgstr ""
+msgstr "&Open...\tCtrl-O"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:57
 msgid "Open a file"
-msgstr ""
+msgstr "Open a file"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:65
 msgid "&File"
-msgstr ""
+msgstr "&File"
 
 #: src\NesoraLayout\frame\NesoraMainFrame.cpp:66
 msgid "&Help"
-msgstr ""
+msgstr "&Help"
 
 #: src\NesoraLayout\sing\NesoraSingPanel.cpp:4
 msgid "This is the Sing Panel"
-msgstr ""
+msgstr "This is the Sing Panel"
 
 #: src\NesoraLayout\sing\NesoraSingPanel.cpp:8
 msgid "The process for saving the singing panel has not yet been implemented..."
-msgstr ""
+msgstr "The process for saving the singing panel has not yet been implemented..."
 
 #: src\NesoraLayout\sing\NesoraSingPanel.cpp:12
 msgid "The process for opening the singing panel has not yet been implemented..."
-msgstr ""
+msgstr "The process for opening the singing panel has not yet been implemented..."
 
 #: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:4
 msgid "This is the Speak Panel"
-msgstr ""
+msgstr "This is the Speak Panel"
 
 #: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:8
 msgid "The process for saving the talking panel has not been implemented!"
-msgstr ""
+msgstr "The process for saving the talking panel has not been implemented!"
 
 #: src\NesoraLayout\speak\NesoraSpeakPanel.cpp:12
 msgid "The process for opening the talking panel has not been implemented!"
-msgstr ""
+msgstr "The process for opening the talking panel has not been implemented!"
 
 #: src\NesoraLayout\voicemake\NesoraFormantFilterPanel.cpp:9
 msgid "Formant filter"
-msgstr ""
+msgstr "Formant filter"
 
 #: src\NesoraLayout\voicemake\NesoraFormantFilterPanel.cpp:20
 msgid "Add Formant"
-msgstr ""
+msgstr "Add Formant"
 
 #: src\NesoraLayout\voicemake\NesoraIIRFilterPanel.cpp:298
 msgid "IIR Filter"
-msgstr ""
+msgstr "IIR Filter"
 
 #: src\NesoraLayout\voicemake\NesoraRosenbergWavePanel.cpp:24
 msgid "Rosenberg Wave"
-msgstr ""
+msgstr "Rosenberg Wave"
 
 #: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:15
 msgid "Play Interface"
-msgstr ""
+msgstr "Play Interface"
 
 #: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:16
 msgid "Play"
-msgstr ""
+msgstr "Play"
 
 #: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:17
 msgid "Stop"
-msgstr ""
+msgstr "Stop"
 
 #: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:107
 msgid "Save Voice"
-msgstr ""
+msgstr "Save Voice"
 
 #: src\NesoraLayout\voicemake\NesoraVoiceMakePanel.cpp:127
 msgid "Open Voice"
-msgstr ""
+msgstr "Open Voice"
 

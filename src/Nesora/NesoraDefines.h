@@ -8,6 +8,8 @@ constexpr double ns2PI = nsPI * 2.0;
 constexpr double ns1_PI = 1.0 / nsPI;
 constexpr double ns1_2PI = 1.0 / ns2PI;
 
+constexpr double nsE = 2.71828182845904523;
+
 constexpr int NesoraDefaultSamplingFrequency = 48000;
 constexpr int NesoraDefaultNyquistFrequency = NesoraDefaultSamplingFrequency / 2;
 

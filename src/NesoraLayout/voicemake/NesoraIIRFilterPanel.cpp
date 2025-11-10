@@ -110,13 +110,15 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
             wxPoint2DDouble linePoints[] = { {(wxDouble)i * 1000.0 * (wxDouble)size.GetWidth() / (wxDouble)nyquistFrequency,0.0}, {(wxDouble)i * 1000.0 * (wxDouble)size.GetWidth() / (wxDouble)nyquistFrequency,static_cast<wxDouble>(size.GetHeight())} };
             gc->StrokeLines(2, linePoints);
         }
-
+        wxPoint2DDouble linePoints[] = { {0.0,(wxDouble)size.GetHeight() / 2.0}, {(wxDouble)size.GetWidth(),(wxDouble)size.GetHeight() / 2.0} };
+        gc->StrokeLines(2, linePoints);
+        
         // 周波数応答
         gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND), 2));
         wxGraphicsPath path = gc->CreatePath();
-        path.MoveToPoint(0, size.GetHeight() / 2 - frequencyResponse[0] * (size.GetHeight() / 2));
+        path.MoveToPoint(0, size.GetHeight() / 2.0 - frequencyResponse[0] * (size.GetHeight() / 2.0 / 40.0));
         for (size_t i = 1; i < frequencyResponse.size(); i++) {
-            path.AddLineToPoint(i, size.GetHeight() / 2 - frequencyResponse[i] * (size.GetHeight() / 2));
+            path.AddLineToPoint(i, size.GetHeight() / 2.0 - frequencyResponse[i] * (size.GetHeight() / 2.0 / 40.0));
         }
         gc->StrokePath(path);
 

@@ -2,6 +2,7 @@
 
 // MARK:nsIIRFrequencyResponseControl
 
+// グラフを見やすくするためにy軸を指数関数的に変化するようにするためのもの
 double y_to_r(double y) {
     return 1.0 - std::pow(1.0 - y, 2.0);
 }
@@ -52,15 +53,15 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
 }
 
 void nsIIRFrequencyResponseControl::SyncControlPointsFromFilter() {
-    // Ensure control point vectors match the filter's peaks/dips counts.
+    // 制御点の数
     size_t peakCount = filter ? filter->GetPeaks().size() : 0;
     size_t dipCount = filter ? filter->GetDips().size() : 0;
 
-    // The UI stores an extra element at index 0 (unused), so size = count + 1
+    // 操作点の数を合わせる
     peakControlPoints.resize(peakCount + 1);
     dipControlPoints.resize(dipCount + 1);
 
-    // Initialize control point rectangles based on current filter PDs
+    // 制御点から操作点を計算する
     if (filter) {
         for (size_t i = 1; i < peakControlPoints.size(); i++) {
             const auto& p = filter->GetPeaks()[i - 1];
@@ -77,7 +78,6 @@ void nsIIRFrequencyResponseControl::SyncControlPointsFromFilter() {
             dipControlPoints[i].m_height = 10;
         }
     } else {
-        // default positions
         for (size_t i = 1; i < peakControlPoints.size(); i++) {
             peakControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
         }
@@ -96,6 +96,7 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
     dc.SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
     dc.DrawRectangle(0, 0, size.GetWidth(), size.GetHeight());
 
+    // 周波数応答
     frequencyResponse = filter->GetResponse();
 
     wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
@@ -104,19 +105,24 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
         gc->SetFont(font, nsGetColor(nsColorType::ON_BACKGROUND));
         gc->SetBrush(wxBrush(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
         gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
+        // 周波数のグリッド
         for (int i = 0;i < nyquistFrequency / 1000;i++) {
             wxPoint2DDouble linePoints[] = { {(wxDouble)i * 1000.0 * (wxDouble)size.GetWidth() / (wxDouble)nyquistFrequency,0.0}, {(wxDouble)i * 1000.0 * (wxDouble)size.GetWidth() / (wxDouble)nyquistFrequency,static_cast<wxDouble>(size.GetHeight())} };
             gc->StrokeLines(2, linePoints);
         }
-
+        wxPoint2DDouble linePoints[] = { {0.0,(wxDouble)size.GetHeight() / 2.0}, {(wxDouble)size.GetWidth(),(wxDouble)size.GetHeight() / 2.0} };
+        gc->StrokeLines(2, linePoints);
+        
+        // 周波数応答
         gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND), 2));
         wxGraphicsPath path = gc->CreatePath();
-        path.MoveToPoint(0, size.GetHeight() / 2 - frequencyResponse[0] * (size.GetHeight() / 2));
+        path.MoveToPoint(0, size.GetHeight() / 2.0 - frequencyResponse[0] * (size.GetHeight() / 2.0 / 40.0));
         for (size_t i = 1; i < frequencyResponse.size(); i++) {
-            path.AddLineToPoint(i, size.GetHeight() / 2 - frequencyResponse[i] * (size.GetHeight() / 2));
+            path.AddLineToPoint(i, size.GetHeight() / 2.0 - frequencyResponse[i] * (size.GetHeight() / 2.0 / 40.0));
         }
         gc->StrokePath(path);
 
+        // 操作点
         for (size_t i = 1; i < peakControlPoints.size(); i++) {
             if(i == selectedPeakControlPointIndex) 
                 gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY_HOVER)));
@@ -132,11 +138,11 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
             gc->DrawEllipse(dipControlPoints[i].m_x, dipControlPoints[i].m_y, dipControlPoints[i].m_width, dipControlPoints[i].m_height);
         }
 
-        
+        // 操作点のパラメータ
         gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
         gc->SetPen(wxPen(nsGetColor(nsColorType::BACKGROUND_SHADOW)));
         if(selectedPeakControlPointIndex != -1){
-            wxString outputString = wxString::Format("peak(%0.2fHz, %f)", filter->GetPeaks()[selectedPeakControlPointIndex - 1].theta * NesoraDefaultSamplingFrequency / ns2PI, filter->GetPeaks()[selectedPeakControlPointIndex - 1].r);
+            wxString outputString = wxString::Format("peak(%0.2fHz, %0.4f)", filter->GetPeaks()[selectedPeakControlPointIndex - 1].theta * NesoraDefaultSamplingFrequency / ns2PI, filter->GetPeaks()[selectedPeakControlPointIndex - 1].r);
             double tw, th;
             gc->GetTextExtent(outputString, &tw, &th);
             int x = peakControlPoints[selectedPeakControlPointIndex].m_x + peakControlPoints[selectedPeakControlPointIndex].m_width + tw < size.GetWidth() ? peakControlPoints[selectedPeakControlPointIndex].m_x + peakControlPoints[selectedPeakControlPointIndex].m_width : peakControlPoints[selectedPeakControlPointIndex].m_x - tw;
@@ -144,7 +150,7 @@ void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
             gc->DrawRectangle(x,y,tw,th);
             gc->DrawText(outputString, x, y);
         }
-        if(selectedDipControlPointIndex != -1){
+        else if(selectedDipControlPointIndex != -1){
             wxString outputString = wxString::Format("dip(%0.2fHz, %0.4f)", filter->GetDips()[selectedDipControlPointIndex - 1].theta * NesoraDefaultSamplingFrequency / ns2PI, filter->GetDips()[selectedDipControlPointIndex - 1].r);
             double tw, th;
             gc->GetTextExtent(outputString, &tw, &th);
@@ -161,6 +167,7 @@ void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
     int oldPeak = selectedPeakControlPointIndex;
     int oldDip = selectedDipControlPointIndex;
 
+    // ドラッグしている場合の処理
     if (event.Dragging() && HasCapture()) {
         if (selectedPeakControlPointIndex != -1) {
             peakControlPoints[selectedPeakControlPointIndex].m_x = std::min(std::max((double)event.GetX() - 5, -5.0), (double)GetClientSize().GetWidth() - 5.0);
@@ -180,7 +187,9 @@ void nsIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event) {
         filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
         paramater_updated = true;
     }
+    // ドラッグしていない場合の処理
     else {
+        // ホバーの処理
         selectedPeakControlPointIndex = -1;
         selectedDipControlPointIndex = -1;
         for(size_t i = 1;i < peakControlPoints.size();i++) {
@@ -247,6 +256,7 @@ void nsIIRFrequencyResponseControl::OnRightUp(wxMouseEvent& event) {
 }
 
 void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
+    // ホバーしていたら操作点と制御点を削除
     if(selectedPeakControlPointIndex != -1) {
         peakControlPoints.erase(peakControlPoints.begin() + selectedPeakControlPointIndex);
         filter->GetPeaks().erase(filter->GetPeaks().begin() + selectedPeakControlPointIndex - 1);
@@ -258,6 +268,7 @@ void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
         filter->CalculateCoefficientsFromPDs();
         filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
     } else {
+        // ホバーしていなければ操作点と制御点を追加
         if(wxGetKeyState(WXK_SHIFT)) {
             dipControlPoints.push_back(wxRect2DDouble(event.GetX() - 5, event.GetY() - 5, 10, 10));
             filter->GetDips().push_back(NesoraIIRFilterPD{
@@ -277,6 +288,7 @@ void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
         }
     }
 
+    // ホバーの処理
     selectedPeakControlPointIndex = -1;
     selectedDipControlPointIndex = -1;
     for(size_t i = 1;i < peakControlPoints.size();i++) {
@@ -298,22 +310,64 @@ void nsIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event) {
 
 
 
+// MARK:nsIIRNesoraCubeControl
+
+nsIIRNesoraCubeControl::nsIIRNesoraCubeControl(wxWindow* parent,
+    wxWindowID winid,
+    const wxPoint& pos,
+    const wxSize& size,
+    long style,
+    const wxString& name) : wxWindow(parent, winid, pos, size, style, name) {
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
+    SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
+
+
+    Bind(wxEVT_PAINT, &nsIIRNesoraCubeControl::OnPaint, this);
+}
+
+void nsIIRNesoraCubeControl::OnPaint(wxPaintEvent& event) {
+    wxAutoBufferedPaintDC dc(this);
+    wxSize size = GetClientSize();
+    dc.SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
+    dc.SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
+    dc.DrawRectangle(0, 0, size.GetWidth(), size.GetHeight());
+
+    wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (gc) {
+        wxFont font = GetFont();
+        gc->SetFont(font, nsGetColor(nsColorType::ON_BACKGROUND));
+        gc->SetBrush(wxBrush(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
+        gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
+        
+        
+
+        delete gc;
+    }
+}
+
+
+
+
+
+
 
 
 // MARK:nsIIRFilterPanel
 void nsIIRFilterPanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
 
-    wxStaticBoxSizer* sourceSizer = new wxStaticBoxSizer(wxVERTICAL, this, _("IIR Filter"));
+    wxStaticBoxSizer* sourceSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("IIR Filter"));
 
+    nesoraCube = new nsIIRNesoraCubeControl(sourceSizer->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxSize(100, 100));
     iirFilter = new nsIIRFrequencyResponseControl(sourceSizer->GetStaticBox());
+    sourceSizer->Add(nesoraCube, 0, wxEXPAND | wxALL);
     sourceSizer->Add(iirFilter, 1, wxEXPAND | wxALL);
     
     this->SetSizer(sourceSizer);
 }
 
 void nsIIRFilterPanel::Update() {
-    // Sync control points from the filter data so UI matches the filter state
+    // UIの更新
     if (iirFilter) {
         iirFilter->SyncControlPointsFromFilter();
         iirFilter->Refresh(false);

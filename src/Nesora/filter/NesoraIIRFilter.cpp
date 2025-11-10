@@ -111,7 +111,7 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
     }
 
     for (auto& val : response) {
-        val = std::log10(val + 1e-10) * 0.5; // Avoid log(0)
+        val = std::log10(val + 1e-10) * 10.0; // dBへの変換
     }
 
     return response;

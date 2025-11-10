@@ -21,6 +21,8 @@
 
 
 
+// MARK:nsIIRFrequencyResponseControl
+
 class nsIIRFrequencyResponseControl : public wxWindow {
 public:
     nsIIRFrequencyResponseControl(wxWindow* parent,
@@ -31,7 +33,7 @@ public:
         const wxString& name = wxASCII_STR(wxPanelNameStr)); 
 
     NesoraIIRFilter* filter;
-    // Sync control point geometry from the underlying filter's peaks/dips
+    // UIを更新
     void SyncControlPointsFromFilter();
 private:
     
@@ -64,6 +66,27 @@ private:
 };
 
 
+
+
+class nsIIRNesoraCubeControl : public wxWindow {
+public:
+    nsIIRNesoraCubeControl(wxWindow* parent,
+            wxWindowID winid = wxID_ANY,
+            const wxPoint& pos = wxDefaultPosition,
+            const wxSize& size = wxDefaultSize,
+            long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+            const wxString& name = wxASCII_STR(wxPanelNameStr)); 
+
+
+private:
+
+    void OnPaint(wxPaintEvent& event);
+    
+
+
+};
+
+
 // MARK:nsIIRFilterPanel
 
 class nsIIRFilterPanel : public wxPanel {
@@ -81,7 +104,7 @@ public:
         Init();
     }
     ~nsIIRFilterPanel() {
-        // UninitAudioDevice();
+        
     }
     void Init();
     void Update();
@@ -90,6 +113,7 @@ public:
 
 private:
     nsIIRFrequencyResponseControl* iirFilter;
+    nsIIRNesoraCubeControl* nesoraCube;
 };
 
 

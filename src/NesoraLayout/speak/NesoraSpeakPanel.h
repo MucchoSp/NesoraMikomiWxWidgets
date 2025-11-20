@@ -11,7 +11,7 @@
 #include "../../NesoraStyle/NesoraStyle.h"
 #include "../../NesoraLayout/NesoraIDs.h"
 
-#include "../../Nesora/source/NesoraSource.h"
+#include "../../Nesora/Nesora.h"
 
 class nsSpeakPanel : public wxPanel {
 public:

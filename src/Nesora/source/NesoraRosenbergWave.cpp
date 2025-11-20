@@ -1,4 +1,4 @@
-#include "NesoraSource.h"
+#include "NesoraRosenbergWave.h"
 
 double NesoraRosenbergWave::Utterance(double radian) {
     double noise_input = (double)std::rand() / (double)RAND_MAX;

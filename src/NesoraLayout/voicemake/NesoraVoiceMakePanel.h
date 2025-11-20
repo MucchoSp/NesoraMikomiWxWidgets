@@ -16,7 +16,7 @@
 #include "NesoraIIRFilterPanel.h"
 #include "../NesoraIDs.h"
 
-#include "../../Nesora/source/NesoraSource.h"
+#include "../../Nesora/Nesora.h"
 
 
 

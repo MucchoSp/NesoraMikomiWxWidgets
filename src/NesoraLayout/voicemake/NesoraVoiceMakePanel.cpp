@@ -120,7 +120,10 @@ void nsVoiceMakePanel::OnSave(wxCommandEvent& event) {
     output_stream.Write(voiceData.data(), voiceData.size());
     output_stream.Close();
 
-    wxLogMessage("Voice saved to '%s'.", saveFileDialog.GetPath());
+    wxString msg;
+    msg.Printf("Voice saved to '%s'.", saveFileDialog.GetPath());
+    static_cast<wxFrame* >(wxGetTopLevelParent(this))->SetStatusText(msg);
+    // wxLogMessage("Voice saved to '%s'.", saveFileDialog.GetPath());
 }
 
 void nsVoiceMakePanel::OnOpen(wxCommandEvent& event) {
@@ -148,5 +151,8 @@ void nsVoiceMakePanel::OnOpen(wxCommandEvent& event) {
         filterPanel->Update();
     }
 
-    wxLogMessage("Voice loaded from '%s'.", openFileDialog.GetPath());
+    wxString msg;
+    msg.Printf("Voice loaded from '%s'.", openFileDialog.GetPath());
+    static_cast<wxFrame* >(wxGetTopLevelParent(this))->SetStatusText(msg);
+    // wxLogMessage("Voice loaded from '%s'.", openFileDialog.GetPath());
 }

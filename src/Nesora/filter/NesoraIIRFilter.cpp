@@ -6,6 +6,8 @@ void NesoraIIRFilter::SetCoefficients(const std::vector<double>& a_coeffs, const
     history.resize(a_coefficients.size() - 1, 0.0);
     output_history.resize(a_coefficients.size() - 1, 0.0);
     input_history.resize(b_coefficients.size() - 1, 0.0);
+    input_index = 0;
+    output_index = 0;
 }
 
 std::vector<NesoraIIRFilterPD> NesoraIIRFilter::GetPeaks() const {
@@ -28,6 +30,8 @@ void NesoraIIRFilter::Reset() {
     std::fill(history.begin(), history.end(), 0.0);
     std::fill(output_history.begin(), output_history.end(), 0.0);
     std::fill(input_history.begin(), input_history.end(), 0.0);
+    input_index = 0;
+    output_index = 0;
 }
 
 std::vector<double> NesoraIIRFilter::GetResponse() const {
@@ -36,54 +40,67 @@ std::vector<double> NesoraIIRFilter::GetResponse() const {
 
 void NesoraIIRFilter::CalculateCoefficientsFromPDs() {
     // 分母係数の計算
-    a_coefficients = {1.0};
-    for (const auto& peak : peaks) {
-        double r = peak.r;
-        double theta = peak.theta;
-        std::vector<double> second_order = {1.0, -2.0 * r * std::cos(theta), r * r};
-        std::vector<double> new_a(a_coefficients.size() + 2, 0.0);
-        for (size_t i = 0; i < a_coefficients.size(); i++) {
-            for (size_t j = 0; j < second_order.size(); j++) {
-                new_a[i + j] += a_coefficients[i] * second_order[j];
-            }
+    a_coefficients.assign(peaks.size() * 2 + 1, 0.0);
+    a_coefficients[0] = 1.0; // 初期値
+    std::vector<double> peaks_buffer(peaks.size() * 2 + 1, 0.0);
+    for (size_t p = 0;p < peaks.size();p++) {
+        std::fill(peaks_buffer.begin(), peaks_buffer.end(), 0.0);
+        for (size_t i = 0; i < p * 2 + 1; i++) {
+            peaks_buffer[i] += a_coefficients[i];
+            peaks_buffer[i + 1] += a_coefficients[i] * -2.0 * peaks[p].r * std::cos(peaks[p].theta);
+            peaks_buffer[i + 2] += a_coefficients[i] * peaks[p].r * peaks[p].r;
         }
-        a_coefficients = new_a;
+        a_coefficients = peaks_buffer;
     }
 
     // 分子係数の計算
-    b_coefficients = {1.0};
-    for (const auto& dip : dips) {
-        double r = dip.r;
-        double theta = dip.theta;
-        std::vector<double> second_order = {1.0, -2.0 * r * std::cos(theta), r * r};
-        std::vector<double> new_b(b_coefficients.size() + 2, 0.0);
-        for (size_t i = 0; i < b_coefficients.size(); i++) {
-            for (size_t j = 0; j < second_order.size(); j++) {
-                new_b[i + j] += b_coefficients[i] * second_order[j];
-            }
+    b_coefficients.assign(dips.size() * 2 + 1, 0.0);
+    b_coefficients[0] = 1.0; // 初期値
+    std::vector<double> dips_buffer(dips.size() * 2 + 1, 0.0);
+    for (size_t p = 0;p < dips.size();p++) {
+        std::fill(dips_buffer.begin(), dips_buffer.end(), 0.0);
+        for (size_t i = 0; i < p * 2 + 1; i++) {
+            dips_buffer[i] += b_coefficients[i];
+            dips_buffer[i + 1] += b_coefficients[i] * -2.0 * dips[p].r * std::cos(dips[p].theta);
+            dips_buffer[i + 2] += b_coefficients[i] * dips[p].r * dips[p].r;
         }
-        b_coefficients = new_b;
+        b_coefficients = dips_buffer;
     }
-    double A1 = 0.0;
-    for (const auto& ak : a_coefficients)
-        A1 += ak;
-    double B1 = 0.0;
-    for (const auto& bk : b_coefficients)
-        B1 += bk;
-    Gain = A1 / B1;
+    // ゲインの計算
+    double A1 = std::reduce(a_coefficients.begin(), a_coefficients.end());
+    double B1 = std::reduce(b_coefficients.begin(), b_coefficients.end());
+    Gain = (B1 == 0.0) ? 0.0 : A1 / B1;
     for (auto& bk : b_coefficients)
         bk = bk * Gain;
+
+    // バッファの更新
+    if(output_history.size() != a_coefficients.size() - 1) {
+        output_history.resize(a_coefficients.size() - 1, 0.0);
+        output_index = 0;
+    }
+    if(input_history.size() != b_coefficients.size() - 1) {
+        input_history.resize(b_coefficients.size() - 1, 0.0);
+        input_index = 0;
+    }
 }
 
 std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples) {
     response.clear();
     if (num_samples <= 0) return response;
-    response.reserve(num_samples);
+    response.assign(num_samples, 0.0);
 
-    for (int n = 0; n < num_samples; n++) {
+    //*
+    // スレッドで並列計算する
+    unsigned int num_threads = std::thread::hardware_concurrency();
+    if (num_threads == 0) num_threads = 4; // デフォルト値
+
+    auto worker = [&](int start, int end) {
+    for (int n = start; n < end; n++) {
         double omega;
-        if (num_samples == 1) omega = 0.0;
-        else omega = nsPI * static_cast<double>(n) / static_cast<double>(num_samples - 1);
+            if (num_samples == 1)
+                omega = 0.0;
+            else
+                omega = nsPI * static_cast<double>(n) / static_cast<double>(num_samples - 1);
 
         // z^{-1} = e^{-j omega}
         std::complex<double> z_inv = std::exp(std::complex<double>(0.0, -omega));
@@ -92,9 +109,8 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
         auto eval_poly = [&](const std::vector<double>& coef) -> std::complex<double> {
             if (coef.empty()) return std::complex<double>(0.0, 0.0);
             std::complex<double> p = coef.back();
-            for (int k = static_cast<int>(coef.size()) - 2; k >= 0; --k) {
-                p = p * z_inv + coef[k];
-            }
+                for (size_t k = coef.size(); k >= 2; k--)
+                    p = p * z_inv + coef[k - 2];
             return p;
         };
 
@@ -102,46 +118,105 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
         std::complex<double> denominator = eval_poly(a_coefficients);
 
         double mag;
-        if (std::abs(denominator) < 1e-300) {
+            if (std::abs(denominator) < 1e-300)
             mag = std::numeric_limits<double>::infinity(); // or a very large number
-        } else {
+            else
             mag = std::abs(numerator / denominator);
+            
+            response[n] = std::log10(mag + 1e-10) * 10.0; // dBへの変換
         }
-        response.push_back(mag);
+    };
+
+    // スレッドを起動
+    std::vector<std::thread> threads;
+    int chunk_size = num_samples / num_threads;
+    
+    for (unsigned int t = 0; t < num_threads; t++) {
+        int start = t * chunk_size;
+        int end = (t == num_threads - 1) ? num_samples : (t + 1) * chunk_size;
+        threads.emplace_back(worker, start, end);
     }
 
-    for (auto& val : response) {
-        val = std::log10(val + 1e-10) * 0.5; // Avoid log(0)
+    // 全スレッドの完了を待つ
+    for (auto& thread : threads) {
+        thread.join();
     }
 
-    return response;
+    return response;//*/
+    
+    // FFT実装してみたはいいけど、計算量的にはz変換の式を使った方が速くて正確っぽいなこれ
+    /*
+    size_t fft_size = 65536;
+    std::vector<double> impulse_response(fft_size, 0.0);
+    std::vector<double> impulse(fft_size, 0.0);
+    impulse[0] = 1.0; // インパルス入力
+
+    for (int n = 0; n < fft_size; n++) {
+        double output = 0.0;
+        for (size_t k = 0; k < b_coefficients.size(); k++) {
+            if (n - k >= 0) output += b_coefficients[k] * impulse[n - k];
+        }
+        for (size_t k = 1; k < a_coefficients.size(); k++) { // a[0] は 1 と仮定
+            if (n - k >= 0) output -= a_coefficients[k] * impulse_response[n - k];
+        }
+        impulse_response[n] = output;
+    }
+
+    pocketfft::shape_t shape = {static_cast<size_t>(fft_size)};
+    pocketfft::stride_t stride = {sizeof(double)};
+    pocketfft::stride_t cstride = {sizeof(std::complex<double>)};
+    pocketfft::shape_t axes = {0};
+    std::vector<std::complex<double>> frequency_response(fft_size * 0.5 + 1);
+
+    pocketfft::r2c(shape, stride, cstride, axes, pocketfft::FORWARD, impulse_response.data(), frequency_response.data(), 1.0);
+
+    for (int n = 0; n < num_samples; n++) {
+        double omega_ratio;
+        if (num_samples == 1) omega_ratio = 0.0;
+        else omega_ratio = (double)n / (double)(num_samples - 1);
+
+        double freq_index = omega_ratio * (fft_size * 0.5);
+        
+        size_t idx = static_cast<size_t>(std::round(freq_index));
+        if (idx >= frequency_response.size()) idx = frequency_response.size() - 1;
+
+        double mag = std::abs(frequency_response[idx]);
+        
+        response[n] = std::log10(mag + 1e-10) * 10.0; 
+    }
+
+    return response;//*/
 }
 
 double NesoraIIRFilter::Filter(double x) {
-    // 入力履歴の更新
-    input_history.insert(input_history.begin(), x);
-    if (input_history.size() > b_coefficients.size() - 1) {
-        input_history.pop_back();
-    }
-
     // 出力計算
     double y = 0.0;
 
     // 分子部分
-    y += b_coefficients[0] * x;
-    for (size_t i = 1; i < std::min(b_coefficients.size(), input_history.size() + 1); i++) {
-        y += b_coefficients[i] * input_history[i - 1];
+    if (!b_coefficients.empty()) {
+        y += b_coefficients[0] * x;
     }
-
+    size_t b_size = std:: min(b_coefficients.size() - 1, input_history.size());
+    for (size_t i = 1; i <= b_size; i++) {
+        size_t idx = (input_index + input_history. size() - i) % input_history.size();
+        y += b_coefficients[i] * input_history[idx];
+    }
+    
     // 分母部分
-    for (size_t i = 1; i < std::min(a_coefficients.size(), output_history.size() + 1); i++) {
-        y -= a_coefficients[i] * output_history[i - 1];
+    size_t a_size = std:: min(a_coefficients.size() - 1, output_history.size());
+    for (size_t i = 1; i <= a_size; i++) {
+        size_t idx = (output_index + output_history. size() - i) % output_history.size();
+        y -= a_coefficients[i] * output_history[idx];
     }
-
-    // 出力履歴の更新
-    output_history.insert(output_history.begin(), y);
-    if (output_history.size() > a_coefficients.size() - 1) {
-        output_history.pop_back();
+    
+    // 履歴更新
+    if (!input_history.empty()) {
+        input_history[input_index] = x;
+        input_index = (input_index + 1) % input_history.size();
+    }
+    if (!output_history.empty()) {
+        output_history[output_index] = y;
+        output_index = (output_index + 1) % output_history.size();
     }
 
     return y;

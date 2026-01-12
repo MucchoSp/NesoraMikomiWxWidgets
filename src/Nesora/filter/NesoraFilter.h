@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <map>
 #include <cmath>
 
 #include "../NesoraDefines.h"
@@ -19,40 +20,16 @@ public:
 private:
 };
 
-
-struct NesoraFormantParam {
-    double f1_frequency;
-    double f1_bandwidth;
-    double f1_amplitude;
-};
-
-class NesoraFormantFilter : public NesoraFilterBase {
+class NesoraParametricFilterBase {
 public:
+    NesoraParametricFilterBase(){}
 
-    NesoraFormantFilter(){}
-    NesoraFormantFilter(double f1_frequency, double f1_bandwidth, double f1_amplitude) {
-        AddParamater(f1_frequency, f1_bandwidth, f1_amplitude);
-    }
+    virtual double Filter(const std::map<int, double>& parameters, double x) = 0;
 
-    void AddParamater(double frequency, double bandwidth, double amplitude);
-    std::vector<NesoraFormantParam>& GetParamater();
-    const std::vector<NesoraFormantParam>& GetParamater() const;
-    void SetParamater(const std::vector<NesoraFormantParam>&);
-
-    std::vector<double> GetFilter(double dx, size_t N) const;
-
-    void GenerateKernel();
-    double Filter(double x) override;
-
-    std::vector<unsigned char> SaveData() override;
-    void LoadData(const std::vector<unsigned char>& data) override;
+    virtual std::vector<unsigned char> SaveData() = 0;
+    virtual void LoadData(const std::vector<unsigned char>& data) = 0;
 
 private:
-
-    std::vector<NesoraFormantParam> paramaters;
-    std::vector<double> kernel;
-    std::vector<double> inputwave_buffer;
-
 };
 
 #endif // NESORA_FILTER_H

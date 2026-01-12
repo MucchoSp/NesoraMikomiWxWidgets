@@ -15,7 +15,7 @@ void nsRosenbergWavePanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     source_wave = new NesoraRosenbergWave();
 
-    source_wave->SetParamater(0.25, 0.5, -0.5, 0.5);
+    source_wave->SetParamater(0.25, 0.5, -0.5, 0.1);
     wave.resize(183);// 48000/261.6
     double throw_away;
     for (size_t i = 0;i < wave.size();i++)
@@ -38,10 +38,10 @@ void nsRosenbergWavePanel::Init() {
     pitch_sliderSizer->Add(pitch_slider, 1, wxEXPAND | wxALL, 5);
     sliderSizer->Add(pitch_sliderSizer, 0, wxEXPAND | wxALL);
 
-    phonetic_param = new wxStaticText(sourceSizer->GetStaticBox(), wxID_ANY, "0.500");
+    phonetic_param = new wxStaticText(sourceSizer->GetStaticBox(), wxID_ANY, "0.100");
     phonetic_param->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     phonetic_sliderSizer->Add(phonetic_param, 0, wxEXPAND | wxALL, 5);
-    phonetic_slider = new nsSlider(sourceSizer->GetStaticBox(), wxID_ANY, 500, 0, 1000, wxDefaultPosition, wxSize(200, 15));
+    phonetic_slider = new nsSlider(sourceSizer->GetStaticBox(), wxID_ANY, 100, 0, 1000, wxDefaultPosition, wxSize(200, 15));
     phonetic_slider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsRosenbergWavePanel::OnPhoneticSlide, this);
     phonetic_slider->Show();
     phonetic_sliderSizer->Add(phonetic_slider, 1, wxEXPAND | wxALL, 5);

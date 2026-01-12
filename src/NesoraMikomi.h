@@ -14,7 +14,7 @@
 #include "NesoraLayout/voicemake/NesoraVoiceMakePanel.h"
 #include "NesoraLayout/frame/NesoraMainFrame.h"
 
-#include "Nesora/source/NesoraSource.h"
+#include "Nesora/Nesora.h"
 
 class MyApp : public wxApp {
 public:

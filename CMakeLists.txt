@@ -39,4 +39,5 @@ target_compile_features(Nesora PUBLIC cxx_std_17)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+
 include(CPack)

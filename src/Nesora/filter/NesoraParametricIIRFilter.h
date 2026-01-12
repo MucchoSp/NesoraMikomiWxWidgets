@@ -7,33 +7,22 @@
 #include <thread>
 #include <numeric>
 
-// #include "../../../lib/pocketfft/pocketfft_hdronly.h"
-
 #include "NesoraFilter.h"
+#include "NesoraIIRFilter.h"
 
-#ifndef NESORA_IIRFILTER_H
-#define NESORA_IIRFILTER_H
+#include "../ParametricNesroaDefines.h"
 
-
-struct NesoraIIRFilterPD {
-    double r;
-    double theta;
-};
+#ifndef NESORA_PARAMETRIC_IIRFILTER_H
+#define NESORA_PARAMETRIC_IIRFILTER_H
 
 
-class NesoraIIRFilter : public NesoraFilterBase {
+
+class NesoraParametricIIRFilter : public NesoraParametricFilterBase {
 public:
-    NesoraIIRFilter(){}
-    NesoraIIRFilter(double feedback_coefficient, double smpl) {
-        a_coefficients = {1.0, -feedback_coefficient}; // 分母係数
+    NesoraParametricIIRFilter(){}
+    NesoraParametricIIRFilter(double smpl) {
+        a_coefficients = {1.0}; // 分母係数
         b_coefficients = {1.0}; // 分子係数
-        output_history.resize(a_coefficients.size() - 1, 0.0);
-        input_history.resize(b_coefficients.size() - 1, 0.0);
-        samplingFrequency = smpl;
-    }
-    NesoraIIRFilter(const std::vector<double>& a_coeffs, const std::vector<double>& b_coeffs, double smpl) {
-        SetCoefficients(a_coeffs, b_coeffs);
-        history.resize(a_coefficients.size() - 1, 0.0);
         output_history.resize(a_coefficients.size() - 1, 0.0);
         input_history.resize(b_coefficients.size() - 1, 0.0);
         samplingFrequency = smpl;
@@ -48,12 +37,11 @@ public:
 
     void Reset();
 
-    void CalculateCoefficientsFromPDs();
+    void CalculateCoefficientsFromPDs(const std::map<int, double>& parameters);
     std::vector<double> CalculateFrequencyResponse(int num_samples);
-
     std::vector<double> GetResponse() const;
 
-    double Filter(double x) override;
+    double Filter(const std::map<int, double>& parameters, double x) override;
 
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;
@@ -62,7 +50,6 @@ private:
 
     double samplingFrequency = NesoraDefaultSamplingFrequency;
 
-    std::vector<double> history;
     std::vector<double> output_history;
     std::vector<double> input_history;
 
@@ -74,7 +61,12 @@ private:
     std::vector<NesoraIIRFilterPD> peaks;
     std::vector<NesoraIIRFilterPD> dips;
 
+    std::map<int, std::vector<ParametricNesoraIIRFilterParameter>> peaks_paramater_status;
+    std::map<int, std::vector<ParametricNesoraIIRFilterParameter>> dips_paramater_status;
+
     double Gain = 1;
+    bool sorted = false;
 };
 
-#endif // NESORA_IIRFILTER_H
+
+#endif // NESORA_PARAMETRIC_IIRFILTER_H

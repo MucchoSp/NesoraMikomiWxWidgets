@@ -33,7 +33,6 @@ public:
     }
     NesoraIIRFilter(const std::vector<double>& a_coeffs, const std::vector<double>& b_coeffs, double smpl) {
         SetCoefficients(a_coeffs, b_coeffs);
-        history.resize(a_coefficients.size() - 1, 0.0);
         output_history.resize(a_coefficients.size() - 1, 0.0);
         input_history.resize(b_coefficients.size() - 1, 0.0);
         samplingFrequency = smpl;
@@ -49,9 +48,10 @@ public:
     void Reset();
 
     void CalculateCoefficientsFromPDs();
+    void SetCoefficientsSmooth(const std::vector<double>& a_coeffs, const std::vector<double>& b_coeffs, double transition_time_ms = 10.0);
     std::vector<double> CalculateFrequencyResponse(int num_samples);
 
-    std::vector<double> GetResponse() const;
+    std::vector<double> GetResponse();
 
     double Filter(double x) override;
 
@@ -62,19 +62,31 @@ private:
 
     double samplingFrequency = NesoraDefaultSamplingFrequency;
 
-    std::vector<double> history;
     std::vector<double> output_history;
     std::vector<double> input_history;
 
     std::vector<double> a_coefficients;
     std::vector<double> b_coefficients;
-
+    // 補間用の変数
+    std::vector<double> a_coefficients_target;  // 目標値
+    std::vector<double> b_coefficients_target;  // 目標値
+    std::vector<double> a_coefficients_current; // 現在値（補間中）
+    std::vector<double> b_coefficients_current; // 現在値（補間中）
+    
+    
     std::vector<double> response;
-
+    
     std::vector<NesoraIIRFilterPD> peaks;
     std::vector<NesoraIIRFilterPD> dips;
-
+    
     double Gain = 1;
+    bool sorted = false;
+    size_t input_index = 0;
+    size_t output_index = 0;
+
+    bool is_interpolating = false;
+    int interpolation_samples = 0;      // 残りの補間サンプル数
+    int total_interpolation_samples = 0; // 総補間サンプル数
 };
 
 #endif // NESORA_IIRFILTER_H

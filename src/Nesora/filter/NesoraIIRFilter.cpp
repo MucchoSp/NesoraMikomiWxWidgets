@@ -3,9 +3,10 @@
 void NesoraIIRFilter::SetCoefficients(const std::vector<double>& a_coeffs, const std::vector<double>& b_coeffs) {
     a_coefficients = a_coeffs;
     b_coefficients = b_coeffs;
-    history.resize(a_coefficients.size() - 1, 0.0);
     output_history.resize(a_coefficients.size() - 1, 0.0);
     input_history.resize(b_coefficients.size() - 1, 0.0);
+    input_index = 0;
+    output_index = 0;
 }
 
 std::vector<NesoraIIRFilterPD> NesoraIIRFilter::GetPeaks() const {
@@ -25,12 +26,13 @@ std::vector<NesoraIIRFilterPD>& NesoraIIRFilter::GetDips() {
 }
 
 void NesoraIIRFilter::Reset() {
-    std::fill(history.begin(), history.end(), 0.0);
     std::fill(output_history.begin(), output_history.end(), 0.0);
     std::fill(input_history.begin(), input_history.end(), 0.0);
+    input_index = 0;
+    output_index = 0;
 }
 
-std::vector<double> NesoraIIRFilter::GetResponse() const {
+std::vector<double> NesoraIIRFilter::GetResponse() {
     return response;
 }
 
@@ -68,7 +70,40 @@ void NesoraIIRFilter::CalculateCoefficientsFromPDs() {
     Gain = (B1 == 0.0) ? 0.0 : A1 / B1;
     for (auto& bk : b_coefficients)
         bk = bk * Gain;
+
+    // バッファの更新
+    if(output_history.size() != a_coefficients.size() - 1) {
+        output_history.resize(a_coefficients.size() - 1, 0.0);
+        output_index = 0;
+    }
+    if(input_history.size() != b_coefficients.size() - 1) {
+        input_history.resize(b_coefficients.size() - 1, 0.0);
+        input_index = 0;
+    }
+
+    SetCoefficientsSmooth(a_coefficients, b_coefficients);
 }
+
+void NesoraIIRFilter::SetCoefficientsSmooth(const std::vector<double>& a_coeffs, const std::vector<double>& b_coeffs, double transition_time_ms) {
+    // 目標係数を設定
+    a_coefficients_target = a_coeffs;
+    b_coefficients_target = b_coeffs;
+    
+    // 現在の係数を保存（初回は即座に設定）
+    if (a_coefficients_current.empty() or a_coefficients_current.size() != a_coefficients_target.size()) {
+        a_coefficients_current = a_coeffs;
+        b_coefficients_current = b_coeffs;
+        a_coefficients = a_coeffs;
+        b_coefficients = b_coeffs;
+        return;
+    }
+    
+    // 補間サンプル数を計算（例：10ms）
+    total_interpolation_samples = static_cast<int>(samplingFrequency * transition_time_ms * 0.0001);
+    interpolation_samples = total_interpolation_samples;
+    is_interpolating = true;
+}
+
 
 std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples) {
     response.clear();
@@ -81,33 +116,33 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
     if (num_threads == 0) num_threads = 4; // デフォルト値
 
     auto worker = [&](int start, int end) {
-    for (int n = 0; n < num_samples; n++) {
-        double omega;
+        for (int n = 0; n < num_samples; n++) {
+            double omega;
             if (num_samples == 1)
                 omega = 0.0;
             else
                 omega = nsPI * static_cast<double>(n) / static_cast<double>(num_samples - 1);
 
-        // z^{-1} = e^{-j omega}
-        std::complex<double> z_inv = std::exp(std::complex<double>(0.0, -omega));
+            // z^{-1} = e^{-j omega}
+            std::complex<double> z_inv = std::exp(std::complex<double>(0.0, -omega));
 
-        // Horner 法で多項式を評価（z^{-1} を変数として）
-        auto eval_poly = [&](const std::vector<double>& coef) -> std::complex<double> {
-            if (coef.empty()) return std::complex<double>(0.0, 0.0);
-            std::complex<double> p = coef.back();
+            // Horner 法で多項式を評価（z^{-1} を変数として）
+            auto eval_poly = [&](const std::vector<double>& coef) -> std::complex<double> {
+                if (coef.empty()) return std::complex<double>(0.0, 0.0);
+                std::complex<double> p = coef.back();
                 for (size_t k = coef.size(); k >= 2; k--)
                     p = p * z_inv + coef[k - 2];
-            return p;
-        };
+                return p;
+            };
 
-        std::complex<double> numerator = eval_poly(b_coefficients);
-        std::complex<double> denominator = eval_poly(a_coefficients);
+            std::complex<double> numerator = eval_poly(b_coefficients);
+            std::complex<double> denominator = eval_poly(a_coefficients);
 
-        double mag;
+            double mag;
             if (std::abs(denominator) < 1e-300)
-            mag = std::numeric_limits<double>::infinity(); // or a very large number
+                mag = std::numeric_limits<double>::infinity(); // or a very large number
             else
-            mag = std::abs(numerator / denominator);
+                mag = std::abs(numerator / denominator);
             
             response[n] = std::log10(mag + 1e-10) * 10.0; // dBへの変換
         }
@@ -174,31 +209,57 @@ std::vector<double> NesoraIIRFilter::CalculateFrequencyResponse(int num_samples)
     return response;//*/
 }
 
-double NesoraIIRFilter::Filter(double x) {
-    // 入力履歴の更新
-    input_history.insert(input_history.begin(), x);
-    if (input_history.size() > b_coefficients.size() - 1) {
-        input_history.pop_back();
+double NesoraIIRFilter:: Filter(double x) {
+    // 補間処理
+    if (is_interpolating && interpolation_samples > 0) {
+        double alpha = 1.0 - static_cast<double>(interpolation_samples) / static_cast<double>(total_interpolation_samples);
+        
+        // 線形補間
+        for (size_t i = 0; i < a_coefficients_current.size(); i++) {
+            a_coefficients[i] = a_coefficients_current[i] * (1.0 - alpha) + a_coefficients_target[i] * alpha;
+        }
+        for (size_t i = 0; i < b_coefficients_current.size(); i++) {
+            b_coefficients[i] = b_coefficients_current[i] * (1.0 - alpha) + b_coefficients_target[i] * alpha;
+        }
+        
+        interpolation_samples--;
+        
+        // 補間完了
+        if (interpolation_samples == 0) {
+            is_interpolating = false;
+            a_coefficients_current = a_coefficients_target;
+            b_coefficients_current = b_coefficients_target;
+        }
     }
 
-    // 出力計算
+     // 通常のフィルタ処理（円形バッファ版）
     double y = 0.0;
-
+    
     // 分子部分
-    y += b_coefficients[0] * x;
-    for (size_t i = 1; i < std::min(b_coefficients.size(), input_history.size() + 1); i++) {
-        y += b_coefficients[i] * input_history[i - 1];
+    if (!b_coefficients.empty()) {
+        y += b_coefficients[0] * x;
     }
-
+    size_t b_size = std:: min(b_coefficients.size() - 1, input_history.size());
+    for (size_t i = 1; i <= b_size; i++) {
+        size_t idx = (input_index + input_history. size() - i) % input_history.size();
+        y += b_coefficients[i] * input_history[idx];
+    }
+    
     // 分母部分
-    for (size_t i = 1; i < std::min(a_coefficients.size(), output_history.size() + 1); i++) {
-        y -= a_coefficients[i] * output_history[i - 1];
+    size_t a_size = std:: min(a_coefficients.size() - 1, output_history.size());
+    for (size_t i = 1; i <= a_size; i++) {
+        size_t idx = (output_index + output_history. size() - i) % output_history.size();
+        y -= a_coefficients[i] * output_history[idx];
     }
-
-    // 出力履歴の更新
-    output_history.insert(output_history.begin(), y);
-    if (output_history.size() > a_coefficients.size() - 1) {
-        output_history.pop_back();
+    
+    // 履歴更新
+    if (!input_history.empty()) {
+        input_history[input_index] = x;
+        input_index = (input_index + 1) % input_history.size();
+    }
+    if (!output_history.empty()) {
+        output_history[output_index] = y;
+        output_index = (output_index + 1) % output_history.size();
     }
 
     return y;
@@ -276,10 +337,8 @@ void NesoraIIRFilter::LoadData(const std::vector<unsigned char>& data) {
     }
 
     if (a_coefficients.size() >= 1) {
-        history.resize(a_coefficients.size() - 1, 0.0);
         output_history.resize(a_coefficients.size() - 1, 0.0);
     } else {
-        history.clear();
         output_history.clear();
     }
     if (b_coefficients.size() >= 1) {
@@ -291,6 +350,3 @@ void NesoraIIRFilter::LoadData(const std::vector<unsigned char>& data) {
     CalculateCoefficientsFromPDs();
     CalculateFrequencyResponse(512); // reasonable default until UI recalculates with actual width
 }
-
-
-

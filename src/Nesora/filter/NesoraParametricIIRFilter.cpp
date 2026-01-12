@@ -6,6 +6,8 @@ void NesoraParametricIIRFilter::SetCoefficients(const std::vector<double>& a_coe
     b_coefficients = b_coeffs;
     output_history.resize(a_coefficients.size() - 1, 0.0);
     input_history.resize(b_coefficients.size() - 1, 0.0);
+    input_index = 0;
+    output_index = 0;
 }
 
 std::vector<NesoraIIRFilterPD> NesoraParametricIIRFilter::GetPeaks() const {
@@ -27,6 +29,8 @@ std::vector<NesoraIIRFilterPD>& NesoraParametricIIRFilter::GetDips() {
 void NesoraParametricIIRFilter::Reset() {
     std::fill(output_history.begin(), output_history.end(), 0.0);
     std::fill(input_history.begin(), input_history.end(), 0.0);
+    input_index = 0;
+    output_index = 0;
 }
 
 std::vector<double> NesoraParametricIIRFilter::GetResponse() const {
@@ -82,6 +86,16 @@ void NesoraParametricIIRFilter::CalculateCoefficientsFromPDs(const std::map<int,
     Gain = (B1 == 0.0) ? 0.0 : A1 / B1;
     for (auto& bk : b_coefficients)
         bk = bk * Gain;
+
+    // バッファの更新
+    if(output_history.size() != a_coefficients.size() - 1) {
+        output_history.resize(a_coefficients.size() - 1, 0.0);
+        output_index = 0;
+    }
+    if(input_history.size() != b_coefficients.size() - 1) {
+        input_history.resize(b_coefficients.size() - 1, 0.0);
+        input_index = 0;
+    }
 }
 
 std::vector<double> NesoraParametricIIRFilter::CalculateFrequencyResponse(int num_samples) {
@@ -95,7 +109,7 @@ std::vector<double> NesoraParametricIIRFilter::CalculateFrequencyResponse(int nu
     if (num_threads == 0) num_threads = 4; // デフォルト値
 
     auto worker = [&](int start, int end) {
-        for (int n = 0; n < num_samples; n++) {
+        for (int n = start; n < end; n++) {
             double omega;
             if (num_samples == 1)
                 omega = 0.0;
@@ -146,30 +160,34 @@ std::vector<double> NesoraParametricIIRFilter::CalculateFrequencyResponse(int nu
 }
 
 double NesoraParametricIIRFilter::Filter(const std::map<int, double>& parameters, double x) {
-    // 入力履歴の更新
-    input_history.insert(input_history.begin(), x);
-    if (input_history.size() > b_coefficients.size() - 1) {
-        input_history.pop_back();
-    }
-
     // 出力計算
     double y = 0.0;
 
     // 分子部分
-    y += b_coefficients[0] * x;
-    for (size_t i = 1; i < std::min(b_coefficients.size(), input_history.size() + 1); i++) {
-        y += b_coefficients[i] * input_history[i - 1];
+    if (!b_coefficients.empty()) {
+        y += b_coefficients[0] * x;
     }
-
+    size_t b_size = std:: min(b_coefficients.size() - 1, input_history.size());
+    for (size_t i = 1; i <= b_size; i++) {
+        size_t idx = (input_index + input_history. size() - i) % input_history.size();
+        y += b_coefficients[i] * input_history[idx];
+    }
+    
     // 分母部分
-    for (size_t i = 1; i < std::min(a_coefficients.size(), output_history.size() + 1); i++) {
-        y -= a_coefficients[i] * output_history[i - 1];
+    size_t a_size = std:: min(a_coefficients.size() - 1, output_history.size());
+    for (size_t i = 1; i <= a_size; i++) {
+        size_t idx = (output_index + output_history. size() - i) % output_history.size();
+        y -= a_coefficients[i] * output_history[idx];
     }
-
-    // 出力履歴の更新
-    output_history.insert(output_history.begin(), y);
-    if (output_history.size() > a_coefficients.size() - 1) {
-        output_history.pop_back();
+    
+    // 履歴更新
+    if (!input_history.empty()) {
+        input_history[input_index] = x;
+        input_index = (input_index + 1) % input_history.size();
+    }
+    if (!output_history.empty()) {
+        output_history[output_index] = y;
+        output_index = (output_index + 1) % output_history.size();
     }
 
     return y;

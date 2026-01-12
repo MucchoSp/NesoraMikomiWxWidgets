@@ -66,6 +66,8 @@ private:
 
     double Gain = 1;
     bool sorted = false;
+    size_t input_index = 0;
+    size_t output_index = 0;
 };
 
 

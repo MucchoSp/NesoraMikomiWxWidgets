@@ -75,6 +75,8 @@ private:
     std::vector<NesoraIIRFilterPD> dips;
 
     double Gain = 1;
+    size_t input_index = 0;
+    size_t output_index = 0;
 };
 
 #endif // NESORA_IIRFILTER_H

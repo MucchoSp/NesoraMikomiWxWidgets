@@ -47,8 +47,8 @@ void NesoraParametricIIRFilter::CalculateCoefficientsFromPDs(const std::map<int,
         double theta = peaks[p].theta;
         for (const auto& param : parameters) {
             if (param.second != 0.0){ 
-                r += peaks_paramater_status[param.first][p].delta_r * param.second;
-                theta += peaks_paramater_status[param.first][p].delta_theta * param.second;
+                r += peaks_parameter_status[param.first][p].delta_r * param.second;
+                theta += peaks_parameter_status[param.first][p].delta_theta * param.second;
             }
         }
         std::fill(peaks_buffer.begin(), peaks_buffer.end(), 0.0);
@@ -69,8 +69,8 @@ void NesoraParametricIIRFilter::CalculateCoefficientsFromPDs(const std::map<int,
         double theta = dips[p].theta;
         for (const auto& param : parameters) {
             if (param.second != 0.0){ 
-                r += dips_paramater_status[param.first][p].delta_r * param.second;
-                theta += dips_paramater_status[param.first][p].delta_theta * param.second;
+                r += dips_parameter_status[param.first][p].delta_r * param.second;
+                theta += dips_parameter_status[param.first][p].delta_theta * param.second;
             }
         }
         std::fill(dips_buffer.begin(), dips_buffer.end(), 0.0);
@@ -159,7 +159,7 @@ std::vector<double> NesoraParametricIIRFilter::CalculateFrequencyResponse(int nu
     return response;
 }
 
-double NesoraParametricIIRFilter::Filter(const std::map<int, double>& parameters, double x) {
+double NesoraParametricIIRFilter::Filter(double x) {
     // 出力計算
     double y = 0.0;
 

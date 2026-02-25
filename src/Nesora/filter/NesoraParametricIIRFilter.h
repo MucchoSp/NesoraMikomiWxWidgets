@@ -17,7 +17,7 @@
 
 
 
-class NesoraParametricIIRFilter : public NesoraParametricFilterBase {
+class NesoraParametricIIRFilter : public NesoraFilterBase {
 public:
     NesoraParametricIIRFilter(){}
     NesoraParametricIIRFilter(double smpl) {
@@ -41,7 +41,7 @@ public:
     std::vector<double> CalculateFrequencyResponse(int num_samples);
     std::vector<double> GetResponse() const;
 
-    double Filter(const std::map<int, double>& parameters, double x) override;
+    double Filter(double x) override;
 
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;
@@ -61,8 +61,8 @@ private:
     std::vector<NesoraIIRFilterPD> peaks;
     std::vector<NesoraIIRFilterPD> dips;
 
-    std::map<int, std::vector<ParametricNesoraIIRFilterParameter>> peaks_paramater_status;
-    std::map<int, std::vector<ParametricNesoraIIRFilterParameter>> dips_paramater_status;
+    std::map<int, std::vector<ParametricNesoraIIRFilterParameter>> peaks_parameter_status;
+    std::map<int, std::vector<ParametricNesoraIIRFilterParameter>> dips_parameter_status;
 
     double Gain = 1;
     bool sorted = false;

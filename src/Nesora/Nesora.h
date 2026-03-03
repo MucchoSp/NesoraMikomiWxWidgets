@@ -1,4 +1,4 @@
-#pragma one
+#pragma once
 
 #ifndef NESORA_H
 #define NESORA_H
@@ -10,6 +10,7 @@
 
 #include "filter/NesoraFormantFilter.h"
 #include "filter/NesoraIIRFilter.h"
+#include "filter/NesoraParametricSOSIIRFilter/NesoraParametricSOSIIRFilter.h"
 #include "filter/NesoraVowelParam.h"
 
 #include "script/NesoraScriptOneTone.h"

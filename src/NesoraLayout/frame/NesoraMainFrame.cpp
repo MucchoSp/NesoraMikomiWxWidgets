@@ -14,7 +14,7 @@ nsMainFrame::nsMainFrame()
     singPanel->Hide();
     speakPanel = new nsSpeakPanel(this, nsID_SPEAK_PANEL, wxDefaultPosition, wxSize(1000, 300));
     speakPanel->Hide();
-    voiceMakePanel = new nsVoiceMakePanel(this, nsID_VOICE_MAKE_PANEL, wxDefaultPosition, wxSize(1000, 300));
+    voiceMakePanel = new nsParametricVoiceMakePanel(this, nsID_VOICE_MAKE_PANEL, wxDefaultPosition, wxSize(1000, 300));
     voiceMakePanel->Hide();
 
     main_sizer = new wxBoxSizer(wxVERTICAL);

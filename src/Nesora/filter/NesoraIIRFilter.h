@@ -14,13 +14,6 @@
 #ifndef NESORA_IIRFILTER_H
 #define NESORA_IIRFILTER_H
 
-
-struct NesoraIIRFilterPD {
-    double r;
-    double theta;
-};
-
-
 class NesoraIIRFilter : public NesoraFilterBase {
 public:
     NesoraIIRFilter(){}

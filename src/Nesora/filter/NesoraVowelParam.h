@@ -1,4 +1,4 @@
-#pragma one
+#pragma once
 
 #ifndef NESORA_VOWEL_PARAM_H
 #define NESORA_VOWEL_PARAM_H

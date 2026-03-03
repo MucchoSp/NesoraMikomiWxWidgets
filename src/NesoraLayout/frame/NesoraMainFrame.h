@@ -6,7 +6,7 @@
 #include "../../NesoraLayout/NesoraIDs.h"
 #include "../sing/NesoraSingPanel.h"
 #include "../speak/NesoraSpeakPanel.h"
-#include "../voicemake/NesoraVoiceMakePanel.h"
+#include "../voicemake/parametric/NesoraParametricVoiceMakePanel.h"
 
 #ifndef NESORA_MAIN_FRAME_H
 #define NESORA_MAIN_FRAME_H
@@ -40,7 +40,7 @@ private:
 
     nsSingPanel* singPanel;
     nsSpeakPanel* speakPanel;
-    nsVoiceMakePanel* voiceMakePanel;
+    nsParametricVoiceMakePanel* voiceMakePanel;
 
     wxSizer* main_sizer;
 

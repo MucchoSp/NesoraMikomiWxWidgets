@@ -32,4 +32,11 @@ public:
 private:
 };
 
+
+struct NesoraIIRFilterPD {
+    double r;
+    double theta;
+};
+
+
 #endif // NESORA_FILTER_H

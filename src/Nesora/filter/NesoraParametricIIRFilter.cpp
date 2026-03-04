@@ -37,7 +37,7 @@ std::vector<double> NesoraParametricIIRFilter::GetResponse() const {
     return response;
 }
 
-void NesoraParametricIIRFilter::CalculateCoefficientsFromPDs(const std::map<int, double>& parameters) {
+void NesoraParametricIIRFilter::CalculateCoefficientsFromPDs(const std::map<uint32_t, double>& parameters) {
     // 分母係数の計算
     a_coefficients.assign(peaks.size() * 2 + 1, 0.0);
     a_coefficients[0] = 1.0; // 初期値

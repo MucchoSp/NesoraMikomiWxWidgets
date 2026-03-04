@@ -37,7 +37,7 @@ public:
 
     void Reset();
 
-    void CalculateCoefficientsFromPDs(const std::map<int, double>& parameters);
+    void CalculateCoefficientsFromPDs(const std::map<uint32_t, double>& parameters);
     std::vector<double> CalculateFrequencyResponse(int num_samples);
     std::vector<double> GetResponse() const;
 
@@ -61,8 +61,8 @@ private:
     std::vector<NesoraIIRFilterPD> peaks;
     std::vector<NesoraIIRFilterPD> dips;
 
-    std::map<int, std::vector<ParametricNesoraIIRFilterParameter>> peaks_parameter_status;
-    std::map<int, std::vector<ParametricNesoraIIRFilterParameter>> dips_parameter_status;
+    std::map<uint32_t, std::vector<ParametricNesoraIIRFilterParameter>> peaks_parameter_status;
+    std::map<uint32_t, std::vector<ParametricNesoraIIRFilterParameter>> dips_parameter_status;
 
     double Gain = 1;
     bool sorted = false;

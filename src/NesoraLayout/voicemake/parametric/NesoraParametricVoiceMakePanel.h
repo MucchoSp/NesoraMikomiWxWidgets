@@ -13,6 +13,7 @@
 
 #include "../NesoraRosenbergWavePanel.h"
 #include "NesoraParametricSOSIIRFilterPanel.h"
+#include "NesoraParametricPanel.h"
 #include "../../NesoraIDs.h"
 
 #include "../../../Nesora/Nesora.h"
@@ -83,6 +84,7 @@ private:
     nsRosenbergWavePanel* sourceSoundPanel;
     nsParametricSOSIIRFilterPanel* filterPanel;
     nsParametricVoiceMakePlayInterfacePanel* playInterfacePanel;
+    nsParametricPanel* parametricPanel;
     NesoraMikomiVoice* voice;
 
     void OnPlayButtonClicked(wxCommandEvent& event);

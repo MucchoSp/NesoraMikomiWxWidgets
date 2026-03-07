@@ -135,7 +135,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
             gc->GetTextExtent(outputString, &tw, &th);
             int x = controlPoints[selectedControlPointIndex].m_x + controlPoints[selectedControlPointIndex].m_width + tw < size.GetWidth() ? controlPoints[selectedControlPointIndex].m_x + controlPoints[selectedControlPointIndex].m_width : controlPoints[selectedControlPointIndex].m_x - tw;
             int y = controlPoints[selectedControlPointIndex].m_y + controlPoints[selectedControlPointIndex].m_height + th < size.GetHeight() ? controlPoints[selectedControlPointIndex].m_y + controlPoints[selectedControlPointIndex].m_height : controlPoints[selectedControlPointIndex].m_y - th;
-            gc->DrawRectangle(x,y,tw,th);
+            gc->DrawRectangle(x, y, tw, th);
             gc->DrawText(outputString, x, y);
         }
         delete gc;
@@ -171,9 +171,9 @@ void nsParametricSOSIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event
         }
     }
 
-    if ((event.Dragging() && HasCapture()) || oldControlPoint != selectedControlPointIndex) {
+    if ((event.Dragging() && HasCapture()) || oldControlPoint != selectedControlPointIndex)
         Refresh(false);
-    }
+    
     event.Skip();
 }
 

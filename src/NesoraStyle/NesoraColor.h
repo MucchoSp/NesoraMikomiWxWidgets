@@ -54,8 +54,10 @@ inline wxColour nsGetColor(nsColorType type) {
         case nsColorType::SECONDARY_SHADOW:
             return wxColour(0x00, 0x00, 0x00, 0x1F);
         case nsColorType::ON_SECONDARY:
+            return wxColour(0x21, 0x28, 0x4C);
             return wxColour(0xF9, 0xFD, 0xFF);
         case nsColorType::ON_SECONDARY_THIN:
+            return wxColour(0x21, 0x28, 0x4C);
             return wxColour(0xF9, 0xFD, 0xFF);  //TODO:色を作る
 
         case nsColorType::BACKGROUND:

@@ -3,6 +3,7 @@
 // MARK:nsParameterCard
 
 void nsParameterCard::Init(uint32_t in_ID, double in_param) {
+    
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
 
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -44,6 +45,7 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
     this->Bind(wxEVT_LEFT_DOWN, &nsParameterCard::OnLeftDown, this);
     this->Bind(wxEVT_MOTION, &nsParameterCard::OnMouseMove, this);
     this->Bind(wxEVT_LEFT_UP, &nsParameterCard::OnLeftUp, this);
+    this->Bind(wxEVT_DESTROY, &nsParameterCard::OnDestroyWindow, this);
 }
 
 void nsParameterCard::OnParameterSlide(wxCommandEvent& event) {
@@ -63,6 +65,13 @@ void nsParameterCard::OnDeleteButton(wxCommandEvent& event) {
             scrolled->FitInside();
         }
     }
+}
+
+void nsParameterCard::OnDestroyWindow(wxWindowDestroyEvent& event) {
+    nsParameterCardScrollContainer* parent = (nsParameterCardScrollContainer*)GetParent();
+
+    parent->RemoveCard();
+    event.Skip();
 }
 
 void nsParameterCard::OnLeftDown(wxMouseEvent& event) {
@@ -252,11 +261,15 @@ void nsParameterCardScrollContainer::AddCard() {
     FitInside();
 }
 
+void nsParameterCardScrollContainer::RemoveCard() {
+    selectedItem = {};
+}
+
 void nsParameterCardScrollContainer::SelectItem(nsParameterCard* item) {
     if (selectedItem && selectedItem != item) {
         selectedItem->SetSelected(false);
     }
-
+        
     selectedItem = item;
     if (selectedItem) {
         selectedItem->SetSelected(true);

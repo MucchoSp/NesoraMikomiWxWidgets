@@ -163,6 +163,7 @@ private:
 
     void OnParameterSlide(wxCommandEvent& event);
     void OnDeleteButton(wxCommandEvent& event);
+    void OnDestroyWindow(wxWindowDestroyEvent& event);
     
     void OnLeftDown(wxMouseEvent& event);
     void OnMouseMove(wxMouseEvent& event);
@@ -197,6 +198,7 @@ public:
     void Init();
 
     void AddCard();
+    void RemoveCard();
     void SelectItem(nsParameterCard* item);
     nsParameterCard* GetSelectedItem() const;
 

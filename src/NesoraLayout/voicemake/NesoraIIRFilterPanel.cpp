@@ -3,11 +3,11 @@
 // MARK:nsIIRFrequencyResponseControl
 
 // グラフを見やすくするためにy軸を指数関数的に変化するようにするためのもの
-double y_to_r(double y) {
+inline double y_to_r(double y) {
     return 1.0 - std::pow(1.0 - y, 2.0);
 }
 
-double r_to_y(double r) {
+inline double r_to_y(double r) {
     return -std::sqrt(-r + 1.0) + 1.0;
 }
 

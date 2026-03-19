@@ -3,14 +3,14 @@
 // MARK:nsParametricSOSIIRFrequencyResponseControl
 
 // グラフを見やすくするためにy軸を指数関数的に変化するようにするためのもの
-double y_to_r(double y) {
+inline double y_to_r(double y) {
     if(y < 0)
         return -1.0 + std::pow(1.0 + y, 2.0);
     else
         return 1.0 - std::pow(1.0 - y, 2.0);
 }
 
-double r_to_y(double r) {
+inline double r_to_y(double r) {
     if(r < 0)
         return std::sqrt(r + 1.0) - 1.0;
     else

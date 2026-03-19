@@ -33,6 +33,7 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
         });
     IDTextCtrl->Hide();
     parameter = new nsSlider(this, wxID_ANY, 100, 0, 100, wxDefaultPosition, wxSize(100, 15));
+    parameter->UseWheel(false);
     parameter->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsParameterCard::OnParameterSlide, this);
     
     sizer->Add(topbarSizer, 0, wxEXPAND | wxALL);

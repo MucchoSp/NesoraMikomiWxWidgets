@@ -30,6 +30,7 @@ public:
         Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(nsSlider::onLeftDown));
         Connect(wxEVT_LEFT_UP, wxMouseEventHandler(nsSlider::onLeftUp));
         Connect(wxEVT_MOTION, wxMouseEventHandler(nsSlider::onMouseMove));
+        Connect(wxEVT_MOUSEWHEEL, wxMouseEventHandler(nsSlider::onMouseWheel));
     }
 
     int GetValue() const {
@@ -56,6 +57,7 @@ public:
     void SetValue(int value);
     void SetRange(int minValue, int maxValue);
     void SetLimit(int minValue, int maxValue);
+    void UseWheel(bool useWheel);
 
 private:
 
@@ -65,6 +67,7 @@ private:
     int tab_width = 10;
     int lower_limit;
     int upper_limit;
+    bool use_wheel = true;
 
     wxColour background_color = nsGetColor(nsColorType::BACKGROUND);
     wxColour bar_background_color = nsGetColor(nsColorType::PRIMARY);
@@ -75,6 +78,7 @@ private:
     void onLeftDown(wxMouseEvent& event);
     void onLeftUp(wxMouseEvent& event);
     void onMouseMove(wxMouseEvent& event);
+    void onMouseWheel(wxMouseEvent& event);
 
 };
 

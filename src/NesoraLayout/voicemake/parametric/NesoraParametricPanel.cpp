@@ -8,12 +8,7 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
 
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
-    wxBoxSizer* topbarSizer = new wxBoxSizer(wxHORIZONTAL);
-    deleteButton = new nsButton(this, wxID_ANY, "x", wxDefaultPosition, wxSize(16, -1));
-    deleteButton->Bind(wxEVT_BUTTON, &nsParameterCard::OnDeleteButton, this);
-    topbarSizer->Add(deleteButton, 0, wxEXPAND | wxALL);
     nameStaticText = new wxStaticText(this, wxID_ANY, _("Parameter"));
-    topbarSizer->Add(nameStaticText, 1, wxEXPAND | wxALL);
 
     ID = in_ID;
     wxString IDString = wxString::Format(wxT("%X"), ID);
@@ -33,11 +28,11 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
             event.Skip();
         });
     IDTextCtrl->Hide();
-    parameter = new nsSlider(this, wxID_ANY, 100, 0, 100, wxDefaultPosition, wxSize(100, 15));
+    parameter = new nsSlider(this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxSize(100, 15));
     parameter->UseWheel(false);
     parameter->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsParameterCard::OnParameterSlide, this);
     
-    sizer->Add(topbarSizer, 0, wxEXPAND | wxALL);
+    sizer->Add(nameStaticText, 0, wxEXPAND | wxALL);
     sizer->Add(IDStaticText, 0, wxEXPAND | wxALL);
     sizer->Add(IDTextCtrl, 0, wxEXPAND | wxALL);
     sizer->Add(parameter, 0, wxEXPAND | wxALL);
@@ -47,7 +42,7 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
     this->Bind(wxEVT_LEFT_DOWN, &nsParameterCard::OnLeftDown, this);
     this->Bind(wxEVT_MOTION, &nsParameterCard::OnMouseMove, this);
     this->Bind(wxEVT_LEFT_UP, &nsParameterCard::OnLeftUp, this);
-    this->Bind(wxEVT_DESTROY, &nsParameterCard::OnDestroyWindow, this);
+    this->Bind(wxEVT_CONTEXT_MENU, &nsParameterCard::OnContextMenu, this);
 }
 
 void nsParameterCard::OnParameterSlide(wxCommandEvent& event) {
@@ -69,11 +64,33 @@ void nsParameterCard::OnDeleteButton(wxCommandEvent& event) {
     }
 }
 
-void nsParameterCard::OnDestroyWindow(wxWindowDestroyEvent& event) {
-    nsParameterCardScrollContainer* parent = (nsParameterCardScrollContainer*)GetParent();
+void nsParameterCard::OnContextMenu(wxContextMenuEvent& event) {
+    // メニューの作成
+    wxMenu menu;
+    menu.Append(nsID_MENU_EDIT, _("Rename"));
+    menu.AppendSeparator();
+    menu.Append(nsID_MENU_DELETE, _("Delete"));
 
-    parent->RemoveSelectCard();
-    event.Skip();
+    menu.Bind(wxEVT_MENU, [this](wxCommandEvent&) {
+        this->IDTextSwitchToEditMode();
+    }, nsID_MENU_EDIT);
+
+    menu.Bind(wxEVT_MENU, [this](wxCommandEvent&) {
+        this->HandleDelete();
+    }, nsID_MENU_DELETE);
+
+    PopupMenu(&menu);
+}
+
+void nsParameterCard::HandleDelete() {
+    wxWindow* parent = GetParent();
+    this->Destroy();
+
+    if (parent) {
+        parent->Layout();
+        auto* scrolled = dynamic_cast<wxScrolledWindow*>(parent);
+        if (scrolled) scrolled->FitInside();
+    }
 }
 
 void nsParameterCard::OnLeftDown(wxMouseEvent& event) {
@@ -256,6 +273,14 @@ void nsParameterCardScrollContainer::Init() {
     this->SetSizer(mainSizer);
 
     SetScrollRate(0, 20);
+    // 背景クリックイベントをバインド
+    Bind(wxEVT_LEFT_DOWN, &nsParameterCardScrollContainer::OnLeftDown, this);
+
+    wxAcceleratorEntry entries[1];
+    entries[0].Set(wxACCEL_NORMAL, WXK_ESCAPE, nsID_ESCAPE);
+    wxAcceleratorTable accel(1, entries);
+    this->SetAcceleratorTable(accel);
+    Bind(wxEVT_MENU, &nsParameterCardScrollContainer::OnEscapePressed, this, nsID_ESCAPE);
 }
 
 void nsParameterCardScrollContainer::AddCard() {
@@ -285,7 +310,10 @@ void nsParameterCardScrollContainer::SelectItem(nsParameterCard* item) {
     nsSelectedParameterChangeEvent event(nsEVT_SELECTED_PARAMETER_CHANGED, GetId());
     event.SetEventObject(this);
 
-    event.SetData(selectedItem->ID);
+    if (selectedItem)
+        event.SetData(selectedItem->ID);
+    else
+        event.SetData(0);
 
     // 送信する
     this->GetEventHandler()->ProcessEvent(event);
@@ -293,6 +321,17 @@ void nsParameterCardScrollContainer::SelectItem(nsParameterCard* item) {
 
 nsParameterCard* nsParameterCardScrollContainer::GetSelectedItem() const {
     return selectedItem;
+}
+
+// 背景をクリックしたとき
+void nsParameterCardScrollContainer::OnLeftDown(wxMouseEvent& event) {
+    SelectItem(nullptr);
+    event.Skip();
+}
+
+// ESCキーが押されたとき
+void nsParameterCardScrollContainer::OnEscapePressed(wxCommandEvent& event) {
+    SelectItem(nullptr);
 }
 
 
@@ -321,3 +360,7 @@ void nsParametricPanel::Init() {
 void nsParametricPanel::OnAddButton(wxCommandEvent& event) {
     scrollWindow->AddCard();
 }
+
+// [build] /Users/muchosp/Documents/MucchoSP/音諳/音諳プロジェクト/音諳みこみ/NesoraMikomiWxWidgets/lib/wxWidgets/include/wx/meta/if.h:1:809: warning: null character ignored [-Wnull-character]
+// [build] <U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000><U+0000>
+// [proc] コマンド pgrep -P 40197 はコード 1 で終了しました

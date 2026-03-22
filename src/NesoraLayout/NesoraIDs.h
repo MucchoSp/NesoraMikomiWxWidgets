@@ -18,6 +18,10 @@ enum {
     nsID_VOICE_SAVE = wxID_HIGHEST + 1000,
     nsID_SING_SAVE,
     nsID_SPEAK_SAVE,
+
+    nsID_ESCAPE,
+    nsID_MENU_EDIT,
+    nsID_MENU_DELETE,
 };
 
 #endif // NESORA_IDS_H

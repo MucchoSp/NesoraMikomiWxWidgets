@@ -156,7 +156,6 @@ public:
 
 private:
 
-    nsButton* deleteButton;
     bool isDragging = false;
     bool isSelected = false;
     wxOverlay overlay;
@@ -164,7 +163,8 @@ private:
 
     void OnParameterSlide(wxCommandEvent& event);
     void OnDeleteButton(wxCommandEvent& event);
-    void OnDestroyWindow(wxWindowDestroyEvent& event);
+    void OnContextMenu(wxContextMenuEvent& event);
+    void HandleDelete();
     
     void OnLeftDown(wxMouseEvent& event);
     void OnMouseMove(wxMouseEvent& event);
@@ -211,6 +211,9 @@ private:
     nsParameterCard* selectedItem;
 
     wxBoxSizer* mainSizer;
+
+    void OnLeftDown(wxMouseEvent& event);
+    void OnEscapePressed(wxCommandEvent& event);
 
 };
 

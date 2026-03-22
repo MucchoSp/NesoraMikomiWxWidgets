@@ -24,6 +24,8 @@ public:
     
     void SetPoint(NesoraIIRFilterPD in_point);
     void SetDelta(const std::map<uint32_t, ParametricNesoraIIRFilterParameter>& in_delta);
+    void AddDelta(uint32_t in_delta_ID, ParametricNesoraIIRFilterParameter in_delta_value);
+    void SetDestinationPoint(uint32_t parameterID, NesoraIIRFilterPD in_point);
     void CalculateCoefficients(const std::map<uint32_t, double>& parameters);
     double CalculateFrequencyResponse(double omega) const;
     
@@ -31,7 +33,10 @@ public:
     
     NesoraIIRFilterPD GetPoint();
     const NesoraIIRFilterPD& GetPoint() const;
+    const NesoraIIRFilterPD GetParametricPoint(const std::map<uint32_t, double>& parameters) const;
+    const NesoraIIRFilterPD GetParametricPoint(const uint32_t parameterID, const double delta) const;
     std::map<uint32_t, ParametricNesoraIIRFilterParameter> GetDelta();
+    const ParametricNesoraIIRFilterParameter GetDelta(const uint32_t parameterID) const;
 
 private:
     NesoraIIRFilterPD point = {0};

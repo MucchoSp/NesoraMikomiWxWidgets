@@ -15,7 +15,8 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
     nameStaticText = new wxStaticText(this, wxID_ANY, _("Parameter"));
     topbarSizer->Add(nameStaticText, 1, wxEXPAND | wxALL);
 
-    wxString IDString = "00000000";
+    ID = in_ID;
+    wxString IDString = wxString::Format(wxT("%X"), ID);
     wxHexTextValidator IDValue(&IDString, 8);
     IDStaticText = new wxStaticText(this, wxID_ANY, "#" + IDString);
     IDStaticText->Bind(wxEVT_LEFT_DCLICK, [this](wxMouseEvent& event) {
@@ -71,7 +72,7 @@ void nsParameterCard::OnDeleteButton(wxCommandEvent& event) {
 void nsParameterCard::OnDestroyWindow(wxWindowDestroyEvent& event) {
     nsParameterCardScrollContainer* parent = (nsParameterCardScrollContainer*)GetParent();
 
-    parent->RemoveCard();
+    parent->RemoveSelectCard();
     event.Skip();
 }
 
@@ -210,6 +211,11 @@ void nsParameterCard::IDTextSwitchToDisplayMode() {
     if (!IDTextCtrl->IsShown()) return;
 
     IDStaticText->SetLabel("#" + IDTextCtrl->GetValue());
+    if (!IDTextCtrl->GetValue().ToUInt(&ID, 16)) {
+        ID = 0;
+        IDTextCtrl->SetValue("00000000");
+        IDStaticText->SetLabel("#00000000");
+    }
 
     this->IDTextCtrl->Hide();
     this->IDStaticText->Show();
@@ -262,7 +268,7 @@ void nsParameterCardScrollContainer::AddCard() {
     FitInside();
 }
 
-void nsParameterCardScrollContainer::RemoveCard() {
+void nsParameterCardScrollContainer::RemoveSelectCard() {
     selectedItem = {};
 }
 
@@ -275,6 +281,14 @@ void nsParameterCardScrollContainer::SelectItem(nsParameterCard* item) {
     if (selectedItem) {
         selectedItem->SetSelected(true);
     }
+
+    nsSelectedParameterChangeEvent event(nsEVT_SELECTED_PARAMETER_CHANGED, GetId());
+    event.SetEventObject(this);
+
+    event.SetData(selectedItem->ID);
+
+    // 送信する
+    this->GetEventHandler()->ProcessEvent(event);
 }
 
 nsParameterCard* nsParameterCardScrollContainer::GetSelectedItem() const {

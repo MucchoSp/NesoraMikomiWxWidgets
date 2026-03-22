@@ -11,6 +11,7 @@
 #include "../../../NesoraStyle/NesoraStyle.h"
 
 #include "../../NesoraIDs.h"
+#include "../../NesoraEvents.h"
 
 #include "../../../Nesora/Nesora.h"
 #include "../../../Nesora/filter/NesoraParametricSOSIIRFilter/NesoraParametricSOSIIRFilter.h"
@@ -138,10 +139,10 @@ public:
 class nsParameterCard : public wxPanel {
 public:
     nsParameterCard(wxWindow* parent) : wxPanel(parent) {
-        Init();
+        Init(std::rand());
     }
 
-    uint32_t* ID;
+    uint32_t ID;
 
     void Init(uint32_t ID = 0, double param = 0);
 
@@ -198,7 +199,7 @@ public:
     void Init();
 
     void AddCard();
-    void RemoveCard();
+    void RemoveSelectCard();
     void SelectItem(nsParameterCard* item);
     nsParameterCard* GetSelectedItem() const;
 

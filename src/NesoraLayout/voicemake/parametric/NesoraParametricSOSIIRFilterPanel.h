@@ -14,9 +14,11 @@
 #include "../../../NesoraStyle/NesoraStyle.h"
 
 #include "../../NesoraIDs.h"
+#include "../../NesoraEvents.h"
 
 #include "../../../Nesora/Nesora.h"
 #include "../../../Nesora/filter/NesoraParametricSOSIIRFilter/NesoraParametricSOSIIRFilter.h"
+
 
 
 
@@ -35,16 +37,23 @@ public:
     NesoraParametricSOSIIRFilter* filter;
     // UIを更新
     void SyncControlPointsFromFilter();
+    void SetSelectedParameter(uint32_t param);
+    void OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event);
 private:
     
     std::vector<double> frequencyResponse;
+    std::map<uint32_t, double>* parameters;
+
+    uint32_t nowSelectedParameter = 0;
 
     std::vector<wxRect2DDouble> controlPoints;
-    int selectedControlPointIndex;
-    int prevSelectedControlPointIndex;
+    std::vector<wxRect2DDouble> destinationControlPoints; //いま選択されているパラメーターにより飛ばされる先の場所
+    int selectedControlPointIndex = -1;
+    int selectedDestinationControlPointIndex = -1;
+    int prevSelectedControlPointIndex = -1;
 
-    bool paramater_updated;
-    bool shiftKeyDown;
+    bool paramater_updated = false;
+    bool shiftKeyDown = false;
 
     double samplingFrequency = NesoraDefaultSamplingFrequency;
     double nyquistFrequency = NesoraDefaultNyquistFrequency;

@@ -66,19 +66,7 @@ void nsParametricSOSIIRFrequencyResponseControl::SyncControlPointsFromFilter() {
 
     // 制御点から操作点を計算する
     if (filter) {
-        for (size_t i = 1; i < controlPoints.size(); i++) {
-            const auto& p = filter->GetSOFilter()[i - 1].GetPoint();
-            controlPoints[i].m_x = p.theta / nsPI * (double)GetClientSize().GetWidth();
-            controlPoints[i].m_y = -r_to_y(p.r) * (double)GetClientSize().GetHeight() / 2.0 + (double)GetClientSize().GetHeight() / 2.0;
-            controlPoints[i].m_width = 10;
-            controlPoints[i].m_height = 10;
-
-            const auto& pdp = filter->GetSOFilter()[i - 1].GetParametricPoint(nowSelectedParameter, 1.0);
-            destinationControlPoints[i].m_x = pdp.theta / nsPI * (double)GetClientSize().GetWidth();
-            destinationControlPoints[i].m_y = -r_to_y(pdp.r) * (double)GetClientSize().GetHeight() / 2.0 + (double)GetClientSize().GetHeight() / 2.0;
-            destinationControlPoints[i].m_width = 10;
-            destinationControlPoints[i].m_height = 10;
-        }
+        SetControlPointsFromFilter();
     } else {
         for (size_t i = 1; i < controlPoints.size(); i++) {
             controlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
@@ -92,6 +80,22 @@ void nsParametricSOSIIRFrequencyResponseControl::SyncControlPointsFromFilter() {
 void nsParametricSOSIIRFrequencyResponseControl::SetSelectedParameter(uint32_t param) {
     nowSelectedParameter = param;
     wxWindow::Refresh();
+}
+
+void nsParametricSOSIIRFrequencyResponseControl::SetControlPointsFromFilter() {
+    for (size_t i = 1; i < controlPoints.size(); i++) {
+        const auto& p = filter->GetSOFilter()[i - 1].GetPoint();
+        controlPoints[i].m_x = p.theta / nsPI * (double)GetClientSize().GetWidth() - 5.0;
+        controlPoints[i].m_y = -r_to_y(p.r) * (double)GetClientSize().GetHeight() / 2.0 + (double)GetClientSize().GetHeight() / 2.0 - 5.0;
+        controlPoints[i].m_width = 10;
+        controlPoints[i].m_height = 10;
+
+        const auto& pdp = filter->GetSOFilter()[i - 1].GetParametricPoint(nowSelectedParameter, 1.0);
+        destinationControlPoints[i].m_x = pdp.theta / nsPI * (double)GetClientSize().GetWidth() - 5.0;
+        destinationControlPoints[i].m_y = -r_to_y(pdp.r) * (double)GetClientSize().GetHeight() / 2.0 + (double)GetClientSize().GetHeight() / 2.0 - 5.0;
+        destinationControlPoints[i].m_width = 10;
+        destinationControlPoints[i].m_height = 10;
+    }
 }
 
 void nsParametricSOSIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
@@ -131,7 +135,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
         for (size_t i = 1; i < controlPoints.size(); i++) {
             if(destinationControlPoints[i] != controlPoints[i] and nowSelectedParameter) {
                 gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
-                gc->StrokeLine(controlPoints[i].m_x + 5, controlPoints[i].m_y + 5, destinationControlPoints[i].m_x + 5, destinationControlPoints[i].m_y + 5);
+                gc->StrokeLine(controlPoints[i].m_x + 5.0, controlPoints[i].m_y + 5.0, destinationControlPoints[i].m_x + 5.0, destinationControlPoints[i].m_y + 5.0);
                 if(i == selectedDestinationControlPointIndex) {
                     gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
                 } else {
@@ -142,12 +146,12 @@ void nsParametricSOSIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
 
             gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND), 2));
             if(i == selectedControlPointIndex) {
-                if(filter->GetSOFilter()[i - 1].GetPoint().r < 0)
+                if(filter->GetSOFilter()[i - 1].GetPoint().r < 0.0)
                     gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY_HOVER)));
                 else
                     gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY_HOVER)));
             } else {
-                if(filter->GetSOFilter()[i - 1].GetPoint().r < 0)
+                if(filter->GetSOFilter()[i - 1].GetPoint().r < 0.0)
                     gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
                 else
                     gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));
@@ -159,7 +163,9 @@ void nsParametricSOSIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
         gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
         gc->SetPen(wxPen(nsGetColor(nsColorType::BACKGROUND_SHADOW)));
         if(selectedControlPointIndex != -1){
-            wxString outputString = wxString::Format("point(%0.2fHz, %0.4f)", filter->GetSOFilter()[selectedControlPointIndex - 1].GetPoint().theta * NesoraDefaultSamplingFrequency / ns2PI, std::abs(filter->GetSOFilter()[selectedControlPointIndex - 1].GetPoint().r));
+            wxString outputString = wxString::Format("point(%0.2fHz, %0.4f)",
+                filter->GetSOFilter()[selectedControlPointIndex - 1].GetPoint().theta * NesoraDefaultSamplingFrequency / ns2PI,
+                std::abs(filter->GetSOFilter()[selectedControlPointIndex - 1].GetPoint().r));
             double tw, th;
             gc->GetTextExtent(outputString, &tw, &th);
             int x = controlPoints[selectedControlPointIndex].m_x + controlPoints[selectedControlPointIndex].m_width + tw < size.GetWidth() ? controlPoints[selectedControlPointIndex].m_x + controlPoints[selectedControlPointIndex].m_width : controlPoints[selectedControlPointIndex].m_x - tw;
@@ -168,7 +174,9 @@ void nsParametricSOSIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
             gc->DrawText(outputString, x, y);
         }
         if(selectedDestinationControlPointIndex != -1){
-            wxString outputString = wxString::Format("d_point(%0.2fHz, %0.4f)", filter->GetSOFilter()[selectedDestinationControlPointIndex - 1].GetParametricPoint(nowSelectedParameter, 1.0).theta * NesoraDefaultSamplingFrequency / ns2PI, std::abs(filter->GetSOFilter()[selectedDestinationControlPointIndex - 1].GetParametricPoint(nowSelectedParameter, 1.0).r));
+            wxString outputString = wxString::Format("d_point(%0.2fHz, %0.4f)",
+                filter->GetSOFilter()[selectedDestinationControlPointIndex - 1].GetParametricPoint(nowSelectedParameter, 1.0).theta * NesoraDefaultSamplingFrequency / ns2PI,
+                std::abs(filter->GetSOFilter()[selectedDestinationControlPointIndex - 1].GetParametricPoint(nowSelectedParameter, 1.0).r));
             double tw, th;
             gc->GetTextExtent(outputString, &tw, &th);
             int x = destinationControlPoints[selectedDestinationControlPointIndex].m_x + destinationControlPoints[selectedDestinationControlPointIndex].m_width + tw < size.GetWidth() ? destinationControlPoints[selectedDestinationControlPointIndex].m_x + destinationControlPoints[selectedDestinationControlPointIndex].m_width : destinationControlPoints[selectedDestinationControlPointIndex].m_x - tw;
@@ -192,7 +200,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event
             
             filter->GetSOFilter()[selectedControlPointIndex - 1].SetPoint(
                     {y_to_r(((double)GetClientSize().GetHeight() / 2.0 - (controlPoints[selectedControlPointIndex].m_y + 5.0)) * 2.0 / (double)GetClientSize().GetHeight()), 
-                    (controlPoints[selectedControlPointIndex].m_x + 5) / (double)GetClientSize().GetWidth() * nsPI});
+                    (controlPoints[selectedControlPointIndex].m_x + 5.0) / (double)GetClientSize().GetWidth() * nsPI});
 
             const auto& pdp = filter->GetSOFilter()[selectedControlPointIndex - 1].GetParametricPoint(nowSelectedParameter, 1.0);
             destinationControlPoints[selectedControlPointIndex].m_x = pdp.theta / nsPI * (double)GetClientSize().GetWidth();
@@ -204,7 +212,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event
             
             filter->GetSOFilter()[selectedDestinationControlPointIndex - 1].SetDestinationPoint(nowSelectedParameter,
                     {y_to_r(((double)GetClientSize().GetHeight() / 2.0 - (destinationControlPoints[selectedDestinationControlPointIndex].m_y + 5.0)) * 2.0 / (double)GetClientSize().GetHeight()), 
-                    (destinationControlPoints[selectedDestinationControlPointIndex].m_x + 5) / (double)GetClientSize().GetWidth() * nsPI});
+                    (destinationControlPoints[selectedDestinationControlPointIndex].m_x + 5.0) / (double)GetClientSize().GetWidth() * nsPI});
         }
         filter->CalculateCoefficients({}); //ここでパラメーターを渡す
         filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
@@ -264,10 +272,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnMouseWheel(wxMouseEvent& even
 void nsParametricSOSIIRFrequencyResponseControl::OnSize(wxSizeEvent& event) {
     filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
 
-    for (int i = 1;i < controlPoints.size();i++) {
-        controlPoints[i].m_x = filter->GetSOFilter()[i - 1].GetPoint().theta / nsPI * (double)GetClientSize().GetWidth();
-        controlPoints[i].m_y = -r_to_y(filter->GetSOFilter()[i - 1].GetPoint().r) * (double)GetClientSize().GetHeight() / 2.0 + (double)GetClientSize().GetHeight() / 2.0;
-    }
+    SetControlPointsFromFilter();
 
     wxWindow::Refresh();
     event.Skip();
@@ -284,21 +289,19 @@ void nsParametricSOSIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event
         controlPoints.erase(controlPoints.begin() + selectedControlPointIndex);
         destinationControlPoints.erase(destinationControlPoints.begin() + selectedControlPointIndex);
         filter->GetSOFilter().erase(filter->GetSOFilter().begin() + selectedControlPointIndex - 1);
-        filter->CalculateCoefficients({}); //ここでパラメーターを渡す
-        filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
     } else if(selectedDestinationControlPointIndex != -1) {
         destinationControlPoints[selectedDestinationControlPointIndex] = controlPoints[selectedDestinationControlPointIndex];
     } else {
         // ホバーしていなければ操作点と制御点を追加
-        controlPoints.push_back(wxRect2DDouble(event.GetX() - 5, event.GetY() - 5, 10, 10));
-        destinationControlPoints.push_back(wxRect2DDouble(event.GetX() - 5, event.GetY() - 5, 10, 10));
+        controlPoints.push_back(wxRect2DDouble(event.GetX() - 5.0, event.GetY() - 5.0, 10.0, 10.0));
+        destinationControlPoints.push_back(wxRect2DDouble(event.GetX() - 5.0, event.GetY() - 5.0, 10.0, 10.0));
         filter->GetSOFilter().push_back(NesoraIIRFilterPD{
-            y_to_r(((double)GetClientSize().GetHeight() / 2.0 - event.GetY()) * 2.0 / (double)GetClientSize().GetHeight()),
-            (event.GetX() / (double)GetClientSize().GetWidth()) * nsPI,
-        });
-        filter->CalculateCoefficients({}); //ここでパラメーターを渡す
-        filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
+                y_to_r(((double)GetClientSize().GetHeight() / 2.0 - (controlPoints.back().m_y + 5.0)) * 2.0 / (double)GetClientSize().GetHeight()), 
+                (controlPoints.back().m_x + 5.0) / (double)GetClientSize().GetWidth() * nsPI});
     }
+
+    filter->CalculateCoefficients({}); //ここでパラメーターを渡す
+    filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
 
     // ホバーの処理
     selectedControlPointIndex = -1;
@@ -327,13 +330,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event
 void nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
     nowSelectedParameter = event.GetData();
 
-    for (size_t i = 1; i < controlPoints.size(); i++) {
-        const auto& pdp = filter->GetSOFilter()[i - 1].GetParametricPoint(nowSelectedParameter, 1.0);
-        destinationControlPoints[i].m_x = pdp.theta / nsPI * (double)GetClientSize().GetWidth() - 5.0;
-        destinationControlPoints[i].m_y = -r_to_y(pdp.r) * (double)GetClientSize().GetHeight() / 2.0 + (double)GetClientSize().GetHeight() / 2.0 - 5.0;
-        destinationControlPoints[i].m_width = 10;
-        destinationControlPoints[i].m_height = 10;
-    }
+    SetControlPointsFromFilter();
 
     wxWindow::Refresh();
     event.Skip();

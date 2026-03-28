@@ -58,6 +58,8 @@ private:
     double samplingFrequency = NesoraDefaultSamplingFrequency;
     double nyquistFrequency = NesoraDefaultNyquistFrequency;
 
+    void SetControlPointsFromFilter();
+
     void OnPaint(wxPaintEvent& event);
 
     void OnMouseMove(wxMouseEvent& event);

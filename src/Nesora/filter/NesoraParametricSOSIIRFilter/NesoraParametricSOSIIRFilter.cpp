@@ -86,11 +86,21 @@ const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const std::
     NesoraIIRFilterPD out = point;
 
     for(const auto& [paramid, param] : parameters) {
-        if(delta.count(paramid)) {
+        if (delta.count(paramid)) {
             out.r += delta.at(paramid).delta_r * param;
             out.theta += delta.at(paramid).delta_theta * param;
         }
     }
+
+    if (out.r < -1.0)
+        out.r = -1.0;
+    else if (out.r > 1.0)
+        out.r = 1.0;
+
+    if (out.theta < 0)
+        out.theta = 0;
+    else if (out.theta > nsPI)
+        out.theta = nsPI;
 
     return out;
 }
@@ -100,14 +110,22 @@ const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const uint3
     
     try {
         out.r += delta.at(paramid).delta_r * param;
+        if (out.r < -1.0)
+            out.r = -1.0;
+        else if (out.r > 1.0)
+            out.r = 1.0;
+        
         out.theta += delta.at(paramid).delta_theta * param;
+        if (out.theta < 0)
+            out.theta = 0;
+        else if (out.theta > nsPI)
+            out.theta = nsPI;
     }
     catch(std::out_of_range&) {
         out = point;
     }
     
     return out;
-
 }
 
 std::map<uint32_t, ParametricNesoraIIRFilterParameter> NesoraParametricSOFilter::GetDelta() {

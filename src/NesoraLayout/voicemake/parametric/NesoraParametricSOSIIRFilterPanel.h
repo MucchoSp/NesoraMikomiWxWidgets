@@ -38,27 +38,31 @@ public:
     // UIを更新
     void SyncControlPointsFromFilter();
     void SetSelectedParameter(uint32_t param);
-    void OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event);
-private:
+    private:
     
     std::vector<double> frequencyResponse;
-    std::map<uint32_t, double>* parameters;
-
+    std::map<uint32_t, double> parameters;
+    
     uint32_t nowSelectedParameter = 0;
-
-    std::vector<wxRect2DDouble> controlPoints;
-    std::vector<wxRect2DDouble> destinationControlPoints; //いま選択されているパラメーターにより飛ばされる先の場所
+    
+    std::vector<wxRect2DDouble> controlPoints;              //操作点
+    std::vector<wxRect2DDouble> destinationControlPoints;   //いま選択されているパラメーターにより飛ばされる先の場所
+    std::vector<wxRect2DDouble> nowControlPoints;           //いま選択されているパラメーターにより飛ばされた場所
     int selectedControlPointIndex = -1;
     int selectedDestinationControlPointIndex = -1;
-    int prevSelectedControlPointIndex = -1;
-
+    
     bool paramater_updated = false;
     bool shiftKeyDown = false;
-
+    
     double samplingFrequency = NesoraDefaultSamplingFrequency;
     double nyquistFrequency = NesoraDefaultNyquistFrequency;
-
+    
+    void RecalculationFrequencyResponse();
     void SetControlPointsFromFilter();
+    
+    void OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event);
+    void OnChangeParameter(nsParameterChangeEvent& event);
+    void OnAddParameter(nsAddParameterEvent& event);
 
     void OnPaint(wxPaintEvent& event);
 

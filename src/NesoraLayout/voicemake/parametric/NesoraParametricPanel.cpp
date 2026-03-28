@@ -46,7 +46,13 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
 }
 
 void nsParameterCard::OnParameterSlide(wxCommandEvent& event) {
+    nsParameterChangeEvent sendEvent(nsEVT_PARAMETER_CHANGED, GetId());
+    sendEvent.SetEventObject(this);
 
+    sendEvent.SetData(ID, (double)parameter->GetValue() / (double)parameter->GetMax());
+
+    // 送信する
+    this->GetEventHandler()->ProcessEvent(sendEvent);
 }
 
 void nsParameterCard::OnDeleteButton(wxCommandEvent& event) {
@@ -287,6 +293,14 @@ void nsParameterCardScrollContainer::AddCard() {
     nsParameterCard* card = new nsParameterCard(this);
     
     mainSizer->Add(card, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+
+    nsAddParameterEvent event(nsEVT_ADD_PARAMETER, GetId());
+    event.SetEventObject(this);
+
+    event.SetData(card->ID);
+
+    // 送信する
+    this->GetEventHandler()->ProcessEvent(event);
 
     SelectItem(card);
 

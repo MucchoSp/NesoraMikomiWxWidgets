@@ -1,4 +1,7 @@
-﻿#include "NesoraChart.h"
+﻿// 音諳一号機零型
+// Copyright (c) 2026 MucchoSP
+// SPDX-License-Identifier: AGPL-3.0-or-later
+#include "NesoraChart.h"
 
 nsChartControl::nsChartControl(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size)
     : wxWindow(parent, id, pos, size, wxFULL_REPAINT_ON_RESIZE) {

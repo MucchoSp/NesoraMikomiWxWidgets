@@ -1,3 +1,7 @@
+# 音諳一号機零型
+# Copyright (c) 2026 MucchoSP
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 cmake_minimum_required(VERSION 3.10.0)
 project(NesoraMikomi VERSION 0.1.0 LANGUAGES C CXX)
 

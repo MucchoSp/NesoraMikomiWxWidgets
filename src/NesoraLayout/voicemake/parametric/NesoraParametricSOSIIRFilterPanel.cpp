@@ -55,11 +55,11 @@ nsParametricSOSIIRFrequencyResponseControl::nsParametricSOSIIRFrequencyResponseC
     Bind(wxEVT_RIGHT_DOWN, &nsParametricSOSIIRFrequencyResponseControl::OnRightDown, this);
     Bind(wxEVT_SIZE, &nsParametricSOSIIRFrequencyResponseControl::OnSize, this);
 
-    wxWindow* topParent = wxGetTopLevelParent(this);
-    if (topParent) {
-        topParent->Bind(nsEVT_SELECTED_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter, this);
-        topParent->Bind(nsEVT_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeParameter, this);
-        topParent->Bind(nsEVT_ADD_PARAMETER, &nsParametricSOSIIRFrequencyResponseControl::OnAddParameter, this);
+    wxWindow* voiceMakeFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
+    if (voiceMakeFrame) {
+        voiceMakeFrame->Bind(nsEVT_SELECTED_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter, this);
+        voiceMakeFrame->Bind(nsEVT_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeParameter, this);
+        voiceMakeFrame->Bind(nsEVT_ADD_PARAMETER, &nsParametricSOSIIRFrequencyResponseControl::OnAddParameter, this);
     }
 }
 
@@ -341,7 +341,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event
 }
 
 void nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetData();
+    nowSelectedParameter = event.GetID();
 
     SetControlPointsFromFilter();
     RecalculationFrequencyResponse();

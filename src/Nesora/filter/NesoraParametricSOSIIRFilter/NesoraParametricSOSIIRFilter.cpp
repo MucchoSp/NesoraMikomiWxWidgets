@@ -30,9 +30,10 @@ void NesoraParametricSOFilter::CalculateCoefficients(const std::map<uint32_t, do
     double r = point.r, theta = point.theta;
 
     for(const auto& [paramid, param] : parameters) {
-        if(delta.count(paramid)) {
-            r += delta.at(paramid).delta_r * param;
-            theta += delta.at(paramid).delta_theta * param;
+        const auto& paramdelta = delta.find(paramid);
+        if (paramdelta != delta.end()) {
+            r += paramdelta->second.delta_r * param;
+            theta += paramdelta->second.delta_theta * param;
         }
     }
 
@@ -86,9 +87,10 @@ const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const std::
     NesoraIIRFilterPD out = point;
 
     for(const auto& [paramid, param] : parameters) {
-        if (delta.count(paramid)) {
-            out.r += delta.at(paramid).delta_r * param;
-            out.theta += delta.at(paramid).delta_theta * param;
+        const auto& paramdelta = delta.find(paramid);
+        if (paramdelta != delta.end()) {
+            out.r += paramdelta->second.delta_r * param;
+            out.theta += paramdelta->second.delta_theta * param;
         }
     }
 

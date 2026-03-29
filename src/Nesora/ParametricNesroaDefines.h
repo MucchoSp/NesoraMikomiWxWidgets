@@ -14,11 +14,13 @@ struct ParametricNesoraRosenbergWaveParameter {
     double delta_tau1;
     double delta_tau2;
     double delta_noise;
+    double delta_a0;
 };
 
 struct ParametricNesoraParameter {
     std::vector<ParametricNesoraIIRFilterParameter> filter;
     std::vector<ParametricNesoraRosenbergWaveParameter> source;
+    double a0;
 };
 
 #endif //PARAMETRIC_NESORA_DEFINES

@@ -16,5 +16,6 @@
 #include "script/NesoraScriptOneTone.h"
 
 #include "source/NesoraRosenbergWave.h"
+#include "source/NesoraParametricRosenbergWave/NesoraParametricRosenbergWave.h"
 
 #endif // NESORA_H

@@ -284,16 +284,16 @@ void nsParameterCardScrollContainer::Init() {
     // 背景クリックイベントをバインド
     Bind(wxEVT_LEFT_DOWN, &nsParameterCardScrollContainer::OnLeftDown, this);
 
-    wxWindow* parentFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
-    if (parentFrame) {
-        parentFrame->Bind(wxEVT_MENU, &nsParameterCardScrollContainer::OnEscapePressed, this, nsID_ESCAPE);
+    wxWindow* voiceMakeFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
+    if (voiceMakeFrame) {
+        voiceMakeFrame->Bind(wxEVT_MENU, &nsParameterCardScrollContainer::OnEscapePressed, this, nsID_ESCAPE);
     }
 }
 
 nsParameterCardScrollContainer::~nsParameterCardScrollContainer() {
-    wxWindow* parentFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
-    if (parentFrame) {
-        parentFrame->Unbind(wxEVT_MENU, &nsParameterCardScrollContainer::OnEscapePressed, this, nsID_ESCAPE);
+    wxWindow* voiceMakeFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
+    if (voiceMakeFrame) {
+        voiceMakeFrame->Unbind(wxEVT_MENU, &nsParameterCardScrollContainer::OnEscapePressed, this, nsID_ESCAPE);
     }
 }
 
@@ -329,9 +329,9 @@ void nsParameterCardScrollContainer::SelectItem(nsParameterCard* item) {
     nsSelectedParameterChangeEvent event(nsEVT_SELECTED_PARAMETER_CHANGED, GetId());
     event.SetEventObject(this);
     if (selectedItem)
-        event.SetData(selectedItem->ID);
+        event.SetID(selectedItem->ID);
     else
-        event.SetData(0);
+        event.SetID(0);
     this->GetEventHandler()->ProcessEvent(event);
 }
 

@@ -15,11 +15,11 @@ public:
     virtual wxEvent* Clone() const override { return new nsSelectedParameterChangeEvent(*this); }
 
     // 独自のデータを保持する場合
-    void SetData(const uint32_t& id) {
+    void SetID(const uint32_t& id) {
         m_ID = id;
     }
     
-    uint32_t GetData() const {
+    uint32_t GetID() const {
         return m_ID;
     }
 

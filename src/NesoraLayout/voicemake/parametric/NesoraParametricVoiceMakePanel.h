@@ -1,7 +1,10 @@
-﻿#pragma once
+// 音諳一号機零型
+// Copyright (c) 2026 MucchoSP
+// SPDX-License-Identifier: AGPL-3.0-or-later
+#pragma once
 
-#ifndef NESORA_VOICE_MAKE_PANEL_H
-#define NESORA_VOICE_MAKE_PANEL_H
+#ifndef NESORA_PARAMETRIC_VOICE_MAKE_PANEL_H
+#define NESORA_PARAMETRIC_VOICE_MAKE_PANEL_H
 
 #include <wx/wx.h>
 #include <wx/filedlg.h>
@@ -9,25 +12,25 @@
 
 #include <sstream>
 
-#include "../../NesoraStyle/NesoraStyle.h"
+#include "../../../NesoraStyle/NesoraStyle.h"
 
-#include "NesoraRosenbergWavePanel.h"
-#include "NesoraFormantFilterPanel.h"
-#include "NesoraIIRFilterPanel.h"
-#include "../NesoraIDs.h"
+#include "NesoraParametricRosenbergWavePanel.h"
+#include "NesoraParametricSOSIIRFilterPanel.h"
+#include "NesoraParametricPanel.h"
+#include "../../NesoraIDs.h"
 
-#include "../../Nesora/Nesora.h"
-
-
+#include "../../../Nesora/Nesora.h"
 
 
-class nsVoiceMakePlayInterfacePanel : public wxPanel {
+
+
+class nsParametricVoiceMakePlayInterfacePanel : public wxPanel {
 public:
-    nsVoiceMakePlayInterfacePanel() {
+    nsParametricVoiceMakePlayInterfacePanel() {
         Init();
     }
 
-    nsVoiceMakePlayInterfacePanel(wxWindow* parent,
+    nsParametricVoiceMakePlayInterfacePanel(wxWindow* parent,
         wxWindowID winid = wxID_ANY,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
@@ -51,15 +54,15 @@ private:
 };
 
 
-// MARK:nsVoiceMakePanel
+// MARK:nsParametricVoiceMakePanel
 
-class nsVoiceMakePanel : public wxPanel {
+class nsParametricVoiceMakePanel : public wxPanel {
 public:
-    nsVoiceMakePanel() {
+    nsParametricVoiceMakePanel() {
         Init();
     }
 
-    nsVoiceMakePanel(wxWindow* parent,
+    nsParametricVoiceMakePanel(wxWindow* parent,
         wxWindowID winid = wxID_ANY,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
@@ -69,7 +72,7 @@ public:
         Init();
     }
 
-    ~nsVoiceMakePanel() {
+    ~nsParametricVoiceMakePanel() {
         UninitAudioDevice();
     }
 
@@ -81,9 +84,10 @@ private:
 
     std::vector<double> wave;// 48000 / 261.6
 
-    nsRosenbergWavePanel* sourceSoundPanel;
-    nsIIRFilterPanel* filterPanel;
-    nsVoiceMakePlayInterfacePanel* playInterfacePanel;
+    nsParametricRosenbergWavePanel* sourceSoundPanel;
+    nsParametricSOSIIRFilterPanel* filterPanel;
+    nsParametricVoiceMakePlayInterfacePanel* playInterfacePanel;
+    nsParametricPanel* parametricPanel;
     NesoraMikomiVoice* voice;
 
     void OnPlayButtonClicked(wxCommandEvent& event);
@@ -99,4 +103,4 @@ private:
 
 };
 
-#endif // NESORA_VOICE_MAKE_PANEL_H
+#endif // NESORA_PARAMETRIC_VOICE_MAKE_PANEL_H

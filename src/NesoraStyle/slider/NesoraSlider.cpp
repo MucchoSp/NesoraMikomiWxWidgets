@@ -1,3 +1,6 @@
+// 音諳一号機零型
+// Copyright (c) 2026 MucchoSP
+// SPDX-License-Identifier: AGPL-3.0-or-later
 #include "NesoraSlider.h"
 
 void nsSlider::onPaint(wxPaintEvent& event) {
@@ -46,6 +49,10 @@ void nsSlider::SetLimit(int minValue, int maxValue) {
     Refresh();
 }
 
+void nsSlider::UseWheel(bool useWheel) {
+    use_wheel = useWheel;
+}
+
 void nsSlider::onLeftDown(wxMouseEvent& event) {
     int w, h;
     GetSize(&w, &h);
@@ -69,5 +76,13 @@ void nsSlider::onMouseMove(wxMouseEvent& event) {
         int value = (x * (this->GetMax() - this->GetMin())) / w;
         SetValue(value);
     }
+}
+
+void nsSlider::onMouseWheel(wxMouseEvent& event) {
+    if(use_wheel) {
+        int rotation = event.GetWheelRotation();
+        SetValue(GetValue() + rotation);
+    }
+    event.Skip();
 }
 

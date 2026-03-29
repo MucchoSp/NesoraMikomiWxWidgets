@@ -1,7 +1,9 @@
+// 音諳一号機零型
+// Copyright (c) 2026 MucchoSP
+// SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 #include <vector>
-
-#include "../filter/NesoraVowelParam.h"
+#include "../ParametricNesroaDefines.h"
 
 #ifndef NESORA_SCRIPT_H
 #define NESORA_SCRIPT_H
@@ -12,7 +14,7 @@ public:
 
     virtual double DeltaRadian(double t) = 0;
     virtual double Volume(double t) = 0;
-    virtual nesoraVowelVector Vowel(double t) = 0;
+    virtual ParametricNesoraParameter Vowel(double t) = 0;
 
     virtual std::vector<unsigned char> SaveData() = 0;
     virtual void LoadData(const std::vector<unsigned char>& data) = 0;

@@ -1,3 +1,6 @@
+// 音諳一号機零型
+// Copyright (c) 2026 MucchoSP
+// SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 #include <vector>
 #include <map>
@@ -24,12 +27,19 @@ class NesoraParametricFilterBase {
 public:
     NesoraParametricFilterBase(){}
 
-    virtual double Filter(const std::map<int, double>& parameters, double x) = 0;
+    virtual double Filter(const std::map<uint32_t, double>& parameters, double x) = 0;
 
     virtual std::vector<unsigned char> SaveData() = 0;
     virtual void LoadData(const std::vector<unsigned char>& data) = 0;
 
 private:
 };
+
+
+struct NesoraIIRFilterPD {
+    double r;
+    double theta;
+};
+
 
 #endif // NESORA_FILTER_H

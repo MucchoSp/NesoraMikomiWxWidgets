@@ -1,4 +1,7 @@
-#include "NesoraRosenbergWavePanel.h"
+// 音諳一号機零型
+// Copyright (c) 2026 MucchoSP
+// SPDX-License-Identifier: AGPL-3.0-or-later
+#include "NesoraParametricRosenbergWavePanel.h"
 
 template <typename T>
 std::string to_string_with_precision(const T a_value, const int n = 6)
@@ -11,11 +14,12 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
 
 
 
-void nsRosenbergWavePanel::Init() {
+void nsParametricRosenbergWavePanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
-    source_wave = new NesoraRosenbergWave();
+    source_wave = new NesoraParametricRosenbergWave();
 
     source_wave->SetParamater(0.25, 0.5, -0.5, 0.1);
+    source_wave->SetParamater(parameters);
     wave.resize(183);// 48000/261.6
     double throw_away;
     for (size_t i = 0;i < wave.size();i++)
@@ -27,13 +31,12 @@ void nsRosenbergWavePanel::Init() {
     wxSizer* t1sliderSizer = new wxBoxSizer(wxHORIZONTAL);
     wxSizer* t2sliderSizer = new wxBoxSizer(wxHORIZONTAL);
     wxSizer* sliderSizer = new wxBoxSizer(wxVERTICAL);
-    wxSizer* playButtonSizer = new wxBoxSizer(wxVERTICAL);
 
     pitch_param = new wxStaticText(sourceSizer->GetStaticBox(), wxID_ANY, "261 Hz");
     pitch_param->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     pitch_sliderSizer->Add(pitch_param, 0, wxEXPAND | wxALL, 5);
     pitch_slider = new nsSlider(sourceSizer->GetStaticBox(), wxID_ANY, 261, 20, 1000, wxDefaultPosition, wxSize(200, 15));
-    pitch_slider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsRosenbergWavePanel::OnPitchSlide, this);
+    pitch_slider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsParametricRosenbergWavePanel::OnPitchSlide, this);
     pitch_slider->Show();
     pitch_sliderSizer->Add(pitch_slider, 1, wxEXPAND | wxALL, 5);
     sliderSizer->Add(pitch_sliderSizer, 0, wxEXPAND | wxALL);
@@ -42,7 +45,7 @@ void nsRosenbergWavePanel::Init() {
     phonetic_param->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     phonetic_sliderSizer->Add(phonetic_param, 0, wxEXPAND | wxALL, 5);
     phonetic_slider = new nsSlider(sourceSizer->GetStaticBox(), wxID_ANY, 100, 0, 1000, wxDefaultPosition, wxSize(200, 15));
-    phonetic_slider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsRosenbergWavePanel::OnPhoneticSlide, this);
+    phonetic_slider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsParametricRosenbergWavePanel::OnPhoneticSlide, this);
     phonetic_slider->Show();
     phonetic_sliderSizer->Add(phonetic_slider, 1, wxEXPAND | wxALL, 5);
     sliderSizer->Add(phonetic_sliderSizer, 0, wxEXPAND | wxALL);
@@ -51,7 +54,7 @@ void nsRosenbergWavePanel::Init() {
     t1param->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     t1sliderSizer->Add(t1param, 0, wxEXPAND | wxALL, 5);
     t1slider = new nsSlider(sourceSizer->GetStaticBox(), wxID_ANY, 250, 0, 1000, wxDefaultPosition, wxSize(200, 15));
-    t1slider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsRosenbergWavePanel::OnT1Slide, this);
+    t1slider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsParametricRosenbergWavePanel::OnT1Slide, this);
     t1slider->SetLimit(0, 500);
     t1slider->Show();
     t1sliderSizer->Add(t1slider, 1, wxEXPAND | wxALL, 5);
@@ -61,7 +64,7 @@ void nsRosenbergWavePanel::Init() {
     t2param->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     t2sliderSizer->Add(t2param, 0, wxEXPAND | wxALL, 5);
     t2slider = new nsSlider(sourceSizer->GetStaticBox(), wxID_ANY, 500, 1, 1000, wxDefaultPosition, wxSize(200, 15));
-    t2slider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsRosenbergWavePanel::OnT2Slide, this);
+    t2slider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsParametricRosenbergWavePanel::OnT2Slide, this);
     t2slider->Show();
     t2sliderSizer->Add(t2slider, 1, wxEXPAND | wxALL, 5);
     sliderSizer->Add(t2sliderSizer, 0, wxEXPAND | wxALL);
@@ -69,34 +72,33 @@ void nsRosenbergWavePanel::Init() {
     chart = new nsSimpleChartControl(sourceSizer->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxSize(200, 24));
     chart->SetData(wave);
 
-    sourceSizer->Add(playButtonSizer, 0, wxEXPAND | wxALL);
     sourceSizer->Add(sliderSizer, 1, wxEXPAND | wxALL);
     sourceSizer->Add(chart, 0, wxEXPAND | wxALL);
     this->SetSizer(sourceSizer);
+
+    wxWindow* voiceMakeFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
+    if (voiceMakeFrame) {
+        voiceMakeFrame->Bind(nsEVT_SELECTED_PARAMETER_CHANGED, &nsParametricRosenbergWavePanel::OnChangeSelectedParameter, this);
+        voiceMakeFrame->Bind(nsEVT_PARAMETER_CHANGED, &nsParametricRosenbergWavePanel::OnChangeParameter, this);
+        voiceMakeFrame->Bind(nsEVT_ADD_PARAMETER, &nsParametricRosenbergWavePanel::OnAddParameter, this);
+    }
 }
 
-void nsRosenbergWavePanel::Update() {
-    // Directly sync sliders/labels and regenerate waveform from source parameters
+void nsParametricRosenbergWavePanel::Update() {
     if (!source_wave) return;
 
-    double loaded_t1 = source_wave->GetT1();
-    double loaded_t2 = source_wave->GetT2();
-    double loaded_a0 = source_wave->GetA0();
-    double loaded_noise = source_wave->GetNoise();
-    
-    // Ensure limits are consistent
-    t1slider->SetLimit(0, static_cast<int>(loaded_t2 * 1000.0));
+    NesoraRosenbergParameter loaded_source = source_wave->GetParametricSource(nowSelectedParameter, parameters[nowSelectedParameter]);
 
-    // Update slider values and labels
-    t1slider->SetValue(static_cast<int>(loaded_t1 * 1000.0));
-    t2slider->SetValue(static_cast<int>(loaded_t2 * 1000.0));
-    phonetic_slider->SetValue(static_cast<int>(loaded_noise * 1000.0));
-    t1param->SetLabel(to_string_with_precision(loaded_t1, 3));
-    t2param->SetLabel(to_string_with_precision(loaded_t2, 3));
-    phonetic_param->SetLabel(to_string_with_precision(loaded_noise, 3));
+    t1slider->SetLimit(0, static_cast<int>(loaded_source.tau2 * 1000.0));
+    t1slider->SetValue(static_cast<int>(loaded_source.tau1 * 1000.0));
+    t2slider->SetValue(static_cast<int>(loaded_source.tau2 * 1000.0));
+    phonetic_slider->SetValue(static_cast<int>(loaded_source.noise * 1000.0));
+    t1param->SetLabel(to_string_with_precision(loaded_source.tau1, 3));
+    t2param->SetLabel(to_string_with_precision(loaded_source.tau2, 3));
+    phonetic_param->SetLabel(to_string_with_precision(loaded_source.noise, 3));
 
-    // Apply parameters to source explicitly and regenerate waveform
-    source_wave->SetParamater(loaded_t1, loaded_t2, loaded_a0, loaded_noise);
+    source_wave->SetParamater(loaded_source.tau1, loaded_source.tau2, loaded_source.a0, loaded_source.noise);
+    source_wave->SetParamater(parameters);
 
     double throw_away;
     for (size_t i = 0; i < wave.size(); i++) {
@@ -106,20 +108,38 @@ void nsRosenbergWavePanel::Update() {
 }
 
 
-void nsRosenbergWavePanel::OnPitchSlide(wxCommandEvent& event) {
+void nsParametricRosenbergWavePanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
+    nowSelectedParameter = event.GetID();
+    Update();
+}
+
+void nsParametricRosenbergWavePanel::OnChangeParameter(nsParameterChangeEvent& event) {
+    parameters[event.GetID()] = event.GetParam();
+    Update();
+}
+
+void nsParametricRosenbergWavePanel::OnAddParameter(nsAddParameterEvent& event) {
+    parameters[event.GetData()] = 0.0;
+    nowSelectedParameter = event.GetData();
+    Update();
+}
+
+
+void nsParametricRosenbergWavePanel::OnPitchSlide(wxCommandEvent& event) {
     pitch_param->SetLabel(to_string_with_precision((double)pitch_slider->GetValue(), 0) + " Hz");
     wave.resize(NesoraDefaultSamplingFrequency / pitch_slider->GetValue(), -0.5);
     OnT1Slide(event);
 }
 
-void nsRosenbergWavePanel::OnPhoneticSlide(wxCommandEvent& event) {
+void nsParametricRosenbergWavePanel::OnPhoneticSlide(wxCommandEvent& event) {
     phonetic_param->SetLabel(to_string_with_precision((double)phonetic_slider->GetValue() / 1000.0, 3));
     OnT1Slide(event);
 }
 
-void nsRosenbergWavePanel::OnT1Slide(wxCommandEvent& event) {
+void nsParametricRosenbergWavePanel::OnT1Slide(wxCommandEvent& event) {
     t1param->SetLabel(to_string_with_precision((double)t1slider->GetValue() / 1000.0, 3));
     source_wave->SetParamater((double)t1slider->GetValue() / 1000.0, (double)t2slider->GetValue() / 1000.0, 0, (double)phonetic_slider->GetValue() / 1000.0);
+    source_wave->SetParamater(parameters);
 
     double throw_away;
     for (size_t i = 0;i < wave.size();i++)
@@ -127,21 +147,21 @@ void nsRosenbergWavePanel::OnT1Slide(wxCommandEvent& event) {
     chart->SetData(wave);
 }
 
-void nsRosenbergWavePanel::OnT2Slide(wxCommandEvent& event) {
+void nsParametricRosenbergWavePanel::OnT2Slide(wxCommandEvent& event) {
     t2param->SetLabel(to_string_with_precision((double)t2slider->GetValue() / 1000.0, 3));
     t1slider->SetLimit(0, t2slider->GetValue());
     OnT1Slide(event);
 }
 
-std::vector<double> nsRosenbergWavePanel::GetWave() const {
+std::vector<double> nsParametricRosenbergWavePanel::GetWave() const {
     return wave;
 }
 
-NesoraRosenbergWave* nsRosenbergWavePanel::GetSource() {
+NesoraParametricRosenbergWave* nsParametricRosenbergWavePanel::GetSource() {
     return source_wave;
 }
 
-double nsRosenbergWavePanel::GetPitch() const {
+double nsParametricRosenbergWavePanel::GetPitch() const {
     return (double)pitch_slider->GetValue();
 }
 

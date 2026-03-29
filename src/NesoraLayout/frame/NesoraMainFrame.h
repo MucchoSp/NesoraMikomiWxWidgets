@@ -1,3 +1,6 @@
+// 音諳一号機零型
+// Copyright (c) 2026 MucchoSP
+// SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 #include <wx/wx.h>
 
@@ -6,7 +9,7 @@
 #include "../../NesoraLayout/NesoraIDs.h"
 #include "../sing/NesoraSingPanel.h"
 #include "../speak/NesoraSpeakPanel.h"
-#include "../voicemake/NesoraVoiceMakePanel.h"
+#include "../voicemake/parametric/NesoraParametricVoiceMakePanel.h"
 
 #ifndef NESORA_MAIN_FRAME_H
 #define NESORA_MAIN_FRAME_H
@@ -40,7 +43,7 @@ private:
 
     nsSingPanel* singPanel;
     nsSpeakPanel* speakPanel;
-    nsVoiceMakePanel* voiceMakePanel;
+    nsParametricVoiceMakePanel* voiceMakePanel;
 
     wxSizer* main_sizer;
 

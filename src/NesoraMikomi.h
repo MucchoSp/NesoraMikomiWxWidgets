@@ -11,7 +11,6 @@
 #include "NesoraStyle/NesoraColor.h"
 
 #include "NesoraLayout/NesoraIDs.h"
-#include "NesoraLayout/voicemake/NesoraVoiceMakePanel.h"
 #include "NesoraLayout/frame/NesoraMainFrame.h"
 
 #include "Nesora/Nesora.h"

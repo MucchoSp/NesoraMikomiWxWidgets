@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
-
-#include "../filter/NesoraVowelParam.h"
+#include "../ParametricNesroaDefines.h"
 
 #ifndef NESORA_SCRIPT_H
 #define NESORA_SCRIPT_H
@@ -12,7 +11,7 @@ public:
 
     virtual double DeltaRadian(double t) = 0;
     virtual double Volume(double t) = 0;
-    virtual nesoraVowelVector Vowel(double t) = 0;
+    virtual ParametricNesoraParameter Vowel(double t) = 0;
 
     virtual std::vector<unsigned char> SaveData() = 0;
     virtual void LoadData(const std::vector<unsigned char>& data) = 0;

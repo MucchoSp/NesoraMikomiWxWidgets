@@ -300,7 +300,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event
     if(selectedControlPointIndex != -1) {
         controlPoints.erase(controlPoints.begin() + selectedControlPointIndex);
         destinationControlPoints.erase(destinationControlPoints.begin() + selectedControlPointIndex);
-        nowControlPoints.erase(destinationControlPoints.begin() + selectedControlPointIndex);
+        nowControlPoints.erase(nowControlPoints.begin() + selectedControlPointIndex);
         filter->GetSOFilter().erase(filter->GetSOFilter().begin() + selectedControlPointIndex - 1);
     } else if(selectedDestinationControlPointIndex != -1) {
         destinationControlPoints[selectedDestinationControlPointIndex] = controlPoints[selectedDestinationControlPointIndex];

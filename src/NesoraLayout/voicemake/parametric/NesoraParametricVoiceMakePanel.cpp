@@ -41,6 +41,11 @@ void nsParametricVoiceMakePlayInterfacePanel::OnVolumeSlide(wxCommandEvent& even
 void nsParametricVoiceMakePanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
 
+    wxAcceleratorEntry entries[1];
+    entries[0].Set(wxACCEL_NORMAL, WXK_ESCAPE, nsID_ESCAPE);  //Escキーでエスケープ
+    wxAcceleratorTable accel(1, entries);
+    SetAcceleratorTable(accel);
+
     wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     wxSizer* horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
     wxSizer* filterHorizontalSizer = new wxBoxSizer(wxHORIZONTAL);

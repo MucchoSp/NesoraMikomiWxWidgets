@@ -196,6 +196,8 @@ public:
         Init();
     }
 
+    ~nsParameterCardScrollContainer();
+
     void Init();
 
     void AddCard();

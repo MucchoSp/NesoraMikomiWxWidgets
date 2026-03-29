@@ -11,6 +11,7 @@ enum {
     nsID_SPEAK_BUTTON,
     nsID_SING_BUTTON,
     nsID_VOICE_MAKE_BUTTON,
+    nsID_MAIN_FRAME,
     nsID_SPEAK_PANEL,
     nsID_SING_PANEL,
     nsID_VOICE_MAKE_PANEL,

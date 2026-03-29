@@ -3,7 +3,7 @@
 // MARK: nsMainFrame
 
 nsMainFrame::nsMainFrame()
-    : wxFrame(nullptr, wxID_ANY, _("Nesora 1-0"), wxDefaultPosition, wxSize(1280, 720)) {
+    : wxFrame(nullptr, nsID_MAIN_FRAME, _("Nesora 1-0"), wxDefaultPosition, wxSize(1280, 720)) {
     menuSetup();
     acceleratorSetup();
 
@@ -61,8 +61,12 @@ void nsMainFrame::menuSetup() {
     wxMenu* menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABOUT);
 
+    wxMenu* menuEdit = new wxMenu;
+    // menuEdit->Append(nsID_ESCAPE, _("&Deselect\tEsc"));
+
     wxMenuBar* menuBar = new wxMenuBar;
     menuBar->Append(menuFile, _("&File"));
+    menuBar->Append(menuEdit, _("&Edit"));
     menuBar->Append(menuHelp, _("&Help"));
 
     SetMenuBar(menuBar);
@@ -162,11 +166,11 @@ nsToolBarButton::nsToolBarButton(wxWindow *parent,
     SetLabel(label);
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
-    Connect(wxEVT_PAINT, wxPaintEventHandler(nsToolBarButton::onPaint));
-    Connect(wxEVT_LEFT_UP, wxMouseEventHandler(nsToolBarButton::onMouseUp));
-    Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(nsToolBarButton::onMouseDown));
-    Connect(wxEVT_ENTER_WINDOW, wxMouseEventHandler(nsToolBarButton::onMouseEnter));
-    Connect(wxEVT_LEAVE_WINDOW, wxMouseEventHandler(nsToolBarButton::onMouseLeave));
+    Bind(wxEVT_PAINT, &nsToolBarButton::onPaint, this);
+    Bind(wxEVT_LEFT_UP, &nsToolBarButton::onMouseUp, this);
+    Bind(wxEVT_LEFT_DOWN, &nsToolBarButton::onMouseDown, this);
+    Bind(wxEVT_ENTER_WINDOW, &nsToolBarButton::onMouseEnter, this);
+    Bind(wxEVT_LEAVE_WINDOW, &nsToolBarButton::onMouseLeave, this);
 }
 
 void nsToolBarButton::onPaint(wxPaintEvent& event) {

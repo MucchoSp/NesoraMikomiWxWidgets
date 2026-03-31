@@ -49,8 +49,10 @@ nsMainFrame::nsMainFrame()
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnExit, this, ID_EXIT);
 
     wxCommandEvent evt;
-    OnMakeButton(evt);
-    selectedToolBarType = nsToolBarType::TOOLBAR_VOICE_MAKE;
+    // OnMakeButton(evt);
+    // selectedToolBarType = nsToolBarType::TOOLBAR_VOICE_MAKE;
+    OnSingButton(evt);
+    selectedToolBarType = nsToolBarType::TOOLBAR_SING;
 }
 
 void nsMainFrame::menuSetup() {

@@ -11,6 +11,7 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "../../../lib/miniaudio_split/miniaudio.h"
 
+#include "NesoraMIDIPanel.h"
 #include "../../NesoraStyle/NesoraStyle.h"
 #include "../../NesoraLayout/NesoraIDs.h"
 
@@ -32,6 +33,9 @@ public:
     void OnOpen(wxCommandEvent& event);
 
 private:
+
+    NesoraMIDIPanel* midiPanel;
+
 };
 
 #endif // NESORA_SING_PANEL_H

@@ -4,7 +4,15 @@
 #include "NesoraSingPanel.h"
 
 void nsSingPanel::Init() {
-    wxStaticText* label = new wxStaticText(this, wxID_ANY, _("This is the Sing Panel"), wxPoint(10, 10));
+    SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
+
+    wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    // wxStaticText* label = new wxStaticText(this, wxID_ANY, _("This is the Sing Panel"), wxPoint(10, 10));
+    midiPanel = new NesoraMIDIPanel(this);
+
+    sizer->Add(midiPanel, 1, wxEXPAND | wxALL);
+
+    this->SetSizer(sizer);
 }
 
 void nsSingPanel::OnSave(wxCommandEvent& event) {

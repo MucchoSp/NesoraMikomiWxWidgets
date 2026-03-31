@@ -14,6 +14,7 @@ enum class nsColorType {
     PRIMARY_HOVER,
     PRIMARY_VARIANT,
     PRIMARY_SHADOW,
+    PRIMARY_TRANSPARENT,
     ON_PRIMARY,
     ON_PRIMARY_THIN,
 
@@ -21,6 +22,7 @@ enum class nsColorType {
     SECONDARY_HOVER,
     SECONDARY_VARIANT,
     SECONDARY_SHADOW,
+    SECONDARY_TRANSPARENT,
     ON_SECONDARY,
     ON_SECONDARY_THIN,
     
@@ -43,6 +45,8 @@ inline wxColour nsGetColor(nsColorType type) {
             return wxColour(0x2C, 0x36, 0x66);
         case nsColorType::PRIMARY_SHADOW:
             return wxColour(0xF9, 0xFD, 0xFF, 0x1F);
+        case nsColorType::PRIMARY_TRANSPARENT:
+            return wxColour(0x21, 0x28, 0x4C, 0x40);
         case nsColorType::ON_PRIMARY:
             return wxColour(0xF9, 0xFD, 0xFF);
         case nsColorType::ON_PRIMARY_THIN:
@@ -56,6 +60,8 @@ inline wxColour nsGetColor(nsColorType type) {
             return wxColour(0xAF, 0xC4, 0x7C);
         case nsColorType::SECONDARY_SHADOW:
             return wxColour(0x00, 0x00, 0x00, 0x1F);
+        case nsColorType::SECONDARY_TRANSPARENT:
+            return wxColour(0xC5, 0xDE, 0x8C, 0x40);
         case nsColorType::ON_SECONDARY:
             return wxColour(0x21, 0x28, 0x4C);
             return wxColour(0xF9, 0xFD, 0xFF);

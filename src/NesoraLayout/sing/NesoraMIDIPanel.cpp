@@ -41,65 +41,20 @@ wxRect2DDouble NesoraPianoRollCanvas::GetResizeHandleRect(const MidiNoteBox& not
                             note.rect.m_height);
 }
 
-// 他のノートと時間が重なっているものを削除・整理する関数
+// 他のノートを押し出す、または整理する関数
 void NesoraPianoRollCanvas::ResolveOverlaps(int changedNoteIdx) {
-    double a_start = notes[changedNoteIdx].rect.m_x;
-    double a_end = a_start + notes[changedNoteIdx].rect.m_width;
+    if (changedNoteIdx < 0 || changedNoteIdx >= (int)notes.size()) return;
 
-    for (size_t i = 0;i < notes.size();i++) {
-        // 自分自身との比較はスキップ
-        if (i == changedNoteIdx)
-            continue;
+    // 全てのノートを開始時間でソートする
+    std::sort(notes.begin(), notes.end(), [](const MidiNoteBox& a, const MidiNoteBox& b) {
+        return a.rect.m_x < b.rect.m_x;
+    });
 
-        // 時間軸（X軸）での重なり判定
-        double b_start = notes[i].rect.m_x;
-        double b_end = b_start + notes[i].rect.m_width;
-
-        // 重なりがない場合はスルー
-        if (!(a_start < b_end && b_start < a_end)) {
-            continue;
-        }
-
-        // 1. 完全重複 (AがBを完全に包む、またはBがAより小さい)
-        if (a_start <= b_start && a_end >= b_end) {
-            notes.erase(notes.begin() + i);
-            changedNoteIdx--;
-            if (i >= notes.size())
-                break;
-            i--;
-            continue;
-        }
-
-        // 2. 内包・分割 (Bの中にAがスッポリ入る)
-        if (b_start < a_start && b_end > a_end) {
-            // 後ろ半分のノートを新しく作成
-            MidiNoteBox splitPart = notes[i];
-            splitPart.id = notes.back().id + 1;
-            splitPart.rect.m_x = a_end;
-            splitPart.rect.m_width = b_end - a_end;
-            splitPart.startRectBuffer = splitPart.rect;
-            
-            // 前半部分の長さを短くする
-            notes[i].rect.m_width = a_start - b_start;
-            
-            notes.push_back(splitPart);
-            if (i >= notes.size())
-                break;
-            continue;
-        }
-
-        // 3. 前方重なり (AがBの左側に被る -> Bを後ろへ押し出し/短縮)
-        if (a_start <= b_start && a_end < b_end) {
-            notes[i].rect.m_width = b_end - a_end;
-            notes[i].rect.m_x = a_end;
-            continue;
-        }
-
-        // 4. 後方重なり (AがBの右側に被る -> Bの末尾を削る)
-        if (a_start > b_start && a_end >= b_end) {
-            notes[i].rect.m_width = a_start - b_start;
-            continue;
-        }
+    // 全てのノートに対して前のノートの末尾に吸着させる処理を行う
+    double currentX = 0.0;
+    for (size_t i = 0; i < notes.size(); i++) {
+        notes[i].rect.m_x = currentX;
+        currentX += notes[i].rect.m_width;
     }
 }
 
@@ -213,9 +168,19 @@ void NesoraPianoRollCanvas::OnMouseMove(wxMouseEvent& event) {
         if (mouseDragState == NesoraPianoRollCanvasMouseDragState::AddNote) {
             mouseDragState = NesoraPianoRollCanvasMouseDragState::ResizingNote;
             
+            // 既存のノートの中で、今回の開始地点の直前にあるもののリスト
+            double prevEnd = 0.0;
+            for (const auto& n : notes) {
+                double endX = n.rect.m_x + n.rect.m_width;
+                if (endX <= startMousePos.m_x && endX > prevEnd) {
+                    prevEnd = endX;
+                }
+            }
+
             MidiNoteBox newNote;
             newNote.id = notes.empty() ? 1 : notes.back().id + 1;
-            newNote.rect = wxRect2DDouble(std::round(startMousePos.m_x / 16.0) * 16.0, std::round(startMousePos.m_y / NESORA_MIDI_PANEL_NOTE_HEIGHT) * NESORA_MIDI_PANEL_NOTE_HEIGHT, 0, NESORA_MIDI_PANEL_NOTE_HEIGHT);
+            // 直前のノートの末尾、もしくは0から開始するように修正
+            newNote.rect = wxRect2DDouble(prevEnd, std::floor(startMousePos.m_y / NESORA_MIDI_PANEL_NOTE_HEIGHT) * NESORA_MIDI_PANEL_NOTE_HEIGHT, 0, NESORA_MIDI_PANEL_NOTE_HEIGHT);
             newNote.startRectBuffer = newNote.rect;
             newNote.isSelected = true;
             notes.push_back(newNote);
@@ -236,8 +201,8 @@ void NesoraPianoRollCanvas::OnMouseMove(wxMouseEvent& event) {
                     note.rect.m_y = note.startRectBuffer.m_y + dy;
 
                     // クオンタイズ
-                    note.rect.m_x = std::round(note.rect.m_x / 16.0) * 16.0;
-                    note.rect.m_y = std::round(note.rect.m_y / NESORA_MIDI_PANEL_NOTE_HEIGHT) * NESORA_MIDI_PANEL_NOTE_HEIGHT;
+                    note.rect.m_x = std::floor(note.rect.m_x / 16.0) * 16.0;
+                    note.rect.m_y = std::floor(note.rect.m_y / NESORA_MIDI_PANEL_NOTE_HEIGHT) * NESORA_MIDI_PANEL_NOTE_HEIGHT;
                 }
             }
         }
@@ -263,7 +228,7 @@ void NesoraPianoRollCanvas::OnMouseMove(wxMouseEvent& event) {
         case NesoraPianoRollCanvasMouseDragState::ResizingNote: {
             for (auto& note : notes) {
                 if (note.isSelected) {
-                    note.rect.m_width = note.startRectBuffer.m_x + std::round((mousePos.m_x - startMousePos.m_x) / NESORA_MIDI_PANEL_QUANTIME_WIDTH) * NESORA_MIDI_PANEL_QUANTIME_WIDTH - note.startRectBuffer.m_x + note.startRectBuffer.m_width;
+                    note.rect.m_width = note.startRectBuffer.m_x + std::floor((mousePos.m_x - startMousePos.m_x) / NESORA_MIDI_PANEL_QUANTIME_WIDTH) * NESORA_MIDI_PANEL_QUANTIME_WIDTH - note.startRectBuffer.m_x + note.startRectBuffer.m_width;
                     if (note.rect.m_width < 0) {
                         note.rect.m_width *= -1;
                         note.rect.m_x = note.startRectBuffer.m_x - note.rect.m_width;

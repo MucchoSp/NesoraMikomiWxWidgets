@@ -47,6 +47,30 @@ const int NESORA_MIDI_PANEL_NOTE_HEIGHT = 20; // 1鍵あたりの高さ
 const double NESORA_MIDI_PANEL_QUANTIME_WIDTH = 16.0;
 const double NESORA_MIDI_PANEL_RESIZE_HANDLE_WIDTH = 5.0; // 右端の判定幅(px)
 
+class NesoraPianoKeys : public wxWindow {
+public:
+    NesoraPianoKeys(wxWindow* parent) : wxWindow(parent, wxID_ANY) {
+        SetBackgroundStyle(wxBG_STYLE_PAINT);
+        Bind(wxEVT_PAINT, &NesoraPianoKeys::OnPaint, this);
+    }
+    void SetScrollOffset(int yOffset) { m_yOffset = yOffset; Refresh(); }
+private:
+    void OnPaint(wxPaintEvent& event);
+    int m_yOffset = 0;
+};
+
+class NesoraTimeline : public wxWindow {
+public:
+    NesoraTimeline(wxWindow* parent) : wxWindow(parent, wxID_ANY) {
+        SetBackgroundStyle(wxBG_STYLE_PAINT);
+        Bind(wxEVT_PAINT, &NesoraTimeline::OnPaint, this);
+    }
+    void SetScrollOffset(int xOffset) { m_xOffset = xOffset; Refresh(); }
+private:
+    void OnPaint(wxPaintEvent& event);
+    int m_xOffset = 0;
+};
+
 class NesoraPianoRollCanvas : public wxScrolledWindow {
 public:
     NesoraPianoRollCanvas(wxWindow* parent) : wxScrolledWindow(parent, wxID_ANY) {
@@ -54,6 +78,9 @@ public:
     }
 
     void Init();
+
+    NesoraPianoKeys* m_linkedKeys = nullptr;
+    NesoraTimeline* m_linkedTimeline = nullptr;
 
 private:
     std::vector<MidiNoteBox> notes;
@@ -68,7 +95,7 @@ private:
 
     wxPoint2DDouble GetMousePos(const wxMouseEvent& event);
     wxRect2DDouble GetResizeHandleRect(const MidiNoteBox& note);
-    void ResolveOverlaps(int changedNote);
+    void ResolveOverlaps();
 
     void OnPaint(wxPaintEvent& event);
     void OnLeftDown(wxMouseEvent& event);
@@ -77,6 +104,7 @@ private:
     void OnRightDown(wxMouseEvent& event);
 
     void OnKeyDown(wxKeyEvent& event);
+    void OnScroll(wxScrollWinEvent& event);
 };
 
 class nsMIDIControl : public wxWindow {

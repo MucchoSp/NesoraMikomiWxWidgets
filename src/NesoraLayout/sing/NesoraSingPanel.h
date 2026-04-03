@@ -12,6 +12,7 @@
 #include "../../../lib/miniaudio_split/miniaudio.h"
 
 #include "NesoraMIDIPanel.h"
+#include "NesoraVelocityPanel.h"
 #include "../../NesoraStyle/NesoraStyle.h"
 #include "../../NesoraLayout/NesoraIDs.h"
 
@@ -35,6 +36,7 @@ public:
 private:
 
     NesoraMIDIPanel* midiPanel;
+    NesoraVelocityPanel* velocity;
 
 };
 

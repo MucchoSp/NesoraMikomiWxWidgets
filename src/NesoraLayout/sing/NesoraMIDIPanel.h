@@ -8,9 +8,12 @@
 
 #include <wx/wx.h>
 #include <wx/dcbuffer.h>
+#include <wx/clipbrd.h>
 #include <vector>
 #include <stack>
 #include <memory>
+// #include <sstream>
+#include <string>
 
 #include "../../NesoraStyle/NesoraStyle.h"
 
@@ -87,6 +90,8 @@ private:
     int  hoverNoteIdx = -1;
 
     bool isAddNote = false;
+    bool tookAction = false;
+    bool isNotePreview = true;
 
     NesoraPianoRollCanvasMouseDragState mouseDragState = NesoraPianoRollCanvasMouseDragState::None;
     
@@ -94,14 +99,16 @@ private:
     wxPoint2DDouble startMousePos;          // ドラッグ開始地点
 
     wxPoint2DDouble GetMousePos(const wxMouseEvent& event);
-    wxRect2DDouble GetResizeHandleRect(const MidiNoteBox& note);
+    wxRect2DDouble GetRightResizeHandleRect(const MidiNoteBox& note);
+    wxRect2DDouble GetLeftResizeHandleRect(const MidiNoteBox& note);
     void ResolveOverlaps();
 
     void OnPaint(wxPaintEvent& event);
     void OnLeftDown(wxMouseEvent& event);
-    void OnMouseMove(wxMouseEvent& event);
     void OnLeftUp(wxMouseEvent& event);
     void OnRightDown(wxMouseEvent& event);
+    void OnRightUp(wxMouseEvent& event);
+    void OnMouseMove(wxMouseEvent& event);
 
     void OnKeyDown(wxKeyEvent& event);
     void OnScroll(wxScrollWinEvent& event);

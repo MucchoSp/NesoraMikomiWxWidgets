@@ -9,8 +9,10 @@ void nsSingPanel::Init() {
     wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     // wxStaticText* label = new wxStaticText(this, wxID_ANY, _("This is the Sing Panel"), wxPoint(10, 10));
     midiPanel = new NesoraMIDIPanel(this);
+    // velocity = new NesoraVelocityPanel(this);
 
     sizer->Add(midiPanel, 1, wxEXPAND | wxALL);
+    // sizer->Add(velocity, 0, wxEXPAND | wxALL);
 
     this->SetSizer(sizer);
 }

@@ -32,6 +32,8 @@ enum class nsColorType {
     ON_BACKGROUND,
     ON_BACKGROUND_THIN,
 
+    PIANOKEY_WHITE,
+    PIANOKEY_BLACK
 
 };
 
@@ -79,6 +81,11 @@ inline wxColour nsGetColor(nsColorType type) {
             return wxColour(0x00, 0x00, 0x00);
         case nsColorType::ON_BACKGROUND_THIN:
             return wxColour(0xAA, 0xAA, 0xAA);
+
+        case nsColorType::PIANOKEY_WHITE:
+            return wxColour(0xFF, 0xFF, 0xFF);
+        case nsColorType::PIANOKEY_BLACK:
+            return wxColour(0x21, 0x28, 0x4C);
 
         default:
             return wxColour(0x00, 0x00, 0x00);

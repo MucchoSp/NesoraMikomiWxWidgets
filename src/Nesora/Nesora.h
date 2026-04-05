@@ -15,4 +15,6 @@
 
 #include "source/NesoraParametricRosenbergWave/NesoraParametricRosenbergWave.h"
 
+#include "script/NesoraMIDI.h"
+
 #endif // NESORA_H

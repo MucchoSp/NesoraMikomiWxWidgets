@@ -25,9 +25,9 @@
 // ノート（音符）を管理する構造体
 struct MidiNoteBox {
     int id;
-    // int pitch;    // 0-127 (MIDIノート番号)
-    // int position; // 時間（X座標）
-    // int duration; // 長さ
+    
+    NesoraMidiNote note; // MIDIノートの情報（ピッチ、開始時間、長さなど）
+
     wxRect2DDouble rect;  // 描画領域（当たり判定用）
     wxRect2DDouble startRectBuffer;  // 描画領域（バッファー用）
     bool isSelected = false; // 選択状態フラグ
@@ -47,6 +47,8 @@ enum class NesoraPianoRollCanvasMouseDragState {
 };
 
 const int NESORA_MIDI_PANEL_NOTE_HEIGHT = 20; // 1鍵あたりの高さ
+const int NESORA_MIDI_PANEL_KEY_COUNT = 128; // 鍵の数
+const double NESORA_MIDI_PANEL_A4_KEY_Y = 1160.0 - NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0; // A4の鍵のY座標
 const double NESORA_MIDI_PANEL_QUANTIME_WIDTH = 16.0;
 const double NESORA_MIDI_PANEL_RESIZE_HANDLE_WIDTH = 5.0; // 右端の判定幅(px)
 
@@ -69,9 +71,11 @@ public:
         Bind(wxEVT_PAINT, &NesoraTimeline::OnPaint, this);
     }
     void SetScrollOffset(int xOffset) { m_xOffset = xOffset; Refresh(); }
+    void SetBarWidth(int barWidth) { m_barWidth = barWidth; Refresh(); }
 private:
     void OnPaint(wxPaintEvent& event);
     int m_xOffset = 0;
+    int m_barWidth = 256; // 1小節の幅（px）
 };
 
 class NesoraPianoRollCanvas : public wxScrolledWindow {
@@ -87,7 +91,12 @@ public:
 
 private:
     std::vector<MidiNoteBox> notes;
+    NesoraMIDIScript midiScript;
+    std::vector<double> pitchLine;
     int  hoverNoteIdx = -1;
+
+    double pixelPerBeet = 64.0;
+    double bpm = 120.0;
 
     bool isAddNote = false;
     bool tookAction = false;
@@ -102,6 +111,7 @@ private:
     wxRect2DDouble GetRightResizeHandleRect(const MidiNoteBox& note);
     wxRect2DDouble GetLeftResizeHandleRect(const MidiNoteBox& note);
     void ResolveOverlaps();
+    void MakePitchLine();
 
     void OnPaint(wxPaintEvent& event);
     void OnLeftDown(wxMouseEvent& event);

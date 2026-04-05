@@ -26,4 +26,16 @@ struct ParametricNesoraParameter {
     double a0;
 };
 
+struct NesoraMidiNote {
+    double pitch;       // 0-127 (MIDIノート番号)
+    double intensity;   // 強弱（0.0-1.0）
+    double length;      // 長さ(ms)
+    double modulation;  // モジュレーション(ピッチの揺れ)
+    std::string lyric;  // 歌詞
+
+    std::vector<std::pair<uint32_t, double>> parameterDeltas;   // パラメータの変化（IDと変化量のペア）
+    std::vector<double> pitchLine;      // ピッチラインの値のリスト
+    std::vector<double> envelope;       // エンベロープのリスト
+};
+
 #endif //PARAMETRIC_NESORA_DEFINES

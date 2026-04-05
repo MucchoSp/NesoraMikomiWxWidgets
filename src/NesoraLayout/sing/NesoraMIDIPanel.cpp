@@ -3,6 +3,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "NesoraMIDIPanel.h"
 
+
+inline std::vector<NesoraMidiNote> MIDINoteBoxToMidiNote(std::vector<MidiNoteBox>& boxes, double pixelPerSecond) {
+    std::vector<NesoraMidiNote> notes;
+    for (auto& box : boxes) {
+        box.note.length = box.rect.m_width / pixelPerSecond * 1000.0; // 長さをmsに変換
+        box.note.intensity = 1.0; // 仮に強さは常に1.0
+        box.note.pitch = 440 * std::pow(2, (NESORA_MIDI_PANEL_A4_KEY_Y - (box.rect.m_y - NESORA_MIDI_PANEL_NOTE_HEIGHT / 2)) / 240.0); // ピッチを計算（A4=69とする）
+        notes.push_back(box.note);
+    }
+    return notes;
+}
+
+
 // MARK:NesoraPianoRollCanvas
 
 void NesoraPianoRollCanvas::Init() {
@@ -14,7 +27,7 @@ void NesoraPianoRollCanvas::Init() {
     int ppux = 8;
     int ppuy = 8;
     int scrollSizex = 2000 / ppux;
-    int scrollSizey = 128 * NESORA_MIDI_PANEL_NOTE_HEIGHT / ppuy;
+    int scrollSizey = NESORA_MIDI_PANEL_KEY_COUNT * NESORA_MIDI_PANEL_NOTE_HEIGHT / ppuy;
     SetScrollbars(ppux, ppuy, scrollSizex, scrollSizey);
 
     // イベントバインド
@@ -106,6 +119,15 @@ void NesoraPianoRollCanvas::ResolveOverlaps() {
     }
 
     notes = finalOrder;
+
+    midiScript.SetNotes(MIDINoteBoxToMidiNote(finalOrder, pixelPerBeet * bpm / 60.0));
+    double samplePerPixel = midiScript.GetSamplingFrequency() / (pixelPerBeet * bpm / 60.0);
+    pitchLine = midiScript.GetPitchLinePerSample(midiScript.GetSamplingFrequency() / (pixelPerBeet * bpm / 60.0));
+    MakePitchLine();
+}
+
+void NesoraPianoRollCanvas::MakePitchLine() {
+    // ピッチラインの例: 単純にノートの中央を結ぶ線
 }
 
 void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
@@ -121,7 +143,7 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
     
     wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
     if (gc) {
-        // 1. グリッド（背景）の描画
+        // グリッド（背景）の描画
         wxFont font = GetFont();
         gc->SetFont(font, nsGetColor(nsColorType::ON_BACKGROUND));
         gc->SetBrush(wxBrush(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
@@ -132,7 +154,7 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
             gc->StrokeLines(2, linePoints); // 水平線
         }
 
-        // 2. ノートの描画
+        // ノートの描画
         for (size_t i = 0;i < notes.size();i++) {
             if (notes[i].isSelected) {
                 if (hoverNoteIdx == i) {
@@ -152,11 +174,21 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
             gc->DrawRectangle(notes[i].rect);
         }
 
-        // 2. 範囲選択枠の描画
+        // 範囲選択枠の描画
         if (mouseDragState == NesoraPianoRollCanvasMouseDragState::SelectingRange) {
             gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY_TRANSPARENT)));
             gc->SetPen(wxPen(*wxLIGHT_GREY, 1, wxPENSTYLE_DOT));
             gc->DrawRectangle(currentSelectionRect.m_x, currentSelectionRect.m_y, currentSelectionRect.m_width, currentSelectionRect.m_height);
+        }
+
+        // ピッチラインの描画
+        if (pitchLine.size() >= 2) {
+            gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
+            std::vector<wxPoint2DDouble> linePoints;
+            for (size_t i = 0; i < pitchLine.size(); i++) {
+                linePoints.push_back(wxPoint2DDouble(i, std::log2(pitchLine[i] / 440.0) * -240.0 + NESORA_MIDI_PANEL_A4_KEY_Y + NESORA_MIDI_PANEL_NOTE_HEIGHT)); // ピッチをY座標に変換
+            }
+            gc->StrokeLines(linePoints.size(), linePoints.data());
         }
 
         delete gc;
@@ -524,12 +556,12 @@ void NesoraTimeline::OnPaint(wxPaintEvent& event) {
     gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
     gc->SetFont(GetFont(), nsGetColor(nsColorType::ON_BACKGROUND));
 
-    for (int x = 0; x < 2000; x += 64) {
+    for (int x = 0; x < 2000; x += m_barWidth) {
         double drawX = x - m_xOffset;
-        if (drawX + 64 < 0 || drawX > size.GetWidth()) continue;
+        if (drawX + m_barWidth < 0 || drawX > size.GetWidth()) continue;
 
         gc->StrokeLine(drawX, size.GetHeight() - 10, drawX, size.GetHeight());
-        gc->DrawText(wxString::Format("%d", x / 64 + 1), drawX + 2, 2);
+        gc->DrawText(wxString::Format("%d", x / m_barWidth + 1), drawX + 2, 2);
     }
     delete gc;
 }
@@ -544,11 +576,13 @@ void NesoraMIDIPanel::Init() {
 
     // ピアノロール（中央）を先に作成して、リンクさせる
     pianoRoll = new NesoraPianoRollCanvas(mainSizer->GetStaticBox());
-
+    
     // タイムライン（上部）
+    wxBoxSizer* topSizer = new wxBoxSizer(wxHORIZONTAL);
+    topSizer->AddSpacer(60); // ピアノ鍵盤の幅分のスペースを確保
     NesoraTimeline* timeline = new NesoraTimeline(mainSizer->GetStaticBox());
     timeline->SetMinSize(wxSize(-1, 30));
-    mainSizer->Add(timeline, 0, wxEXPAND);
+    topSizer->Add(timeline, 1, wxEXPAND);
 
     wxBoxSizer* middleSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -563,6 +597,7 @@ void NesoraMIDIPanel::Init() {
     pianoRoll->m_linkedKeys = keys;
     pianoRoll->m_linkedTimeline = timeline;
 
+    mainSizer->Add(topSizer, 0, wxEXPAND);
     mainSizer->Add(middleSizer, 1, wxEXPAND);
     
     this->SetSizer(mainSizer);

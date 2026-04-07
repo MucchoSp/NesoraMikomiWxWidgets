@@ -3,16 +3,108 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "NesoraMIDIPanel.h"
 
+// MARK: 座標変換関数群(参考用)
+inline double TimeToPixel(double timeInMs, double pixelPerSecond) {
+    return timeInMs / 1000.0 * pixelPerSecond;
+}
 
-inline std::vector<NesoraMidiNote> MIDINoteBoxToMidiNote(std::vector<MidiNoteBox>& boxes, double pixelPerSecond) {
-    std::vector<NesoraMidiNote> notes;
+inline double PixelToTime(double pixel, double pixelPerSecond) {
+    return pixel / pixelPerSecond * 1000.0;
+}
+
+inline double PitchToPixel(double pitch) {
+    return NESORA_MIDI_PANEL_A4_KEY_Y - 240.0 * std::log2(pitch / 440.0);
+}
+
+inline double PixelToPitch(double pixel) {
+    return 440.0 * std::pow(2, (NESORA_MIDI_PANEL_A4_KEY_Y - pixel) / 240.0);
+}
+
+inline double BeetToPixel(double beet, double pixelPerBeet) {
+    return beet * pixelPerBeet;
+}
+
+inline double PixelToBeet(double pixel, double pixelPerBeet) {
+    return pixel / pixelPerBeet;
+}
+
+inline double BarToPixel(double bar, double pixelPerBeet, double timeSignatureNumerator) {
+    return bar * timeSignatureNumerator * pixelPerBeet;
+}
+
+inline double PixelToBar(double pixel, double pixelPerBeet, double timeSignatureNumerator) {
+    return pixel / (pixelPerBeet * timeSignatureNumerator);
+}
+
+inline double BarToBeet(double bar, double timeSignatureNumerator) {
+    return bar * timeSignatureNumerator;
+}
+
+inline double BeetToBar(double beet, double timeSignatureNumerator) {
+    return beet / timeSignatureNumerator;
+}
+
+inline double TimeToBeet(double timeInMs, double bpm) {
+    return timeInMs / 1000.0 * (bpm / 60.0);
+}
+
+inline double BeetToTime(double beet, double bpm) {
+    return beet / (bpm / 60.0) * 1000.0;
+}
+
+inline double BarToTime(double bar, double bpm, double timeSignatureNumerator) {
+    return BarToBeet(bar, timeSignatureNumerator) / (bpm / 60.0) * 1000.0;
+}
+
+inline double TimeToBar(double timeInMs, double bpm, double timeSignatureNumerator) {
+    return BeetToBar(TimeToBeet(timeInMs, bpm), timeSignatureNumerator);
+}
+
+inline double BeetToPixelPerSecond(double beet, double bpm) {
+    return (bpm / 60.0) * (beet / TimeToBeet(1000.0, bpm));
+}
+
+inline double PixelPerSecondToBeet(double pixelPerSecond, double bpm) {
+    return TimeToBeet(1000.0, bpm) * (pixelPerSecond / (bpm / 60.0));
+}
+
+// マウスポインタが一定以上動いたか
+inline bool IsPointMoved(const wxPoint2DDouble& p1, const wxPoint2DDouble& p2, int threshold = 4) {
+    return std::abs(p2.m_x - p1.m_x) > threshold or std::abs(p2.m_y - p1.m_y) > threshold;
+}
+
+// MIDIノートボックスのリストをMIDIノートのリストに変換する
+inline std::vector<NesoraMidiNotePhoneticalInfo> MIDINoteBoxToMidiNote(std::vector<MidiNoteBox>& boxes, double pixelPerSecond) {
+    std::vector<NesoraMidiNotePhoneticalInfo> notes;
     for (auto& box : boxes) {
         box.note.length = box.rect.m_width / pixelPerSecond * 1000.0; // 長さをmsに変換
         box.note.intensity = 1.0; // 仮に強さは常に1.0
-        box.note.pitch = 440 * std::pow(2, (NESORA_MIDI_PANEL_A4_KEY_Y - (box.rect.m_y - NESORA_MIDI_PANEL_NOTE_HEIGHT / 2)) / 240.0); // ピッチを計算（A4=69とする）
+        box.note.pitch = PixelToPitch(box.rect.m_y - NESORA_MIDI_PANEL_NOTE_HEIGHT / 2); // ピッチを計算（A4=69とする）
         notes.push_back(box.note);
     }
     return notes;
+}
+
+inline MidiNoteBox CreateNewMidiNoteBox(MidiNoteBox box) {
+    box.note.frontOverlap = 0.0;
+    box.note.backOverlap = 0.0;
+    box.note.strength = 1.0;
+    box.note.frontTransitionTime = 0.0;
+    box.note.backTransitionTime = 0.0;
+
+    box.note.cl_length = 0.0;
+    box.note.uv_length = 0.0;
+    box.note.sv_length = 0.0;
+
+    box.note.frontPitchMoveTime = 100.0;
+    box.note.frontPitchMoveTimming = 50.0;
+    box.note.frontPitchMoveCurve = NesoraPitchCurveType::SINE;
+
+    box.note.modulationStrength = 50.0;
+    box.note.modulationFrequency = 10.0;
+    box.note.modulationStartTime = 500.0;
+
+    return box;
 }
 
 
@@ -23,7 +115,7 @@ void NesoraPianoRollCanvas::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     
-    // スクロール範囲の設定（横2000px, 縦: 128鍵分 * 20px）
+    // スクロール範囲の設定(横2000px, 縦: 128鍵分 * 20px)
     int ppux = 8;
     int ppuy = 8;
     int scrollSizex = 2000 / ppux;
@@ -57,6 +149,7 @@ void NesoraPianoRollCanvas::Init() {
     lyricEditor->Bind(wxEVT_CHAR_HOOK, &NesoraPianoRollCanvas::OnLyricEditorCharHook, this);
 }
 
+// 歌詞の編集を開始する。noteIdxは編集するノートのインデックス
 void NesoraPianoRollCanvas::BeginLyricEdit(int noteIdx) {
     if (noteIdx < 0 or noteIdx >= (int)notes.size() or lyricEditor == nullptr) {
         return;
@@ -78,6 +171,7 @@ void NesoraPianoRollCanvas::BeginLyricEdit(int noteIdx) {
     lyricEditor->SelectAll();
 }
 
+// 編集を終了する。commitがtrueなら変更を保存、falseなら破棄
 void NesoraPianoRollCanvas::EndLyricEdit(bool commit) {
     if (editingNoteIdx < 0 || editingNoteIdx >= (int)notes.size() || lyricEditor == nullptr) {
         editingNoteIdx = -1;
@@ -96,6 +190,7 @@ void NesoraPianoRollCanvas::EndLyricEdit(bool commit) {
     Refresh(false);
 }
 
+// 選択されているノートを、Xでソートして順番を返す
 std::vector<int> NesoraPianoRollCanvas::GetSelectedNoteOrder() const {
     std::vector<int> selectedIndices;
     for (size_t i = 0; i < notes.size(); ++i) {
@@ -104,21 +199,23 @@ std::vector<int> NesoraPianoRollCanvas::GetSelectedNoteOrder() const {
         }
     }
 
-    std::sort(selectedIndices.begin(), selectedIndices.end(), [this](int left, int right) {
-        const MidiNoteBox& leftNote = notes[left];
-        const MidiNoteBox& rightNote = notes[right];
-        if (leftNote.rect.m_x != rightNote.rect.m_x) {
-            return leftNote.rect.m_x < rightNote.rect.m_x;
-        }
-        if (leftNote.rect.m_y != rightNote.rect.m_y) {
-            return leftNote.rect.m_y < rightNote.rect.m_y;
-        }
-        return leftNote.id < rightNote.id;
-    });
+    // ソートの基準は、X座標、次にY座標、最後にID（重複しないようにソートしてあるから不要なはず）
+    // std::sort(selectedIndices.begin(), selectedIndices.end(), [this](int left, int right) {
+    //     const MidiNoteBox& leftNote = notes[left];
+    //     const MidiNoteBox& rightNote = notes[right];
+    //     if (leftNote.rect.m_x != rightNote.rect.m_x) {
+    //         return leftNote.rect.m_x < rightNote.rect.m_x;
+    //     }
+    //     if (leftNote.rect.m_y != rightNote.rect.m_y) {
+    //         return leftNote.rect.m_y < rightNote.rect.m_y;
+    //     }
+    //     return leftNote.id < rightNote.id;
+    // });
 
     return selectedIndices;
 }
 
+// 現在選択されたノートの中で、currentNoteIdxの次に来るノートのインデックスを返す。見つからない場合は-1
 int NesoraPianoRollCanvas::GetNextSelectedNoteIndex(int currentNoteIdx) const {
     std::vector<int> selectedIndices = GetSelectedNoteOrder();
     auto currentIt = std::find(selectedIndices.begin(), selectedIndices.end(), currentNoteIdx);
@@ -209,15 +306,20 @@ void NesoraPianoRollCanvas::ResolveOverlaps() {
     notes = finalOrder;
 
     midiScript.SetNotes(MIDINoteBoxToMidiNote(finalOrder, pixelPerBeet * bpm / 60.0));
-    double samplePerPixel = midiScript.GetSamplingFrequency() / (pixelPerBeet * bpm / 60.0);
-    pitchLine = midiScript.GetPitchLinePerSample(midiScript.GetSamplingFrequency() / (pixelPerBeet * bpm / 60.0));
-    MakePitchLine();
+    double pixcelPerSecond = pixelPerBeet * bpm / 60.0;
+    midiScript.CalculateNoteParam(pixcelPerSecond);
+    pitchLine = midiScript.GetPitchLine();
 }
 
-void NesoraPianoRollCanvas::MakePitchLine() {
-    // ピッチラインの例: 単純にノートの中央を結ぶ線
+// MARK: ノート選択関係
+void NesoraPianoRollCanvas::NoteSelectClear() {
+    for (auto& note : notes)
+        note.isSelected = false;
+    
+    return;
 }
 
+// MARK: OnPaint
 void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
     wxAutoBufferedPaintDC dc(this);
     DoPrepareDC(dc); // スクロール位置を計算に含める
@@ -289,7 +391,7 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
             gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
             std::vector<wxPoint2DDouble> linePoints;
             for (size_t i = 0; i < pitchLine.size(); i++) {
-                linePoints.push_back(wxPoint2DDouble(i, std::log2(pitchLine[i] / 440.0) * -240.0 + NESORA_MIDI_PANEL_A4_KEY_Y + NESORA_MIDI_PANEL_NOTE_HEIGHT)); // ピッチをY座標に変換
+                linePoints.push_back(wxPoint2DDouble(i, PitchToPixel(pitchLine[i]) + NESORA_MIDI_PANEL_NOTE_HEIGHT)); // ピッチをY座標に変換
             }
             gc->StrokeLines(linePoints.size(), linePoints.data());
         }
@@ -298,91 +400,7 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
     }
 }
 
-void NesoraPianoRollCanvas::OnLeftDown(wxMouseEvent& event) {
-    if (editingNoteIdx != -1) {
-        EndLyricEdit(true);
-    }
-
-    wxPoint mousePos = event.GetPosition();
-    // 論理座標（スクロール位置を考慮した座標）を取得
-    CalcUnscrolledPosition(mousePos.x, mousePos.y, &mousePos.x, &mousePos.y);
-    bool hitAnyNote = false;
-    startMousePos = mousePos;
-
-    if(hoverNoteIdx == -1) {
-        // 範囲選択開始
-        if (tookAction) {
-            for (auto& n : notes)
-                n.isSelected = false;
-            tookAction = false;
-        }
-        mouseDragState = NesoraPianoRollCanvasMouseDragState::SelectingRange;
-        currentSelectionRect = wxRect2DDouble(mousePos.x, mousePos.y, 0, 0);
-    } else {
-        if (notes[hoverNoteIdx].rect.Contains(mousePos)) {
-            // Shiftが押されていなければ、他の選択を解除
-            if (!event.ShiftDown() && !notes[hoverNoteIdx].isSelected) {
-                for (auto& note : notes)
-                    note.isSelected = false;
-            } else {
-                for (auto& note : notes)
-                    note.startRectBuffer = note.rect;
-            }
-            notes[hoverNoteIdx].isSelected = true;
-            if (GetRightResizeHandleRect(notes[hoverNoteIdx]).Contains(mousePos)) {
-                mouseDragState = NesoraPianoRollCanvasMouseDragState::ResizingNote;
-            }
-            else if (GetLeftResizeHandleRect(notes[hoverNoteIdx]).Contains(mousePos)) {
-                notes[hoverNoteIdx].rect.m_x += notes[hoverNoteIdx].rect.m_width; // 左端をドラッグする場合、基準点を右端に変更
-                notes[hoverNoteIdx].rect.m_width = -notes[hoverNoteIdx].rect.m_width;
-                mouseDragState = NesoraPianoRollCanvasMouseDragState::ResizingNote;
-            }
-            else {
-                mouseDragState = NesoraPianoRollCanvasMouseDragState::DraggingNotes;
-            }
-        }
-        notes[hoverNoteIdx].startRectBuffer = notes[hoverNoteIdx].rect; // ドラッグ開始前の四角を保存
-    }
-
-    CaptureMouse();
-    wxWindow::Refresh();
-    event.Skip();
-}
-
-void NesoraPianoRollCanvas::OnLeftDClick(wxMouseEvent& event) {
-    wxPoint2DDouble mousePos = GetMousePos(event);
-
-    int hitNoteIdx = -1;
-    for (size_t i = 0; i < notes.size(); i++) {
-        if (notes[i].rect.Contains(mousePos)) {
-            hitNoteIdx = (int)(i);
-            break;
-        }
-    }
-
-    if (hitNoteIdx != -1) {
-        if (!notes[hitNoteIdx].isSelected) {
-            for (auto& note : notes) {
-                note.isSelected = false;
-            }
-            notes[hitNoteIdx].isSelected = true;
-        }
-
-        mouseDragState = NesoraPianoRollCanvasMouseDragState::None;
-        ignoreNextLeftUp = true;
-        if (HasCapture()) {
-            ReleaseMouse();
-        }
-
-        BeginLyricEdit(hitNoteIdx);
-        Refresh(false);
-    } else {
-        EndLyricEdit(true);
-    }
-
-    event.Skip(false);
-}
-
+// MARK: マウスイベント
 
 void NesoraPianoRollCanvas::OnMouseMove(wxMouseEvent& event) {
     if (editingNoteIdx != -1) {
@@ -392,7 +410,7 @@ void NesoraPianoRollCanvas::OnMouseMove(wxMouseEvent& event) {
 
     int oldHoverNoteIdx = hoverNoteIdx;
     wxPoint2DDouble mousePos = GetMousePos(event);
-    if (std::abs(mousePos.m_x - startMousePos.m_x) > 4 or std::abs(mousePos.m_y - startMousePos.m_y) > 4) {
+    if (IsPointMoved(startMousePos, mousePos)) {
         if (mouseDragState == NesoraPianoRollCanvasMouseDragState::AddNote) {
             mouseDragState = NesoraPianoRollCanvasMouseDragState::ResizingNote;
             
@@ -411,7 +429,7 @@ void NesoraPianoRollCanvas::OnMouseMove(wxMouseEvent& event) {
             newNote.rect = wxRect2DDouble(prevEnd, std::floor(startMousePos.m_y / NESORA_MIDI_PANEL_NOTE_HEIGHT) * NESORA_MIDI_PANEL_NOTE_HEIGHT, 0, NESORA_MIDI_PANEL_NOTE_HEIGHT);
             newNote.startRectBuffer = newNote.rect;
             newNote.isSelected = true;
-            notes.push_back(newNote);
+            notes.push_back(CreateNewMidiNoteBox(newNote));
         }
     }
 
@@ -502,6 +520,90 @@ void NesoraPianoRollCanvas::OnMouseMove(wxMouseEvent& event) {
     event.Skip();
 }
 
+// MARK: 左クリック押し込み
+void NesoraPianoRollCanvas::OnLeftDown(wxMouseEvent& event) {
+    if (editingNoteIdx != -1) {
+        EndLyricEdit(true);
+    }
+
+    wxPoint mousePos = event.GetPosition();
+    // 論理座標（スクロール位置を考慮した座標）を取得
+    CalcUnscrolledPosition(mousePos.x, mousePos.y, &mousePos.x, &mousePos.y);
+    bool hitAnyNote = false;
+    startMousePos = mousePos;
+
+    if(hoverNoteIdx == -1) {
+        // 範囲選択開始
+        if (tookAction) {
+            NoteSelectClear();
+            tookAction = false;
+        }
+        mouseDragState = NesoraPianoRollCanvasMouseDragState::SelectingRange;
+        currentSelectionRect = wxRect2DDouble(mousePos.x, mousePos.y, 0, 0);
+    } else {
+        if (notes[hoverNoteIdx].rect.Contains(mousePos)) {
+            // Shiftが押されていなければ、他の選択を解除
+            if (!event.ShiftDown() && !notes[hoverNoteIdx].isSelected) {
+                NoteSelectClear();
+            } else {
+                for (auto& note : notes)
+                    note.startRectBuffer = note.rect;
+            }
+            notes[hoverNoteIdx].isSelected = true;
+            if (GetRightResizeHandleRect(notes[hoverNoteIdx]).Contains(mousePos)) {
+                mouseDragState = NesoraPianoRollCanvasMouseDragState::ResizingNote;
+            }
+            else if (GetLeftResizeHandleRect(notes[hoverNoteIdx]).Contains(mousePos)) {
+                notes[hoverNoteIdx].rect.m_x += notes[hoverNoteIdx].rect.m_width; // 左端をドラッグする場合、基準点を右端に変更
+                notes[hoverNoteIdx].rect.m_width = -notes[hoverNoteIdx].rect.m_width;
+                mouseDragState = NesoraPianoRollCanvasMouseDragState::ResizingNote;
+            }
+            else {
+                mouseDragState = NesoraPianoRollCanvasMouseDragState::DraggingNotes;
+            }
+        }
+        notes[hoverNoteIdx].startRectBuffer = notes[hoverNoteIdx].rect; // ドラッグ開始前の四角を保存
+    }
+
+    CaptureMouse();
+    wxWindow::Refresh();
+    event.Skip();
+}
+
+// MARK: 左ダブルクリック
+void NesoraPianoRollCanvas::OnLeftDClick(wxMouseEvent& event) {
+    wxPoint2DDouble mousePos = GetMousePos(event);
+
+    int hitNoteIdx = -1;
+    for (size_t i = 0; i < notes.size(); i++) {
+        if (notes[i].rect.Contains(mousePos)) {
+            hitNoteIdx = (int)(i);
+            break;
+        }
+    }
+
+    if (hitNoteIdx != -1) {
+        if (!notes[hitNoteIdx].isSelected) {
+            NoteSelectClear();
+            notes[hitNoteIdx].isSelected = true;
+        }
+
+        mouseDragState = NesoraPianoRollCanvasMouseDragState::None;
+        ignoreNextLeftUp = true;
+        if (HasCapture()) {
+            ReleaseMouse();
+        }
+
+        BeginLyricEdit(hitNoteIdx);
+        Refresh(false);
+    } else {
+        EndLyricEdit(true);
+    }
+
+    event.Skip(false);
+}
+
+// MARK: 左クリック離す
 void NesoraPianoRollCanvas::OnLeftUp(wxMouseEvent& event) {
     if (ignoreNextLeftUp) {
         ignoreNextLeftUp = false;
@@ -521,7 +623,7 @@ void NesoraPianoRollCanvas::OnLeftUp(wxMouseEvent& event) {
             }),
         notes.end()
     );
-    if (std::abs(mousePos.m_x - startMousePos.m_x) > 4 or std::abs(mousePos.m_y - startMousePos.m_y) > 4) {
+    if (IsPointMoved(startMousePos, mousePos)) {
         // ドラッグかリサイズをしていたらノートを整列させる
         if (mouseDragState == NesoraPianoRollCanvasMouseDragState::DraggingNotes || mouseDragState == NesoraPianoRollCanvasMouseDragState::ResizingNote)
             ResolveOverlaps();
@@ -529,15 +631,13 @@ void NesoraPianoRollCanvas::OnLeftUp(wxMouseEvent& event) {
         if (mouseDragState == NesoraPianoRollCanvasMouseDragState::DraggingNotes) {
             // ホバーしている時にポインタを動かさずにマウスボタンを離したら一つだけ選択するようにする
             if (!event.ShiftDown()) {
-                for (auto& note : notes)
-                    note.isSelected = false;
+                NoteSelectClear();
             }
             notes[hoverNoteIdx].isSelected = true;
         } else if (mouseDragState == NesoraPianoRollCanvasMouseDragState::SelectingRange) {
             // ホバーしていない時にポインタを動かさずにマウスボタンを離したら全ての選択を解除する
             if (!event.ShiftDown()) {
-                for (auto& note : notes)
-                    note.isSelected = false;
+                NoteSelectClear();
             }
         }
     }
@@ -549,6 +649,7 @@ void NesoraPianoRollCanvas::OnLeftUp(wxMouseEvent& event) {
     event.Skip();
 }
 
+// MARK: 右クリック押し込み
 void NesoraPianoRollCanvas::OnRightDown(wxMouseEvent& event) {
     if (editingNoteIdx != -1) {
         EndLyricEdit(true);
@@ -562,9 +663,7 @@ void NesoraPianoRollCanvas::OnRightDown(wxMouseEvent& event) {
 
     // ノートを追加
     if(hoverNoteIdx == -1) {
-        for (auto& n : notes) {
-            n.isSelected = false;
-        }
+        NoteSelectClear();
         mouseDragState = NesoraPianoRollCanvasMouseDragState::AddNote;
     } else {
         notes.erase(notes.begin() + hoverNoteIdx);
@@ -576,6 +675,7 @@ void NesoraPianoRollCanvas::OnRightDown(wxMouseEvent& event) {
     event.Skip();
 }
 
+// MARK: 右クリック離す
 void NesoraPianoRollCanvas::OnRightUp(wxMouseEvent& event) {
     if (editingNoteIdx != -1) {
         EndLyricEdit(true);
@@ -599,6 +699,7 @@ void NesoraPianoRollCanvas::OnRightUp(wxMouseEvent& event) {
     event.Skip();
 }
 
+// MARK: キーボードイベント
 void NesoraPianoRollCanvas::OnKeyDown(wxKeyEvent& event) {
     if (editingNoteIdx != -1) {
         event.Skip();
@@ -680,6 +781,9 @@ void NesoraPianoRollCanvas::OnKeyDown(wxKeyEvent& event) {
     event.Skip();
 }
 
+// MARK: 歌詞の編集関係
+
+// 歌詞の編集を確定
 void NesoraPianoRollCanvas::AdvanceLyricEdit(bool keepEditing) {
     if (editingNoteIdx < 0) {
         return;
@@ -693,16 +797,19 @@ void NesoraPianoRollCanvas::AdvanceLyricEdit(bool keepEditing) {
     }
 }
 
+// 歌詞の編集を確定
 void NesoraPianoRollCanvas::OnLyricEditorEnter(wxCommandEvent& event) {
     AdvanceLyricEdit(true);
     event.Skip(false);
 }
 
+// 歌詞の編集を確定してエディタを閉じる
 void NesoraPianoRollCanvas::OnLyricEditorKillFocus(wxFocusEvent& event) {
     EndLyricEdit(true);
     event.Skip();
 }
 
+// 歌詞の編集中に特定のキーが押されたときの処理
 void NesoraPianoRollCanvas::OnLyricEditorCharHook(wxKeyEvent& event) {
     if (event.GetKeyCode() == WXK_ESCAPE) {
         EndLyricEdit(false);

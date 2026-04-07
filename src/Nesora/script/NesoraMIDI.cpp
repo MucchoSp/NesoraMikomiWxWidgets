@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "NesoraMIDI.h"
 
+// MARK: NesoraMIDISplineScript
+
 void NesoraSpline::AddPoint(double y) {
     points.push_back(y);
 }
@@ -98,23 +100,23 @@ std::vector<double> NesoraSpline::GetCubicValues(const double step) const {
 
 
 
-double NesoraMIDIScript::DeltaRadian(double t) {
+double NesoraMIDISplineScript::DeltaRadian(double t) {
     return 0.0;
 }
 
-double NesoraMIDIScript::Volume(double t) {
+double NesoraMIDISplineScript::Volume(double t) {
     return 0.0;
 }
 
-ParametricNesoraParameter NesoraMIDIScript::Vowel(double t) {
+ParametricNesoraParameter NesoraMIDISplineScript::Vowel(double t) {
     return ParametricNesoraParameter();
 }
 
-void NesoraMIDIScript::SetNotes(const std::vector<NesoraMidiNote>& in_notes) {
+void NesoraMIDISplineScript::SetNotes(const std::vector<NesoraMidiNote>& in_notes) {
     notes = in_notes;
 }
 
-void NesoraMIDIScript::CalculateNoteParam() {
+void NesoraMIDISplineScript::CalculateNoteParam() {
     NesoraSpline pitchSpline;
     NesoraSpline envelopeSpline;
     pitchSpline.SetDx(splineResolution);
@@ -146,7 +148,7 @@ void NesoraMIDIScript::CalculateNoteParam() {
     }
 }
 
-std::vector<double> NesoraMIDIScript::GetPitchLinePerSample(double sampleRate) const {
+std::vector<double> NesoraMIDISplineScript::GetPitchLinePerSample(double sampleRate) const {
     std::vector<double> perSamplePitchLine;
     NesoraSpline pitchSpline;
     pitchSpline.SetDx(splineResolution); // サンプルごとに点を追加
@@ -174,18 +176,117 @@ std::vector<double> NesoraMIDIScript::GetPitchLinePerSample(double sampleRate) c
     return perSamplePitchLine;
 }
 
-const std::vector<NesoraMidiNote>& NesoraMIDIScript::GetNotes() const {
+const std::vector<NesoraMidiNote>& NesoraMIDISplineScript::GetNotes() const {
     return notes;
 }
 
-std::vector<NesoraMidiNote>& NesoraMIDIScript::GetNotes() {
+std::vector<NesoraMidiNote>& NesoraMIDISplineScript::GetNotes() {
     return notes;
 }
 
-std::vector<unsigned char> NesoraMIDIScript::SaveData() {
+std::vector<unsigned char> NesoraMIDISplineScript::SaveData() {
     return std::vector<unsigned char>();
 }
 
-void NesoraMIDIScript::LoadData(const std::vector<unsigned char>& data) {
+void NesoraMIDISplineScript::LoadData(const std::vector<unsigned char>& data) {
+}
+
+
+
+
+
+
+// ピッチカーブの計算
+double CalculatePitchLineValue(NesoraPitchCurveType curveType, double t) {
+    switch (curveType) {
+        case NesoraPitchCurveType::LINEAR:
+            return t;
+        case NesoraPitchCurveType::SINE:
+            return 0.5 * (1.0 - cos(t * M_PI)); // 0から1への正弦カーブ
+        case NesoraPitchCurveType::SIGMOID:
+            return 1.0 / (1.0 + exp(-10.0 * (t - 0.5))); // シグモイド関数
+        default:
+            return t;
+    }
+}
+
+// MARK: NesoraMIDIPhoneticalScript
+
+double NesoraMIDIPhoneticalScript::DeltaRadian(double t) {
+    return 0.0;
+}
+
+double NesoraMIDIPhoneticalScript::Volume(double t) {
+    return 0.0;
+}
+
+ParametricNesoraParameter NesoraMIDIPhoneticalScript::Vowel(double t) {
+    return ParametricNesoraParameter();
+}
+
+void NesoraMIDIPhoneticalScript::SetNotes(const std::vector<NesoraMidiNotePhoneticalInfo>& in_notes) {
+    notes = in_notes;
+}
+
+const std::vector<NesoraMidiNotePhoneticalInfo>& NesoraMIDIPhoneticalScript::GetNotes() const {
+    return notes;
+}
+
+std::vector<NesoraMidiNotePhoneticalInfo>& NesoraMIDIPhoneticalScript::GetNotes() {
+    return notes;
+}
+
+void NesoraMIDIPhoneticalScript::CalculateNoteParam(double sampleRate) {
+    pitchLine.clear();
+    envelope.clear();
+
+    double currentTime = 0.0; // 現在の時間(ms)
+    for (size_t i = 0; i < notes.size(); i++) {
+        const auto& note = notes[i];
+        if (i > 0) {
+            // ピッチカーブを計算
+            const auto& prevNote = notes[i - 1];
+            for (size_t j = 0; j < (size_t)(note.frontPitchMoveTime * sampleRate / 1000.0); j++) {
+                double t = (double)j / (note.frontPitchMoveTime * sampleRate / 1000.0);
+                double curveValue = CalculatePitchLineValue(note.frontPitchMoveCurve, t);
+                pitchLine.push_back(prevNote.pitch + curveValue * (note.pitch - prevNote.pitch));
+            }
+        } else {
+            for (size_t j = 0; j < (size_t)((note.frontPitchMoveTime - note.frontPitchMoveTimming) * sampleRate / 1000.0); j++) {
+                pitchLine.push_back(note.pitch);
+            }
+        }
+        for (size_t j = 0; j < (size_t)std::min((note.modulationStartTime - (note.frontPitchMoveTime - note.frontPitchMoveTimming)) * sampleRate / 1000.0, (double)(note.length * sampleRate / 1000.0)); j++) {
+            pitchLine.push_back(note.pitch);
+        }
+        double nextNotePitchCurveStartTimming = (i < notes.size() - 1) ? (note.length - notes[i + 1].frontPitchMoveTimming) : note.length;
+        for (size_t j = 0; j < (size_t)((nextNotePitchCurveStartTimming - note.modulationStartTime) * sampleRate / 1000.0); j++) {
+            double modulationStrength = note.pitch * (1.0 - std::pow(2.0, note.modulationStrength / 1200.0 / 2.0)); // centを周波数に変換
+            double modulationValue = modulationStrength * sin(2.0 * M_PI * note.modulationFrequency * j / sampleRate);
+            pitchLine.push_back(note.pitch + modulationValue);
+        }
+
+        for (size_t j = 0; j < (size_t)(note.length * sampleRate / 1000.0); j++) {
+            envelope.push_back(note.intensity);
+        }
+
+
+        currentTime += note.length;
+        if (std::abs((int)pitchLine.size() - (((currentTime - note.frontPitchMoveTimming) + 1) * sampleRate / 1000.0)) > 1) {
+            pitchLine.resize((size_t)((currentTime - note.frontPitchMoveTimming) * sampleRate / 1000.0));
+        }
+        if (std::abs((int)envelope.size() - ((currentTime + 1) * sampleRate / 1000.0)) > 1) {
+            envelope.resize((size_t)(currentTime * sampleRate / 1000.0));
+        }
+    }
+}
+
+std::vector<unsigned char> NesoraMIDIPhoneticalScript::SaveData() {
+    // TODO: いつかやる
+    return std::vector<unsigned char>();
+}
+
+void NesoraMIDIPhoneticalScript::LoadData(const std::vector<unsigned char>& data) {
+    // TODO: いつかやる
 }
 

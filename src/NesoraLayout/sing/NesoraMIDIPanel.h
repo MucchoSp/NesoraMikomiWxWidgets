@@ -26,7 +26,7 @@
 struct MidiNoteBox {
     int id;
     
-    NesoraMidiNote note; // MIDIノートの情報（ピッチ、開始時間、長さなど）
+    NesoraMidiNotePhoneticalInfo note; // MIDIノートの情報（ピッチ、開始時間、長さなど）
 
     wxRect2DDouble rect;  // 描画領域（当たり判定用）
     wxRect2DDouble startRectBuffer;  // 描画領域（バッファー用）
@@ -91,7 +91,7 @@ public:
 
 private:
     std::vector<MidiNoteBox> notes;
-    NesoraMIDIScript midiScript;
+    NesoraMIDIPhoneticalScript midiScript;
     std::vector<double> pitchLine;
     int  hoverNoteIdx = -1;
 
@@ -100,15 +100,15 @@ private:
     std::string editingOriginalLyric;
     bool ignoreNextLeftUp = false;
 
-    double pixelPerBeet = 64.0;
-    double bpm = 120.0;
-    double scriptLengthInBar = 9.0;
-    double timeSignatureNumerator = 4.0; // 拍子の分子
-    double timeSignatureDenominator = 4.0; // 拍子の分母
+    double pixelPerBeet = 64.0;             // 1拍あたりのピクセル数
+    double bpm = 120.0;                     // 1分あたりの拍数
+    double scriptLengthInBar = 9.0;         // スクリプトの長さ（小節数）
+    double timeSignatureNumerator = 4.0;    // 拍子の分子
+    double timeSignatureDenominator = 4.0;  // 拍子の分母
 
-    bool isAddNote = false;
-    bool tookAction = false;
-    bool isNotePreview = true;
+    bool isAddNote = false;         // ノート追加モードかどうか
+    bool tookAction = false;        // ドラッグ操作中に実際にノートの追加や移動などのアクションが発生したか
+    bool isNotePreview = true;      // プレビュー表示するかどうか(仮)
 
     NesoraPianoRollCanvasMouseDragState mouseDragState = NesoraPianoRollCanvasMouseDragState::None;
     
@@ -121,7 +121,8 @@ private:
     std::vector<int> GetSelectedNoteOrder() const;
     int GetNextSelectedNoteIndex(int currentNoteIdx) const;
     void ResolveOverlaps();
-    void MakePitchLine();
+
+    void NoteSelectClear();
 
     void OnPaint(wxPaintEvent& event);
     void OnLeftDown(wxMouseEvent& event);

@@ -33,9 +33,46 @@ struct NesoraMidiNote {
     double modulation;  // モジュレーション(ピッチの揺れ)
     std::string lyric;  // 歌詞
 
-    std::vector<std::pair<uint32_t, double>> parameterDeltas;   // パラメータの変化（IDと変化量のペア）
-    std::vector<double> pitchLine;      // ピッチラインの値のリスト
-    std::vector<double> envelope;       // エンベロープのリスト
+    // std::vector<std::pair<uint32_t, double>> parameterDeltas;   // パラメータの変化（IDと変化量のペア）
+    // std::vector<double> pitchLine;      // ピッチラインの値のリスト
+    // std::vector<double> envelope;       // エンベロープのリスト
 };
+
+enum class NesoraPitchCurveType {
+    LINEAR,     // 直線
+    SINE,       // 曲線
+    SIGMOID     // シグモイド曲線
+};
+
+struct NesoraMidiNotePhoneticalInfo {
+    double pitch;       // 0-127 (MIDIノート番号)
+    double intensity;   // 強弱（0.0-1.0）
+    double length;      // 長さ(ms)
+    std::string phoneticSymbol;     // 発音記号
+    std::string lyric;  // 歌詞
+
+    double frontOverlap;            // 前の音との重なり時間(ms)
+    double backOverlap;             // 後の音との重なり時間(ms)
+
+    double strength;                // 強さ(0.0-1.0)
+
+    double frontTransitionTime;     // 前の音からの移行時間(ms)
+    double backTransitionTime;      // 後の音への移行時間(ms)
+
+    double cl_length;               // 破裂音の閉鎖区間の長さ(ms)
+    double uv_length;               // 声帯振動終了後に母音フォルマントが続く時間(ms)
+    double sv_length;               // 母音終了後に声帯振動が続いている時間(ms)
+
+    double frontPitchMoveTime;      // ピッチが変わる時間(ms)
+    double frontPitchMoveTimming;   // ピッチが変わるタイミング(ms)
+    NesoraPitchCurveType frontPitchMoveCurve;      // ピッチが変わるときのカーブの種類
+
+    double modulationStrength;      // モジュレーションの強さ(cent)
+    double modulationFrequency;     // モジュレーションの周波数(Hz)
+    double modulationStartTime;     // モジュレーションの開始時間(ms)
+};
+
+
+
 
 #endif //PARAMETRIC_NESORA_DEFINES

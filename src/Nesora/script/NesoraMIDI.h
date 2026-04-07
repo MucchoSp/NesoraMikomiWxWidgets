@@ -15,6 +15,8 @@ struct MidiNote {
     int duration;   // 長さ
 };
 
+// MARK: NesoraMIDISplineScript
+
 
 class NesoraSpline {
 public:
@@ -32,10 +34,10 @@ private:
     std::vector<double> a, b, c, d;
 };
 
-class NesoraMIDIScript : public NesoraScriptBase {
+class NesoraMIDISplineScript : public NesoraScriptBase {
 public:
-    NesoraMIDIScript() {}
-    NesoraMIDIScript(const std::vector<NesoraMidiNote>& notes) : notes(notes) {}
+    NesoraMIDISplineScript() {}
+    NesoraMIDISplineScript(const std::vector<NesoraMidiNote>& notes) : notes(notes) {}
 
     double DeltaRadian(double t) override;
     double Volume(double t) override;
@@ -58,5 +60,38 @@ private:
     std::vector<double> envelope;
     int splineResolution = 2205; // スプラインの解像度（サンプル数）
 };
+
+
+
+// MARK: NesoraMIDIPhoneticalScript
+
+class NesoraMIDIPhoneticalScript : public NesoraScriptBase {
+public:
+    NesoraMIDIPhoneticalScript() {}
+    NesoraMIDIPhoneticalScript(const std::vector<NesoraMidiNotePhoneticalInfo>& notes) : notes(notes) {}
+
+    double DeltaRadian(double t) override;
+    double Volume(double t) override;
+    ParametricNesoraParameter Vowel(double t) override;
+
+    void SetNotes(const std::vector<NesoraMidiNotePhoneticalInfo>& in_notes);
+    const std::vector<NesoraMidiNotePhoneticalInfo>& GetNotes() const;
+    std::vector<NesoraMidiNotePhoneticalInfo>& GetNotes();
+
+    void CalculateNoteParam(double sampleRate); // ピッチラインの計算とエンベロープの計算
+    std::vector<double> GetPitchLine() const { return pitchLine; }
+    std::vector<double> GetEnvelope() const { return envelope; }
+
+    std::vector<unsigned char> SaveData() override;
+    void LoadData(const std::vector<unsigned char>& data) override;
+private:
+
+    std::vector<NesoraMidiNotePhoneticalInfo> notes;
+    std::vector<double> pitchLine;
+    std::vector<double> envelope;
+
+    double A4Pitch = 440.0; // A4の周波数
+};
+
 
 #endif // NESORA_MIDI_H

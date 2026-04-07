@@ -49,8 +49,8 @@ enum class NesoraPianoRollCanvasMouseDragState {
 const int NESORA_MIDI_PANEL_NOTE_HEIGHT = 20; // 1鍵あたりの高さ
 const int NESORA_MIDI_PANEL_KEY_COUNT = 128; // 鍵の数
 const double NESORA_MIDI_PANEL_A4_KEY_Y = 1160.0 - NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0; // A4の鍵のY座標
-const double NESORA_MIDI_PANEL_QUANTIME_WIDTH = 16.0;
-const double NESORA_MIDI_PANEL_RESIZE_HANDLE_WIDTH = 5.0; // 右端の判定幅(px)
+const double NESORA_MIDI_PANEL_QUANTIME_WIDTH = 32.0;
+const double NESORA_MIDI_PANEL_RESIZE_HANDLE_WIDTH = 8.0; // 右端の判定幅(px)
 
 class NesoraPianoKeys : public wxWindow {
 public:
@@ -95,8 +95,16 @@ private:
     std::vector<double> pitchLine;
     int  hoverNoteIdx = -1;
 
+    wxTextCtrl* lyricEditor = nullptr;
+    int editingNoteIdx = -1;
+    std::string editingOriginalLyric;
+    bool ignoreNextLeftUp = false;
+
     double pixelPerBeet = 64.0;
     double bpm = 120.0;
+    double scriptLengthInBar = 9.0;
+    double timeSignatureNumerator = 4.0; // 拍子の分子
+    double timeSignatureDenominator = 4.0; // 拍子の分母
 
     bool isAddNote = false;
     bool tookAction = false;
@@ -110,15 +118,25 @@ private:
     wxPoint2DDouble GetMousePos(const wxMouseEvent& event);
     wxRect2DDouble GetRightResizeHandleRect(const MidiNoteBox& note);
     wxRect2DDouble GetLeftResizeHandleRect(const MidiNoteBox& note);
+    std::vector<int> GetSelectedNoteOrder() const;
+    int GetNextSelectedNoteIndex(int currentNoteIdx) const;
     void ResolveOverlaps();
     void MakePitchLine();
 
     void OnPaint(wxPaintEvent& event);
     void OnLeftDown(wxMouseEvent& event);
+    void OnLeftDClick(wxMouseEvent& event);
     void OnLeftUp(wxMouseEvent& event);
     void OnRightDown(wxMouseEvent& event);
     void OnRightUp(wxMouseEvent& event);
     void OnMouseMove(wxMouseEvent& event);
+
+    void BeginLyricEdit(int noteIdx);
+    void EndLyricEdit(bool commit);
+    void AdvanceLyricEdit(bool keepEditing = true);
+    void OnLyricEditorEnter(wxCommandEvent& event);
+    void OnLyricEditorKillFocus(wxFocusEvent& event);
+    void OnLyricEditorCharHook(wxKeyEvent& event);
 
     void OnKeyDown(wxKeyEvent& event);
     void OnScroll(wxScrollWinEvent& event);

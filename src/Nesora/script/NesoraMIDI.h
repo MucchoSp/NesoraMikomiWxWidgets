@@ -56,7 +56,7 @@ private:
     std::vector<NesoraMidiNote> notes;
     std::vector<double> pitchLine;
     std::vector<double> envelope;
-    int splineResolution = 4410; // スプラインの解像度（サンプル数）
+    int splineResolution = 2205; // スプラインの解像度（サンプル数）
 };
 
 #endif // NESORA_MIDI_H

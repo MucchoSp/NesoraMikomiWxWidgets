@@ -101,6 +101,7 @@ private:
     int ppuy = 8;
     int screenWidth = 0;
     int screenHeight = 0;
+    double currentX = 0.0;
 
     wxTextCtrl* lyricEditor = nullptr;
     int editingNoteIdx = -1;
@@ -138,6 +139,7 @@ private:
     void OnRightDown(wxMouseEvent& event);
     void OnRightUp(wxMouseEvent& event);
     void OnMouseMove(wxMouseEvent& event);
+    void OnSize(wxSizeEvent& event);
 
     void BeginLyricEdit(int noteIdx);
     void EndLyricEdit(bool commit);
@@ -145,6 +147,8 @@ private:
     void OnLyricEditorEnter(wxCommandEvent& event);
     void OnLyricEditorKillFocus(wxFocusEvent& event);
     void OnLyricEditorCharHook(wxKeyEvent& event);
+
+    void SetScrollWidth();
 
     void OnKeyDown(wxKeyEvent& event);
     void OnScroll(wxScrollWinEvent& event);

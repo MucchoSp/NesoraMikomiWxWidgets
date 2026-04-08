@@ -129,6 +129,7 @@ void NesoraPianoRollCanvas::Init() {
     Bind(wxEVT_RIGHT_UP, &NesoraPianoRollCanvas::OnRightUp, this);
     Bind(wxEVT_MOTION, &NesoraPianoRollCanvas::OnMouseMove, this);
     Bind(wxEVT_KEY_DOWN, &NesoraPianoRollCanvas::OnKeyDown, this);
+    Bind(wxEVT_SIZE, &NesoraPianoRollCanvas::OnSize, this);
     Bind(wxEVT_SCROLLWIN_THUMBTRACK, &NesoraPianoRollCanvas::OnScroll, this);
     Bind(wxEVT_SCROLLWIN_THUMBRELEASE, &NesoraPianoRollCanvas::OnScroll, this);
     Bind(wxEVT_SCROLLWIN_LINEUP, &NesoraPianoRollCanvas::OnScroll, this);
@@ -254,67 +255,65 @@ wxRect2DDouble NesoraPianoRollCanvas::GetLeftResizeHandleRect(const MidiNoteBox&
 
 // 他のノートを押し出す、または整理する関数
 void NesoraPianoRollCanvas::ResolveOverlaps() {
-    if (notes.empty()) return;
-
-    // 選択されているノートとそのほかのノートに分ける
-    std::vector<MidiNoteBox> selectedNotes;
-    std::vector<MidiNoteBox> nonSelectedNotes;
-    
-    for (const auto& n : notes) {
-        if (n.isSelected) selectedNotes.push_back(n);
-        else nonSelectedNotes.push_back(n);
-    }
-
-    // 両方のグループをX軸でソート
-    auto sortFunc = [](const MidiNoteBox& a, const MidiNoteBox& b) {
-        return a.rect.m_x < b.rect.m_x;
-    };
-    std::sort(selectedNotes.begin(), selectedNotes.end(), sortFunc);
-    std::sort(nonSelectedNotes.begin(), nonSelectedNotes.end(), sortFunc);
-
-    // 非選択ノートの間に選択ノートの塊を挿入する。
-    double groupStartX = selectedNotes.empty() ? 0 : selectedNotes.front().rect.m_x;
-    
-    std::vector<MidiNoteBox> finalOrder;
-    bool groupInserted = false;
-
-    if (selectedNotes.empty()) {
-        finalOrder = nonSelectedNotes;
-    } else {
-        for (const auto& n : nonSelectedNotes) {
-            if (!groupInserted && (n.rect.m_x + n.rect.m_width / 2.0) >= groupStartX) {
-                for (const auto& sn : selectedNotes) finalOrder.push_back(sn);
-                groupInserted = true;
-            }
-            finalOrder.push_back(n);
-        }
+    currentX = 0.0;
+    if (!notes.empty()){
+        // 選択されているノートとそのほかのノートに分ける
+        std::vector<MidiNoteBox> selectedNotes;
+        std::vector<MidiNoteBox> nonSelectedNotes;
         
-        if (!groupInserted) {
-            for (const auto& sn : selectedNotes) finalOrder.push_back(sn);
+        for (const auto& n : notes) {
+            if (n.isSelected)
+                selectedNotes.push_back(n);
+            else
+                nonSelectedNotes.push_back(n);
         }
+
+        // 両方のグループをX軸でソート
+        auto sortFunc = [](const MidiNoteBox& a, const MidiNoteBox& b) {
+            return a.rect.m_x < b.rect.m_x;
+        };
+        std::sort(selectedNotes.begin(), selectedNotes.end(), sortFunc);
+        std::sort(nonSelectedNotes.begin(), nonSelectedNotes.end(), sortFunc);
+
+        // 非選択ノートの間に選択ノートの塊を挿入する。
+        double groupStartX = selectedNotes.empty() ? 0 : selectedNotes.front().rect.m_x;
+        
+        std::vector<MidiNoteBox> finalOrder;
+        bool groupInserted = false;
+
+        if (selectedNotes.empty()) {
+            finalOrder = nonSelectedNotes;
+        } else {
+            for (const auto& n : nonSelectedNotes) {
+                if (!groupInserted && (n.rect.m_x/* + n.rect.m_width / 2.0*/) >= groupStartX) {
+                    for (const auto& sn : selectedNotes) finalOrder.push_back(sn);
+                    groupInserted = true;
+                }
+                finalOrder.push_back(n);
+            }
+            if (!groupInserted) {
+                for (const auto& sn : selectedNotes)
+                    finalOrder.push_back(sn);
+            }
+        }
+
+        // 隙間なく並べる
+        for (size_t i = 0; i < finalOrder.size(); i++) {
+            finalOrder[i].rect.m_x = currentX;
+            currentX += finalOrder[i].rect.m_width;
+        }
+
+        notes = finalOrder;
     }
 
-    // 隙間なく並べる
-    double currentX = 0.0;
-    for (size_t i = 0; i < finalOrder.size(); i++) {
-        finalOrder[i].rect.m_x = currentX;
-        currentX += finalOrder[i].rect.m_width;
-    }
-
-    notes = finalOrder;
-
-    midiScript.SetNotes(MIDINoteBoxToMidiNote(finalOrder, pixelPerBeet * bpm / 60.0));
+    // MIDIスクリプトのノート情報を更新
+    midiScript.SetNotes(MIDINoteBoxToMidiNote(notes, pixelPerBeet * bpm / 60.0));
     double pixcelPerSecond = pixelPerBeet * bpm / 60.0;
     midiScript.CalculateNoteParam(pixcelPerSecond);
     pitchLine = midiScript.GetPitchLine();
-
-
-    scriptLengthInBar = PixelToBar(currentX, pixelPerBeet, timeSignatureNumerator) + 4.0; // 4小節分の余裕を持たせる
-    int x, y;
-    GetViewStart(&x, &y);
-    screenWidth = scriptLengthInBar * pixelPerBeet * timeSignatureNumerator;
-    SetScrollbars(ppux, ppuy, screenWidth / ppux, screenHeight / ppuy, x, y);
-    m_linkedTimeline->SetScriptLengthInBar(scriptLengthInBar);
+    
+    // スクロール範囲の更新
+    SetScrollWidth();
 }
 
 // 選択ノートをクリア
@@ -323,6 +322,17 @@ void NesoraPianoRollCanvas::NoteSelectClear() {
         note.isSelected = false;
     
     return;
+}
+
+void NesoraPianoRollCanvas::SetScrollWidth() {
+    // スクロール範囲の更新
+    int x, y, w, h;
+    GetViewStart(&x, &y);
+    GetClientSize(&w, &h);
+    scriptLengthInBar = std::max(PixelToBar(w, pixelPerBeet, timeSignatureNumerator), PixelToBar(currentX, pixelPerBeet, timeSignatureNumerator) + 4.0); // 4小節分の余裕を持たせる
+    screenWidth = scriptLengthInBar * pixelPerBeet * timeSignatureNumerator;
+    SetScrollbars(ppux, ppuy, screenWidth / ppux, screenHeight / ppuy, x, y);
+    m_linkedTimeline->SetScriptLengthInBar(scriptLengthInBar);
 }
 
 // MARK: OnPaint
@@ -786,6 +796,11 @@ void NesoraPianoRollCanvas::OnKeyDown(wxKeyEvent& event) {
         Refresh();
     }
 
+    event.Skip();
+}
+
+void NesoraPianoRollCanvas::OnSize(wxSizeEvent& event) {
+    SetScrollWidth();
     event.Skip();
 }
 

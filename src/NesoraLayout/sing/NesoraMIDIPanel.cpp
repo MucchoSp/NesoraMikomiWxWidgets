@@ -115,12 +115,10 @@ void NesoraPianoRollCanvas::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     
-    // スクロール範囲の設定(横2000px, 縦: 128鍵分 * 20px)
-    int ppux = 8;
-    int ppuy = 8;
-    int scrollSizex = 2000 / ppux;
-    int scrollSizey = NESORA_MIDI_PANEL_KEY_COUNT * NESORA_MIDI_PANEL_NOTE_HEIGHT / ppuy;
-    SetScrollbars(ppux, ppuy, scrollSizex, scrollSizey);
+    // スクロール範囲の設定(横: 4小節, 縦: 128鍵分 * 20px)
+    screenWidth = pixelPerBeet * timeSignatureNumerator * 4.0;
+    screenHeight = 128 * 20;
+    SetScrollbars(ppux, ppuy, screenWidth / ppux, screenHeight / ppuy);
 
     // イベントバインド
     Bind(wxEVT_PAINT, &NesoraPianoRollCanvas::OnPaint, this);
@@ -309,9 +307,17 @@ void NesoraPianoRollCanvas::ResolveOverlaps() {
     double pixcelPerSecond = pixelPerBeet * bpm / 60.0;
     midiScript.CalculateNoteParam(pixcelPerSecond);
     pitchLine = midiScript.GetPitchLine();
+
+
+    scriptLengthInBar = PixelToBar(currentX, pixelPerBeet, timeSignatureNumerator) + 4.0; // 4小節分の余裕を持たせる
+    int x, y;
+    GetViewStart(&x, &y);
+    screenWidth = scriptLengthInBar * pixelPerBeet * timeSignatureNumerator;
+    SetScrollbars(ppux, ppuy, screenWidth / ppux, screenHeight / ppuy, x, y);
+    m_linkedTimeline->SetScriptLengthInBar(scriptLengthInBar);
 }
 
-// MARK: ノート選択関係
+// 選択ノートをクリア
 void NesoraPianoRollCanvas::NoteSelectClear() {
     for (auto& note : notes)
         note.isSelected = false;
@@ -733,6 +739,7 @@ void NesoraPianoRollCanvas::OnKeyDown(wxKeyEvent& event) {
         }
         ResolveOverlaps();
         Refresh();
+        return;
     }
     if (event.GetKeyCode() == WXK_DOWN) {
         // 選択されているノートを半音下げる
@@ -743,6 +750,7 @@ void NesoraPianoRollCanvas::OnKeyDown(wxKeyEvent& event) {
         }
         ResolveOverlaps();
         Refresh();
+        return;
     }
     if (event.GetKeyCode() == WXK_LEFT) {
         // 選択されているノートを左に移動
@@ -891,7 +899,7 @@ void NesoraTimeline::OnPaint(wxPaintEvent& event) {
     gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
     gc->SetFont(GetFont(), nsGetColor(nsColorType::ON_BACKGROUND));
 
-    for (int x = 0; x < 2000; x += m_barWidth) {
+    for (int x = 0; x < scriptLengthInBar * m_barWidth; x += m_barWidth) {
         double drawX = x - m_xOffset;
         if (drawX + m_barWidth < 0 || drawX > size.GetWidth()) continue;
 

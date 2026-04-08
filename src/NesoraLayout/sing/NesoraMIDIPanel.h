@@ -72,10 +72,12 @@ public:
     }
     void SetScrollOffset(int xOffset) { m_xOffset = xOffset; Refresh(); }
     void SetBarWidth(int barWidth) { m_barWidth = barWidth; Refresh(); }
+    void SetScriptLengthInBar(double lengthInBar) { scriptLengthInBar = lengthInBar; Refresh(); }
 private:
     void OnPaint(wxPaintEvent& event);
     int m_xOffset = 0;
     int m_barWidth = 256; // 1小節の幅（px）
+    double scriptLengthInBar = 0.0; // スクリプトの長さ（小節数）
 };
 
 class NesoraPianoRollCanvas : public wxScrolledWindow {
@@ -95,9 +97,14 @@ private:
     std::vector<double> pitchLine;
     int  hoverNoteIdx = -1;
 
+    int ppux = 8;
+    int ppuy = 8;
+    int screenWidth = 0;
+    int screenHeight = 0;
+
     wxTextCtrl* lyricEditor = nullptr;
     int editingNoteIdx = -1;
-    std::string editingOriginalLyric;
+    std::string editingOriginalLyric = "";
     bool ignoreNextLeftUp = false;
 
     double pixelPerBeet = 64.0;             // 1拍あたりのピクセル数

@@ -22,7 +22,7 @@ void nsSingPanel::Init() {
     volumeText = new wxStaticText(this, wxID_ANY, "0.00 dB");
     volumeText->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     volumeText->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
-    volume = new nsSlider(this, wxID_ANY, 100, 0, 100, wxDefaultPosition, wxSize(100, 15));
+    volume = new nsSlider(this, wxID_ANY, 75, 0, 100, wxDefaultPosition, wxSize(100, 15));
     volume->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsSingPanel::OnVolumeSlide, this);
     toolbarSizer->Add(toolbar, 1, wxEXPAND | wxALL);
     toolbarSizer->Add(volumeText, 0, wxEXPAND | wxALL);
@@ -36,9 +36,7 @@ void nsSingPanel::Init() {
 
     this->SetSizer(sizer);
 
-    voice = new NesoraMikomiVoice();
-    voice->SetSource(new NesoraSinSource());
-    voice->SetFilter(new NesoraThroughFilter());
+    voice = new NesoraMikomiVoice(new NesoraSinSource(), new NesoraThroughFilter());
 
     Bind(wxEVT_CHAR_HOOK, &nsSingPanel::OnCharHook, this);
 }

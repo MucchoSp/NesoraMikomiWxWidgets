@@ -131,7 +131,7 @@ const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const uint3
     return out;
 }
 
-std::map<uint32_t, ParametricNesoraIIRFilterParameter> NesoraParametricSOFilter::GetDelta() {
+std::map<uint32_t, ParametricNesoraIIRFilterParameter> NesoraParametricSOFilter::GetDelta() const {
     return delta;
 }
 
@@ -224,5 +224,102 @@ const std::vector<NesoraParametricSOFilter>& NesoraParametricSOSIIRFilter::GetSO
 std::vector<NesoraParametricSOFilter>& NesoraParametricSOSIIRFilter::GetSOFilter() {
     return SOFilters;
 }
+
+
+
+std::vector<unsigned char> NesoraParametricSOSIIRFilter::SaveData() {
+    std::vector<unsigned char> data;
+
+    data.insert(data.end(), reinterpret_cast<const unsigned char*>(&samplingFrequency), reinterpret_cast<const unsigned char*>(&samplingFrequency) + sizeof(samplingFrequency));
+    size_t soFilterSize = SOFilters.size();
+    data.insert(data.end(), reinterpret_cast<const unsigned char*>(&soFilterSize), reinterpret_cast<const unsigned char*>(&soFilterSize) + sizeof(size_t));
+    for(const auto& filter : SOFilters) {
+        std::vector<unsigned char> filterData = filter.GetPoint().SaveData();
+        size_t filterDataSize = filterData.size();
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&filterDataSize), reinterpret_cast<const unsigned char*>(&filterDataSize) + sizeof(size_t));
+        data.insert(data.end(), filterData.begin(), filterData.end());
+        std::map<uint32_t, ParametricNesoraIIRFilterParameter> delta = filter.GetDelta();
+        size_t deltaSize = delta.size();
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&deltaSize), reinterpret_cast<const unsigned char*>(&deltaSize) + sizeof(size_t));
+        for(const auto& [paramid, paramdelta] : delta) {
+            data.insert(data.end(), reinterpret_cast<const unsigned char*>(&paramid), reinterpret_cast<const unsigned char*>(&paramid) + sizeof(uint32_t));
+            std::vector<unsigned char> deltaData = ::SaveData(paramdelta);
+            size_t deltaDataSize = deltaData.size();
+            data.insert(data.end(), reinterpret_cast<const unsigned char*>(&deltaDataSize), reinterpret_cast<const unsigned char*>(&deltaDataSize) + sizeof(size_t));
+            data.insert(data.end(), deltaData.begin(), deltaData.end());
+        }
+    }
+
+    return data;
+};
+
+void NesoraParametricSOSIIRFilter::LoadData(const std::vector<unsigned char>& data) {
+    size_t offset = 0;
+
+    if (data.size() < sizeof(samplingFrequency) + sizeof(size_t)) {
+        // データが不十分
+        return;
+    }
+
+    samplingFrequency = *reinterpret_cast<const double*>(data.data() + offset);
+    offset += sizeof(samplingFrequency);
+
+    size_t soFilterSize = *reinterpret_cast<const size_t*>(data.data() + offset);
+    offset += sizeof(size_t);
+
+    SOFilters.clear();
+    for (size_t i = 0; i < soFilterSize; i++) {
+        if (offset + sizeof(size_t) > data.size()) {
+            // データが不十分
+            return;
+        }
+        size_t filterDataSize = *reinterpret_cast<const size_t*>(data.data() + offset);
+        offset += sizeof(size_t);
+
+        if (offset + filterDataSize > data.size()) {
+            // データが不十分
+            return;
+        }
+        NesoraIIRFilterPD point;
+        std::memcpy(&point, data.data() + offset, sizeof(NesoraIIRFilterPD));
+        offset += filterDataSize;
+
+        if (offset + sizeof(size_t) > data.size()) {
+            // データが不十分
+            return;
+        }
+        size_t deltaSize = *reinterpret_cast<const size_t*>(data.data() + offset);
+        offset += sizeof(size_t);
+
+        std::map<uint32_t, ParametricNesoraIIRFilterParameter> delta;
+        for (size_t j = 0; j < deltaSize; j++) {
+            if (offset + sizeof(uint32_t) > data.size()) {
+                // データが不十分
+                return;
+            }
+            uint32_t paramid = *reinterpret_cast<const uint32_t*>(data.data() + offset);
+            offset += sizeof(uint32_t);
+
+            if (offset + sizeof(size_t) > data.size()) {
+                // データが不十分
+                return;
+            }
+            size_t deltaDataSize = *reinterpret_cast<const size_t*>(data.data() + offset);
+            offset += sizeof(size_t);
+
+            if (offset + deltaDataSize > data.size()) {
+                // データが不十分
+                return;
+            }
+            ParametricNesoraIIRFilterParameter paramdelta;
+            std::memcpy(&paramdelta, data.data() + offset, sizeof(ParametricNesoraIIRFilterParameter));
+            offset += deltaDataSize;
+            delta[paramid] = paramdelta;
+        }
+        SOFilters.emplace_back(NesoraParametricSOFilter(point));
+        SOFilters.back().SetDelta(delta);
+    }
+
+};
 
 

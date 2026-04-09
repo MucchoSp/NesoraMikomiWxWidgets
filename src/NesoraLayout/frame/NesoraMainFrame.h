@@ -30,6 +30,7 @@ public:
     nsMainFrame();
 
 private:
+    NesoraMikomiVoice* voice;
 
     void menuSetup();
     void acceleratorSetup();

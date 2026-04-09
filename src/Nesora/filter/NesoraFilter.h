@@ -39,6 +39,13 @@ private:
 struct NesoraIIRFilterPD {
     double r;
     double theta;
+
+    std::vector<unsigned char> SaveData() const {
+        std::vector<unsigned char> data;
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&r), reinterpret_cast<const unsigned char*>(&r) + sizeof(r));
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&theta), reinterpret_cast<const unsigned char*>(&theta) + sizeof(theta));
+        return data;
+    }
 };
 
 

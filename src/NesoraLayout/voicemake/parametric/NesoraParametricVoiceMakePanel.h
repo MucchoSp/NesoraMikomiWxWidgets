@@ -77,6 +77,8 @@ public:
     }
 
     void Init();
+    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    NesoraMikomiVoice* GetVoice() const { return voice; }
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);
 

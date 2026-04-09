@@ -70,6 +70,14 @@ struct NesoraMidiNotePhoneticalInfo {
     double modulationStrength;      // モジュレーションの強さ(cent)
     double modulationFrequency;     // モジュレーションの周波数(Hz)
     double modulationStartTime;     // モジュレーションの開始時間(ms)
+    double modulationFadeInTime;    // モジュレーションのフェードイン時間(ms)
+    double modulationFadeOutTime;   // モジュレーションのフェードアウト時間(ms)
+
+    double overshootTime;           // オーバーシュートの時間(ms)
+    double overshootPitch;          // オーバーシュートのピッチ(cent)
+
+    double preparationTime;         // プレパレーション時間(ms)
+    double preparationPitch;        // プレパレーションのピッチ(cent)
 };
 
 

@@ -15,6 +15,7 @@
 #include "./slider/NesoraSlider.h"
 
 #include "NesoraColor.h"
+#include "NesoraBitmap.h"
 
 
 

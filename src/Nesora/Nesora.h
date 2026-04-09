@@ -12,8 +12,10 @@
 #include "script/NesoraScript.h"
 
 #include "filter/NesoraParametricSOSIIRFilter/NesoraParametricSOSIIRFilter.h"
+#include "filter/NesoraThroughFilter.h"
 
 #include "source/NesoraParametricRosenbergWave/NesoraParametricRosenbergWave.h"
+#include "source/NesoraSinSource.h"
 
 #include "script/NesoraMIDI.h"
 

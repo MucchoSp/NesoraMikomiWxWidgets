@@ -329,7 +329,7 @@ void NesoraPianoRollCanvas::SetScrollWidth() {
     int x, y, w, h;
     GetViewStart(&x, &y);
     GetClientSize(&w, &h);
-    scriptLengthInBar = std::max(PixelToBar(w, pixelPerBeet, timeSignatureNumerator), PixelToBar(currentX, pixelPerBeet, timeSignatureNumerator) + 4.0); // 4小節分の余裕を持たせる
+    scriptLengthInBar = std::max(PixelToBar(w, pixelPerBeet, timeSignatureNumerator), PixelToBar(currentX, pixelPerBeet, timeSignatureNumerator) + 2.0); // 2小節分の余裕を持たせる
     screenWidth = scriptLengthInBar * pixelPerBeet * timeSignatureNumerator;
     SetScrollbars(ppux, ppuy, screenWidth / ppux, screenHeight / ppuy, x, y);
     m_linkedTimeline->SetScriptLengthInBar(scriptLengthInBar);
@@ -342,10 +342,9 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
     dc.Clear();
 
     wxSize size = GetClientSize();
+    wxRect2DDouble visibleRect(GetViewStart().x * ppux, GetViewStart().y * ppuy, size.GetWidth(), size.GetHeight());
     dc.SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
     dc.SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
-    // dc.DrawRectangle(0, 0, size.GetWidth(), size.GetHeight());
-
     
     wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
     if (gc) {
@@ -356,43 +355,45 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
         gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
         for (int i = 0; i < NESORA_MIDI_PANEL_KEY_COUNT; ++i) {
             double y = i * NESORA_MIDI_PANEL_NOTE_HEIGHT;
-            wxPoint2DDouble linePoints[] = {{ 0.0, y }, { scriptLengthInBar * pixelPerBeet * timeSignatureNumerator, y }};
+            wxPoint2DDouble linePoints[] = {{ visibleRect.m_x, y }, { visibleRect.m_x + visibleRect.m_width, y }};
             gc->StrokeLines(2, linePoints); // 水平線
         }
         for (int x = 0; x < scriptLengthInBar * pixelPerBeet * timeSignatureNumerator; x += pixelPerBeet) {
             double drawX = x;
             if (drawX > scriptLengthInBar * pixelPerBeet * timeSignatureNumerator) break;
-            wxPoint2DDouble linePoints[] = {{ drawX, 0.0 }, { drawX, NESORA_MIDI_PANEL_KEY_COUNT * NESORA_MIDI_PANEL_NOTE_HEIGHT }};
+            wxPoint2DDouble linePoints[] = {{ drawX, visibleRect.m_y }, { drawX, visibleRect.m_y + visibleRect.m_height }};
             gc->StrokeLines(2, linePoints); // 垂直線
         }
 
         // ノートの描画
         for (size_t i = 0;i < notes.size();i++) {
-            if (notes[i].isSelected) {
-                if (hoverNoteIdx == i) {
-                    gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY_HOVER)));
-                    gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY_HOVER)));
+            if (notes[i].rect.Intersects(visibleRect)) {
+                if (notes[i].isSelected) {
+                    if (hoverNoteIdx == i) {
+                        gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY_HOVER)));
+                        gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY_HOVER)));
+                    } else {
+                        gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
+                        gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY)));
+                    }
+                } else if (hoverNoteIdx == i) {
+                    gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY_HOVER)));
+                    gc->SetPen(wxPen(nsGetColor(nsColorType::PRIMARY_HOVER)));
                 } else {
-                    gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
-                    gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY)));
+                    gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));
+                    gc->SetPen(wxPen(nsGetColor(nsColorType::PRIMARY)));
                 }
-            } else if (hoverNoteIdx == i) {
-                gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY_HOVER)));
-                gc->SetPen(wxPen(nsGetColor(nsColorType::PRIMARY_HOVER)));
-            } else {
-                gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));
-                gc->SetPen(wxPen(nsGetColor(nsColorType::PRIMARY)));
-            }
-            gc->DrawRectangle(notes[i].rect);
+                gc->DrawRectangle(notes[i].rect);
 
-            // 歌詞の描画
-            if (notes[i].isSelected) {
-                gc->SetFont(font, nsGetColor(nsColorType::ON_SECONDARY));
-            } else {
-                gc->SetFont(font, nsGetColor(nsColorType::ON_PRIMARY));
+                // 歌詞の描画
+                if (notes[i].isSelected) {
+                    gc->SetFont(font, nsGetColor(nsColorType::ON_SECONDARY));
+                } else {
+                    gc->SetFont(font, nsGetColor(nsColorType::ON_PRIMARY));
+                }
+                std::string lyric = notes[i].note.lyric.empty() ? "<br>" : notes[i].note.lyric; // 空の歌詞は<br>として表示
+                gc->DrawText(lyric, notes[i].rect.m_x + 4, notes[i].rect.m_y + 4);
             }
-            std::string lyric = notes[i].note.lyric.empty() ? "<br>" : notes[i].note.lyric; // 空の歌詞は<br>として表示
-            gc->DrawText(lyric, notes[i].rect.m_x + 4, notes[i].rect.m_y + 4);
         }
 
         // 範囲選択枠の描画
@@ -406,10 +407,19 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
         if (pitchLine.size() >= 2) {
             gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
             std::vector<wxPoint2DDouble> linePoints;
-            for (size_t i = 0; i < pitchLine.size(); i++) {
+            for (size_t i = visibleRect.m_x; i < visibleRect.m_x + visibleRect.m_width && i < pitchLine.size(); i++) {
                 linePoints.push_back(wxPoint2DDouble(i, PitchToPixel(pitchLine[i]) + NESORA_MIDI_PANEL_NOTE_HEIGHT)); // ピッチをY座標に変換
             }
             gc->StrokeLines(linePoints.size(), linePoints.data());
+        }
+
+        // 現在の再生位置ラインを描画
+        const double pixelPerSecond = pixelPerBeet * bpm / 60.0;
+        const double playbackTimeForDraw = std::max(0.0, playbackTimeInSec.load() - playbackVisualDelayInSec);
+        const double playheadX = playbackTimeForDraw * pixelPerSecond;
+        if (playheadX >= visibleRect.m_x && playheadX <= visibleRect.m_x + visibleRect.m_width) {
+            gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND), 2));
+            gc->StrokeLine(playheadX, visibleRect.m_y, playheadX, visibleRect.m_y + visibleRect.m_height);
         }
 
         delete gc;
@@ -865,6 +875,20 @@ void NesoraPianoRollCanvas::OnScroll(wxScrollWinEvent& event) {
     lastScrollY = y;
 }
 
+double NesoraPianoRollCanvas::GetPitch(double t) {
+    playbackTimeInSec.store(t);
+    return midiScript.GetPitch(t);
+}
+
+void NesoraPianoRollCanvas::ClearPlaybackLine() {
+    playbackTimeInSec.store(0.0);
+    Refresh(false);
+}
+
+bool NesoraPianoRollCanvas::IsLyricEditing() const {
+    return editingNoteIdx != -1;
+}
+
 
 // MARK:NesoraPianoKeys
 
@@ -959,5 +983,32 @@ void NesoraMIDIPanel::Init() {
     mainSizer->Add(middleSizer, 1, wxEXPAND);
     
     this->SetSizer(mainSizer);
+
+    playbackLineTimer.SetOwner(this);
+    Bind(wxEVT_TIMER, &NesoraMIDIPanel::OnPlaybackTimer, this, playbackLineTimer.GetId());
+    playbackLineTimer.Start(16);
+}
+
+double NesoraMIDIPanel::GetPitch(double samplingFrequency) {
+    const double nowPitch = pianoRoll->GetPitch(nowPlayTime);
+    nowPlayTime += 1.0 / samplingFrequency;
+    return nowPitch;
+}
+
+bool NesoraMIDIPanel::IsLyricEditing() const {
+    return pianoRoll != nullptr and pianoRoll->IsLyricEditing();
+}
+
+void NesoraMIDIPanel::PlayStop() {
+    nowPlayTime = 0.0;
+    pianoRoll->ClearPlaybackLine();
+    return;
+}
+
+void NesoraMIDIPanel::OnPlaybackTimer(wxTimerEvent& event) {
+    if (pianoRoll) {
+        pianoRoll->Refresh(false);
+    }
+    event.Skip();
 }
 

@@ -100,7 +100,7 @@ std::vector<double> NesoraSpline::GetCubicValues(const double step) const {
 
 
 
-double NesoraMIDISplineScript::DeltaRadian(double t) {
+double NesoraMIDISplineScript::GetPitch(double t) {
     return 0.0;
 }
 
@@ -212,7 +212,41 @@ double CalculatePitchLineValue(NesoraPitchCurveType curveType, double t) {
 
 // MARK: NesoraMIDIPhoneticalScript
 
-double NesoraMIDIPhoneticalScript::DeltaRadian(double t) {
+double NesoraMIDIPhoneticalScript::GetPitch(double t) {
+    t = t * 1000.0; // 秒からミリ秒に変換
+    double noteStartTime = 0.0;
+    double noteEndTime = 0.0;
+    for(size_t i = 0; i < notes.size(); i++) {
+        const auto& note = notes[i];
+        noteStartTime = noteEndTime;
+        noteEndTime = noteStartTime + note.length;
+
+        if (t >= noteStartTime and t <= noteEndTime) {
+            // 現在のノートの範囲内
+            double localT = t - noteStartTime;
+            if (i < notes.size() - 1 and localT > note.length - notes[i + 1].frontPitchMoveTimming) {
+                // 次のノートのピッチ移行の範囲内
+                if (t >= noteEndTime - notes[i + 1].frontPitchMoveTimming) {
+                    double curveT = (t - (noteEndTime - notes[i + 1].frontPitchMoveTimming)) / notes[i + 1].frontPitchMoveTime;
+                    return CalculatePitchLineValue(notes[i + 1].frontPitchMoveCurve, curveT) * (notes[i + 1].pitch - note.pitch) + note.pitch;
+                }
+            } else if (localT < (note.frontPitchMoveTime - note.frontPitchMoveTimming)) {
+                // ピッチ移行中
+                double curveT = (localT - (note.frontPitchMoveTimming + note.frontPitchMoveTime)) / (note.frontPitchMoveTime);
+                return CalculatePitchLineValue(note.frontPitchMoveCurve, curveT) * (note.pitch - ((i > 0) ? notes[i - 1].pitch : note.pitch)) + ((i > 0) ? notes[i - 1].pitch : note.pitch);
+            } else if (localT < note.modulationStartTime) {
+                // モジュレーション前
+                return note.pitch;
+            } else {
+                // モジュレーション中
+                double modulationT = localT - note.modulationStartTime;
+                double modulationStrength = note.pitch * (1.0 - std::pow(2.0, note.modulationStrength / 1200.0 / 2.0)); // centを周波数に変換
+                double modulationValue = modulationStrength * sin(2.0 * M_PI * note.modulationFrequency * modulationT / 1000.0);
+                return note.pitch + modulationValue;
+            }
+        }
+    }
+
     return 0.0;
 }
 
@@ -240,45 +274,53 @@ void NesoraMIDIPhoneticalScript::CalculateNoteParam(double sampleRate) {
     pitchLine.clear();
     envelope.clear();
 
-    double currentTime = 0.0; // 現在の時間(ms)
-    for (size_t i = 0; i < notes.size(); i++) {
-        const auto& note = notes[i];
-        if (i > 0) {
-            // ピッチカーブを計算
-            const auto& prevNote = notes[i - 1];
-            for (size_t j = 0; j < (size_t)(note.frontPitchMoveTime * sampleRate / 1000.0); j++) {
-                double t = (double)j / (note.frontPitchMoveTime * sampleRate / 1000.0);
-                double curveValue = CalculatePitchLineValue(note.frontPitchMoveCurve, t);
-                pitchLine.push_back(prevNote.pitch + curveValue * (note.pitch - prevNote.pitch));
-            }
-        } else {
-            for (size_t j = 0; j < (size_t)((note.frontPitchMoveTime - note.frontPitchMoveTimming) * sampleRate / 1000.0); j++) {
-                pitchLine.push_back(note.pitch);
-            }
-        }
-        for (size_t j = 0; j < (size_t)std::min((note.modulationStartTime - (note.frontPitchMoveTime - note.frontPitchMoveTimming)) * sampleRate / 1000.0, (double)(note.length * sampleRate / 1000.0)); j++) {
-            pitchLine.push_back(note.pitch);
-        }
-        double nextNotePitchCurveStartTimming = (i < notes.size() - 1) ? (note.length - notes[i + 1].frontPitchMoveTimming) : note.length;
-        for (size_t j = 0; j < (size_t)((nextNotePitchCurveStartTimming - note.modulationStartTime) * sampleRate / 1000.0); j++) {
-            double modulationStrength = note.pitch * (1.0 - std::pow(2.0, note.modulationStrength / 1200.0 / 2.0)); // centを周波数に変換
-            double modulationValue = modulationStrength * sin(2.0 * M_PI * note.modulationFrequency * j / sampleRate);
-            pitchLine.push_back(note.pitch + modulationValue);
-        }
-
-        for (size_t j = 0; j < (size_t)(note.length * sampleRate / 1000.0); j++) {
-            envelope.push_back(note.intensity);
-        }
-
-
-        currentTime += note.length;
-        if (std::abs((int)pitchLine.size() - (((currentTime - note.frontPitchMoveTimming) + 1) * sampleRate / 1000.0)) > 1) {
-            pitchLine.resize((size_t)((currentTime - note.frontPitchMoveTimming) * sampleRate / 1000.0));
-        }
-        if (std::abs((int)envelope.size() - ((currentTime + 1) * sampleRate / 1000.0)) > 1) {
-            envelope.resize((size_t)(currentTime * sampleRate / 1000.0));
-        }
+    double currentTime = 0.0; // 現在の時間(s)
+    while(1) {
+        pitchLine.push_back(GetPitch(currentTime));
+        envelope.push_back(Volume(currentTime));
+        currentTime += 1.0 / sampleRate; // 1/sampleRate sごとに更新
+        if (pitchLine.back() == 0.0) break; // 最後のノートの長さを超えたら終了
     }
+
+    // for (size_t i = 0; i < notes.size(); i++) {
+    //     const auto& note = notes[i];
+    //     if (i > 0) {
+    //         // ピッチカーブを計算
+    //         const auto& prevNote = notes[i - 1];
+    //         for (size_t j = 0; j < (size_t)(note.frontPitchMoveTime * sampleRate / 1000.0); j++) {
+    //             double t = (double)j / (note.frontPitchMoveTime * sampleRate / 1000.0);
+    //             double curveValue = CalculatePitchLineValue(note.frontPitchMoveCurve, t);
+    //             pitchLine.push_back(prevNote.pitch + curveValue * (note.pitch - prevNote.pitch));
+    //         }
+    //     } else {
+    //         for (size_t j = 0; j < (size_t)((note.frontPitchMoveTime - note.frontPitchMoveTimming) * sampleRate / 1000.0); j++) {
+    //             pitchLine.push_back(note.pitch);
+    //         }
+    //     }
+    //     for (size_t j = 0; j < (size_t)std::min((note.modulationStartTime - (note.frontPitchMoveTime - note.frontPitchMoveTimming)) * sampleRate / 1000.0, (double)(note.length * sampleRate / 1000.0)); j++) {
+    //         pitchLine.push_back(note.pitch);
+    //     }
+    //     double nextNotePitchCurveStartTimming = (i < notes.size() - 1) ? (note.length - notes[i + 1].frontPitchMoveTimming) : note.length;
+    //     for (size_t j = 0; j < (size_t)((nextNotePitchCurveStartTimming - note.modulationStartTime) * sampleRate / 1000.0); j++) {
+    //         double modulationStrength = note.pitch * (1.0 - std::pow(2.0, note.modulationStrength / 1200.0 / 2.0)); // centを周波数に変換
+    //         double modulationValue = modulationStrength * sin(2.0 * M_PI * note.modulationFrequency * j / sampleRate);
+    //         pitchLine.push_back(note.pitch + modulationValue);
+    //     }
+    //
+    //     for (size_t j = 0; j < (size_t)(note.length * sampleRate / 1000.0); j++) {
+    //         envelope.push_back(note.intensity);
+    //     }
+    //
+    //
+    //     currentTime += note.length;
+    //     if (std::abs((int)pitchLine.size() - (((currentTime - note.frontPitchMoveTimming) + 1) * sampleRate / 1000.0)) > 1) {
+    //         pitchLine.resize((size_t)((currentTime - note.frontPitchMoveTimming) * sampleRate / 1000.0));
+    //     }
+    //     if (std::abs((int)envelope.size() - ((currentTime + 1) * sampleRate / 1000.0)) > 1) {
+    //         envelope.resize((size_t)(currentTime * sampleRate / 1000.0));
+    //     }
+    // }
+
 }
 
 std::vector<unsigned char> NesoraMIDIPhoneticalScript::SaveData() {

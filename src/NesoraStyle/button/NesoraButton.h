@@ -24,11 +24,42 @@ public:
              : wxButton(parent, id, label, pos, size, style, validator, name) {
         SetBackgroundStyle(wxBG_STYLE_PAINT);
         SetOwnForegroundColour(nsGetColor(nsColorType::ON_PRIMARY));
-        Connect(wxEVT_PAINT, wxPaintEventHandler(nsButton::onPaint));
-        Connect(wxEVT_LEFT_UP, wxMouseEventHandler(nsButton::onMouseUp));
-        Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(nsButton::onMouseDown));
-        Connect(wxEVT_ENTER_WINDOW, wxMouseEventHandler(nsButton::onMouseEnter));
-        Connect(wxEVT_LEAVE_WINDOW, wxMouseEventHandler(nsButton::onMouseLeave));
+        Bind(wxEVT_PAINT, &nsButton::onPaint, this);
+        Bind(wxEVT_LEFT_UP, &nsButton::onMouseUp, this);
+        Bind(wxEVT_LEFT_DOWN, &nsButton::onMouseDown, this);
+        Bind(wxEVT_ENTER_WINDOW, &nsButton::onMouseEnter, this);
+        Bind(wxEVT_LEAVE_WINDOW, &nsButton::onMouseLeave, this);
+    }
+
+private:
+    bool mouseDown = false;
+    bool mouseHover = false;
+
+    void onPaint(wxPaintEvent& event);
+    void onMouseUp(wxMouseEvent& event);
+    void onMouseDown(wxMouseEvent& event);
+    void onMouseEnter(wxMouseEvent& event);
+    void onMouseLeave(wxMouseEvent& event);
+};
+
+class nsBitmapButton : public wxBitmapButton {
+public:
+    nsBitmapButton(wxWindow *parent,
+             wxWindowID id,
+             const wxBitmapBundle& bitmap,
+             const wxPoint& pos = wxDefaultPosition,
+             const wxSize& size = wxDefaultSize,
+             long style = 0,
+             const wxValidator& validator = wxDefaultValidator,
+             const wxString& name = wxASCII_STR(wxButtonNameStr))
+             : wxBitmapButton(parent, id, bitmap, pos, size, style, validator, name) {
+        SetBackgroundStyle(wxBG_STYLE_PAINT);
+        SetOwnForegroundColour(nsGetColor(nsColorType::ON_PRIMARY));
+        Bind(wxEVT_PAINT, &nsBitmapButton::onPaint, this);
+        Bind(wxEVT_LEFT_UP, &nsBitmapButton::onMouseUp, this);
+        Bind(wxEVT_LEFT_DOWN, &nsBitmapButton::onMouseDown, this);
+        Bind(wxEVT_ENTER_WINDOW, &nsBitmapButton::onMouseEnter, this);
+        Bind(wxEVT_LEAVE_WINDOW, &nsBitmapButton::onMouseLeave, this);
     }
 
 private:

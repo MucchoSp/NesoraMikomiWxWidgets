@@ -12,6 +12,7 @@
 #include <vector>
 #include <stack>
 #include <memory>
+#include <atomic>
 // #include <sstream>
 #include <string>
 
@@ -87,6 +88,9 @@ public:
     }
 
     void Init();
+    double GetPitch(double t);
+    void ClearPlaybackLine();
+    bool IsLyricEditing() const;
 
     NesoraPianoKeys* m_linkedKeys = nullptr;
     NesoraTimeline* m_linkedTimeline = nullptr;
@@ -117,6 +121,8 @@ private:
     bool isAddNote = false;         // ノート追加モードかどうか
     bool tookAction = false;        // ドラッグ操作中に実際にノートの追加や移動などのアクションが発生したか
     bool isNotePreview = true;      // プレビュー表示するかどうか(仮)
+    std::atomic<double> playbackTimeInSec{0.0}; // 再生位置ライン用の現在時刻(秒)
+    double playbackVisualDelayInSec = 0.05;      // 実際の出音遅延を見越した表示補正(秒)
 
     NesoraPianoRollCanvasMouseDragState mouseDragState = NesoraPianoRollCanvasMouseDragState::None;
     
@@ -190,12 +196,20 @@ public:
     }
     
     void Init();
+    double GetPitch(double samplingFrequency);
+    void PlayStop();
+    bool IsLyricEditing() const;
 
 private:
     wxSlider* midi_slider;
     wxStaticText* midi_param;
 
     NesoraPianoRollCanvas* pianoRoll;
+    wxTimer playbackLineTimer;
+
+    double nowPlayTime = 0.0;
+
+    void OnPlaybackTimer(wxTimerEvent& event);
 };
 
 #endif // NESORA_MIDI_PANEL_H

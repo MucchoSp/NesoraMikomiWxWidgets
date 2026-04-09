@@ -26,6 +26,10 @@ enum {
     nsID_ESCAPE,
     nsID_MENU_EDIT,
     nsID_MENU_DELETE,
+
+    nsID_PLAY,
+    nsID_PAUSE,
+    nsID_STOP,
 };
 
 #endif // NESORA_IDS_H

@@ -39,7 +39,7 @@ public:
     NesoraMIDISplineScript() {}
     NesoraMIDISplineScript(const std::vector<NesoraMidiNote>& notes) : notes(notes) {}
 
-    double DeltaRadian(double t) override;
+    double GetPitch(double t) override;
     double Volume(double t) override;
     ParametricNesoraParameter Vowel(double t) override;
 
@@ -70,7 +70,7 @@ public:
     NesoraMIDIPhoneticalScript() {}
     NesoraMIDIPhoneticalScript(const std::vector<NesoraMidiNotePhoneticalInfo>& notes) : notes(notes) {}
 
-    double DeltaRadian(double t) override;
+    double GetPitch(double t) override;
     double Volume(double t) override;
     ParametricNesoraParameter Vowel(double t) override;
 

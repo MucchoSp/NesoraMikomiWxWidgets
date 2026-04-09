@@ -32,6 +32,8 @@ public:
     }
 
     void Init();
+    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    NesoraMikomiVoice* GetVoice() const { return voice; }
     void ToolBar();
     void OnStop(wxCommandEvent& event);
     void OnPlay(wxCommandEvent& event);

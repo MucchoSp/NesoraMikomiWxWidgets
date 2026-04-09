@@ -38,7 +38,7 @@ public:
     const NesoraIIRFilterPD& GetPoint() const;
     const NesoraIIRFilterPD GetParametricPoint(const std::map<uint32_t, double>& parameters) const;
     const NesoraIIRFilterPD GetParametricPoint(const uint32_t parameterID, const double delta) const;
-    std::map<uint32_t, ParametricNesoraIIRFilterParameter> GetDelta();
+    std::map<uint32_t, ParametricNesoraIIRFilterParameter> GetDelta() const;
     const ParametricNesoraIIRFilterParameter GetDelta(const uint32_t parameterID) const;
 
 private:
@@ -65,8 +65,8 @@ public:
 
     double Filter(double x) override;
 
-    std::vector<unsigned char> SaveData() override { return {}; };
-    void LoadData(const std::vector<unsigned char>& data) override {};
+    std::vector<unsigned char> SaveData() override;
+    void LoadData(const std::vector<unsigned char>& data) override;
 
     const std::vector<NesoraParametricSOFilter>& GetSOFilter() const;
     std::vector<NesoraParametricSOFilter>& GetSOFilter();

@@ -20,6 +20,10 @@ nsMainFrame::nsMainFrame()
     voiceMakePanel = new nsParametricVoiceMakePanel(this, nsID_VOICE_MAKE_PANEL, wxDefaultPosition, wxSize(1000, 300));
     voiceMakePanel->Hide();
 
+    voice = voiceMakePanel->GetVoice();
+    singPanel->SetVoice(voice);
+    speakPanel->SetVoice(voice);
+
     main_sizer = new wxBoxSizer(wxVERTICAL);
     wxSizer* toolbar_sizer = new wxBoxSizer(wxHORIZONTAL);
 

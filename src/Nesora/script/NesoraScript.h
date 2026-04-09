@@ -12,7 +12,7 @@ class NesoraScriptBase {
 public:
     NesoraScriptBase(){}
 
-    virtual double DeltaRadian(double t) = 0;
+    virtual double GetPitch(double t) = 0;
     virtual double Volume(double t) = 0;
     virtual ParametricNesoraParameter Vowel(double t) = 0;
 

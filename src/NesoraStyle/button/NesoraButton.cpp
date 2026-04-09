@@ -44,3 +44,48 @@ void nsButton::onMouseLeave(wxMouseEvent& event) {
     wxWindow::Refresh();
     event.Skip();
 }
+
+
+void nsBitmapButton::onPaint(wxPaintEvent& event) {
+    wxAutoBufferedPaintDC dc(this);
+    int w, h;
+    GetSize(&w, &h);
+    wxRect rect(0, 0, w, h);
+    if(mouseHover) {
+        if(mouseDown)
+            dc.SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY_HOVER)));
+        else
+            dc.SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY_VARIANT)));
+    }
+    else
+        dc.SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));
+    dc.SetPen(wxPen(nsGetColor(nsColorType::PRIMARY_SHADOW)));
+    // dc.DrawRoundedRectangle(rect, 5);
+    int x = (w - GetBitmap().GetWidth()) / 2;
+    int y = (h - GetBitmap().GetHeight()) / 2;
+    dc.DrawBitmap(GetBitmap(), wxPoint(x, y), true);
+}
+
+void nsBitmapButton::onMouseUp(wxMouseEvent& event) {
+    mouseDown = false;
+    wxWindow::Refresh();
+    event.Skip();
+}
+
+void nsBitmapButton::onMouseDown(wxMouseEvent& event) {
+    mouseDown = true;
+    wxWindow::Refresh();
+    event.Skip();
+}
+
+void nsBitmapButton::onMouseEnter(wxMouseEvent& event) {
+    mouseHover = true;
+    wxWindow::Refresh();
+    event.Skip();
+}
+
+void nsBitmapButton::onMouseLeave(wxMouseEvent& event) {
+    mouseHover = false;
+    wxWindow::Refresh();
+    event.Skip();
+}

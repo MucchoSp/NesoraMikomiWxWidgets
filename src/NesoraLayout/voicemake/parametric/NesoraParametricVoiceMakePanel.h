@@ -15,6 +15,7 @@
 #include "../../../NesoraStyle/NesoraStyle.h"
 
 #include "NesoraParametricRosenbergWavePanel.h"
+#include "NesoraParametricLFModelPanel.h"
 #include "NesoraParametricSOSIIRFilterPanel.h"
 #include "NesoraParametricPanel.h"
 #include "../../NesoraIDs.h"
@@ -86,7 +87,7 @@ private:
 
     std::vector<double> wave;// 48000 / 261.6
 
-    nsParametricRosenbergWavePanel* sourceSoundPanel;
+    nsParametricLFModelPanel* sourceSoundPanel;
     nsParametricSOSIIRFilterPanel* filterPanel;
     nsParametricVoiceMakePlayInterfacePanel* playInterfacePanel;
     nsParametricPanel* parametricPanel;
@@ -102,6 +103,8 @@ private:
     ma_device_config deviceConfig;
 
     static void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
+
+    bool isPlaying = false;
 
 };
 

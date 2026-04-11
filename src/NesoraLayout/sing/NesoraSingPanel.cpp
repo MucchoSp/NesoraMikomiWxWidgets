@@ -19,7 +19,7 @@ void nsSingPanel::Init() {
     wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     wxSizer* toolbarSizer = new wxBoxSizer(wxHORIZONTAL);
     ToolBar();
-    volumeText = new wxStaticText(this, wxID_ANY, "0.00 dB");
+    volumeText = new wxStaticText(this, wxID_ANY, "-2.50 dB");
     volumeText->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     volumeText->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     volume = new nsSlider(this, wxID_ANY, 75, 0, 100, wxDefaultPosition, wxSize(100, 15));

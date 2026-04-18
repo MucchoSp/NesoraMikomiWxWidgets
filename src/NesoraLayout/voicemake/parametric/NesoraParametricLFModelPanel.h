@@ -16,6 +16,7 @@
 
 #include "../../../NesoraStyle/NesoraStyle.h"
 
+#include "../NesoraVoiceMakePanelBase.h"
 #include "../../NesoraIDs.h"
 #include "../../NesoraEvents.h"
 
@@ -23,7 +24,7 @@
 #include "../../../Nesora/source/NesoraParametricRosenbergWave/NesoraParametricLFModel.h"
 
 
-class nsParametricLFModelPanel : public wxPanel {
+class nsParametricLFModelPanel : public nsSourcePanelBase {
 public:
     nsParametricLFModelPanel() {
         Init();
@@ -34,18 +35,18 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-        const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name)
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsSourcePanelBase(parent, winid, pos, size, style, name)
     {
         Init();
     }
 
-    void Init();
-    void Update();
+    void Init() override;
+    void Update() override;
     
     std::vector<double> GetWave() const;
-    NesoraParametricLFModel* GetSource();
+    NesoraSourceBase* GetSource() override;
 
-    double GetPitch() const;
+    double GetPitch() const override;
 
 private:
     nsSimpleChartControl* chart;
@@ -84,7 +85,7 @@ private:
     void UpdateChart();
 };
 
-class nsParametricLFModelRdParameterPanel : public wxPanel {
+class nsParametricLFModelRdParameterPanel : public nsSourcePanelBase {
 public:
     nsParametricLFModelRdParameterPanel() {
         Init();
@@ -95,18 +96,18 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-        const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name)
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsSourcePanelBase(parent, winid, pos, size, style, name)
     {
         Init();
     }
 
-    void Init();
-    void Update();
+    void Init() override;
+    void Update() override;
     
     std::vector<double> GetWave() const;
-    NesoraParametricLFModelRdParameter* GetSource();
+    NesoraSourceBase* GetSource() override;
 
-    double GetPitch() const;
+    double GetPitch() const override;
 
 private:
     nsSimpleChartControl* chart;

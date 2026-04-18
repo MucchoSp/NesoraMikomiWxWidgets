@@ -56,7 +56,7 @@ void nsParametricVoiceMakePanel::Init() {
     sourceSoundPanel = new nsParametricLFModelPanel(this, wxID_ANY);
     filterPanel = new nsParametricSOSIIRFilterPanel(this, wxID_ANY);
     parametricPanel = new nsParametricPanel(this, wxID_ANY);
-    voice = new NesoraMikomiVoice(sourceSoundPanel->GetSource(), filterPanel->GetIIRFilter());
+    voice = new NesoraMikomiVoice(sourceSoundPanel->GetSource(), filterPanel->GetFilter());
 
     horizontalSizer->Add(playInterfacePanel, 0, wxEXPAND | wxALL);
     horizontalSizer->Add(sourceSoundPanel, 1, wxEXPAND | wxALL);

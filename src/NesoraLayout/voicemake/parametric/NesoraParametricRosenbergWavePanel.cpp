@@ -157,7 +157,7 @@ std::vector<double> nsParametricRosenbergWavePanel::GetWave() const {
     return wave;
 }
 
-NesoraParametricRosenbergWave* nsParametricRosenbergWavePanel::GetSource() {
+NesoraSourceBase* nsParametricRosenbergWavePanel::GetSource() {
     return source_wave;
 }
 

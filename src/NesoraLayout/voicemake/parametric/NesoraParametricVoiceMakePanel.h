@@ -14,12 +14,13 @@
 
 #include "../../../NesoraStyle/NesoraStyle.h"
 
+#include "../NesoraVoiceMakePanelBase.h"
 #include "NesoraParametricRosenbergWavePanel.h"
 #include "NesoraParametricLFModelPanel.h"
 #include "NesoraParametricSOSIIRFilterPanel.h"
 #include "NesoraParametricPanel.h"
-#include "../../NesoraIDs.h"
 
+#include "../../NesoraIDs.h"
 #include "../../../Nesora/Nesora.h"
 
 
@@ -87,8 +88,8 @@ private:
 
     std::vector<double> wave;// 48000 / 261.6
 
-    nsParametricLFModelPanel* sourceSoundPanel;
-    nsParametricSOSIIRFilterPanel* filterPanel;
+    nsSourcePanelBase* sourceSoundPanel;
+    nsFilterPanelBase* filterPanel;
     nsParametricVoiceMakePlayInterfacePanel* playInterfacePanel;
     nsParametricPanel* parametricPanel;
     NesoraMikomiVoice* voice;

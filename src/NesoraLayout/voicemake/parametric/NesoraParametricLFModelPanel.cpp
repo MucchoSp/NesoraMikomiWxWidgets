@@ -88,11 +88,11 @@ void nsParametricLFModelPanel::Init() {
     ta_sliderSizer->Add(taslider, 1, wxEXPAND | wxALL, 5);
     sliderSizer->Add(ta_sliderSizer, 0, wxEXPAND | wxALL);
 
-    eeparam = new wxStaticText(sourceSizer->GetStaticBox(), wxID_ANY, _("Ee: 0.001"));
+    eeparam = new wxStaticText(sourceSizer->GetStaticBox(), wxID_ANY, _("Ee: 1.000"));
     eeparam->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     eeparam->SetToolTip(_("Ee parameter for the voice. Maximum excitation intensity."));
     ee_sliderSizer->Add(eeparam, 0, wxEXPAND | wxALL, 5);
-    eeslider = new nsSlider(sourceSizer->GetStaticBox(), wxID_ANY, 1, 1, 1000, wxDefaultPosition, wxSize(200, 15));
+    eeslider = new nsSlider(sourceSizer->GetStaticBox(), wxID_ANY, 1000, 1, 1000, wxDefaultPosition, wxSize(200, 15));
     eeslider->Bind(wxEVT_COMMAND_SLIDER_UPDATED, &nsParametricLFModelPanel::OnEeSlide, this);
     eeslider->SetToolTip(_("Ee parameter for the voice. Maximum excitation intensity."));
     eeslider->Show();
@@ -187,7 +187,7 @@ std::vector<double> nsParametricLFModelPanel::GetWave() const {
     return wave;
 }
 
-NesoraParametricLFModel* nsParametricLFModelPanel::GetSource() {
+NesoraSourceBase* nsParametricLFModelPanel::GetSource() {
     return source_wave;
 }
 
@@ -329,7 +329,7 @@ std::vector<double> nsParametricLFModelRdParameterPanel::GetWave() const {
     return wave;
 }
 
-NesoraParametricLFModelRdParameter* nsParametricLFModelRdParameterPanel::GetSource() {
+NesoraSourceBase* nsParametricLFModelRdParameterPanel::GetSource() {
     return source_wave;
 }
 

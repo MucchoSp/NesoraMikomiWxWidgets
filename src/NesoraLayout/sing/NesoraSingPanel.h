@@ -43,6 +43,9 @@ public:
     void OnCharHook(wxKeyEvent& event);
     void OnVolumeSlide(wxCommandEvent& event);
 
+    void PanelEnable();
+    void PanelDisable();
+
 private:
     NesoraMikomiVoice* voice;
 
@@ -52,6 +55,8 @@ private:
     nsSlider* volume;
     wxStaticText* volumeText;
 
+    void menuSetup();
+    
     bool isPlaying = false;
 
     void InitAudioDevice();

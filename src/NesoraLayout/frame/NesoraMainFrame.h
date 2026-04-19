@@ -54,9 +54,6 @@ private:
     void OnSingButton(wxCommandEvent& event);
     void OnSpeakButton(wxCommandEvent& event);
     void OnMakeButton(wxCommandEvent& event);
-
-    void OnSave(wxCommandEvent& event);
-    void OnOpen(wxCommandEvent& event);
 };
 
 

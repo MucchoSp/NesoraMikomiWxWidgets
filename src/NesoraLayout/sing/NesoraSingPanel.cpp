@@ -143,4 +143,47 @@ void nsSingPanel::data_callback(ma_device* pDevice, void* pOutput, const void* p
     }
 }
 
+void nsSingPanel::PanelEnable() {
+    Show();
+    menuSetup();
+}
+
+void nsSingPanel::PanelDisable() {
+    Hide();
+}
+
+void nsSingPanel::menuSetup() {
+    // nsID_MAIN_FRAME
+    wxMenu* menuFile = new wxMenu;
+    menuFile->Append(ID_Hello, _("&Hello...\tCtrl-H"), _("Help string shown in status bar for this menu item"));
+    menuFile->Append(wxID_OPEN, _("&Open...\tCtrl-O"), _("Open a file"));
+    menuFile->Append(wxID_SAVE, _("&Save\tCtrl-S"), _("Save the current file"));
+    menuFile->AppendSeparator();
+    menuFile->Append(ID_IMPORT, _("&Import...\tCtrl-I"), _("Import a file"));
+    menuFile->Append(ID_EXPORT, _("&Export...\tCtrl-E"), _("Export the current file"));
+    menuFile->AppendSeparator();
+    menuFile->Append(wxID_EXIT);
+    
+    wxMenu* menuHelp = new wxMenu;
+    menuHelp->Append(wxID_ABOUT);
+    
+    wxMenu* menuEdit = new wxMenu;
+    menuEdit->Append(wxID_CUT, _("&Cut\tCtrl-X"));
+    menuEdit->Append(wxID_COPY, _("&Copy\tCtrl-C"));
+    menuEdit->Append(wxID_PASTE, _("&Paste\tCtrl-V"));
+    menuEdit->AppendSeparator();
+    menuEdit->Append(wxID_SELECTALL, _("&Select All\tCtrl-A"));
+    
+    wxMenuBar* menuBar = new wxMenuBar;
+    menuBar->Append(menuFile, _("&File"));
+    menuBar->Append(menuEdit, _("&Edit"));
+    menuBar->Append(menuHelp, _("&Help"));
+    
+    wxFrame* mainFrame = (wxFrame*)wxWindow::FindWindowById(nsID_MAIN_FRAME);
+    mainFrame->SetMenuBar(menuBar);
+
+    mainFrame->Bind(wxEVT_MENU, &nsSingPanel::OnSave, this, wxID_SAVE);
+    mainFrame->Bind(wxEVT_MENU, &nsSingPanel::OnOpen, this, wxID_OPEN);
+}
+
 

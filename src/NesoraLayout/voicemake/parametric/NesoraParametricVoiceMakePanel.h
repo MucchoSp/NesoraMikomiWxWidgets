@@ -84,6 +84,9 @@ public:
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);
 
+    void PanelEnable();
+    void PanelDisable();
+
 private:
 
     std::vector<double> wave;// 48000 / 261.6
@@ -94,6 +97,8 @@ private:
     nsParametricPanel* parametricPanel;
     NesoraMikomiVoice* voice;
 
+    void menuSetup();
+    
     void OnPlayButtonClicked(wxCommandEvent& event);
     void OnStopButtonClicked(wxCommandEvent& event);
 

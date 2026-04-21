@@ -19,6 +19,8 @@ nsMainFrame::nsMainFrame()
     speakPanel->Hide();
     voiceMakePanel = new nsParametricVoiceMakePanel(this, nsID_VOICE_MAKE_PANEL, wxDefaultPosition, wxSize(1000, 300));
     voiceMakePanel->Hide();
+    characterPanel = new nsCharacterPanel(this, nsID_CHARACTER_PANEL, wxDefaultPosition, wxSize(1000, 300));
+    characterPanel->Hide();
 
     voice = voiceMakePanel->GetVoice();
     singPanel->SetVoice(voice);
@@ -30,12 +32,15 @@ nsMainFrame::nsMainFrame()
     singButton = new nsToolBarButton(toolSelectorPanel, nsID_SING_BUTTON, _("Sing"), wxPoint(10, 10), wxSize(100, 30));
     speakButton = new nsToolBarButton(toolSelectorPanel, nsID_SPEAK_BUTTON, _("Talk"), wxPoint(120, 10), wxSize(100, 30));
     makeButton = new nsToolBarButton(toolSelectorPanel, nsID_VOICE_MAKE_BUTTON, _("Make Voice"), wxPoint(230, 10), wxSize(100, 30));
+    characterButton = new nsToolBarButton(toolSelectorPanel, nsID_CHARACTER_BUTTON, _("Character"), wxPoint(230, 10), wxSize(100, 30));
     singButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnSingButton, this);
     speakButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnSpeakButton, this);
     makeButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnMakeButton, this);
+    characterButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnCharButton, this);
     toolbar_sizer->Add(singButton, 0, wxALL, 5);
     toolbar_sizer->Add(speakButton, 0, wxALL, 5);
     toolbar_sizer->Add(makeButton, 0, wxALL, 5);
+    toolbar_sizer->Add(characterButton, 0, wxALL, 5);
 
     toolSelectorPanel->SetSizer(toolbar_sizer);
 
@@ -43,6 +48,7 @@ nsMainFrame::nsMainFrame()
     main_sizer->Add(singPanel, 1, wxEXPAND | wxALL, 5);
     main_sizer->Add(speakPanel, 1, wxEXPAND | wxALL, 5);
     main_sizer->Add(voiceMakePanel, 1, wxEXPAND | wxALL, 5);
+    main_sizer->Add(characterPanel, 1, wxEXPAND | wxALL, 5);
 
     SetSizer(main_sizer);
 
@@ -104,9 +110,11 @@ void nsMainFrame::OnSingButton(wxCommandEvent& event) {
     singButton->SetSelected(true);
     speakButton->SetSelected(false);
     makeButton->SetSelected(false);
+    characterButton->SetSelected(false);
     singPanel->PanelEnable();
     speakPanel->PanelDisable();
     voiceMakePanel->PanelDisable();
+    characterPanel->PanelDisable();
     main_sizer->Layout();
     selectedToolBarType = nsToolBarType::TOOLBAR_SING;
 }
@@ -115,9 +123,11 @@ void nsMainFrame::OnSpeakButton(wxCommandEvent& event) {
     singButton->SetSelected(false);
     speakButton->SetSelected(true);
     makeButton->SetSelected(false);
+    characterButton->SetSelected(false);
     singPanel->PanelDisable();
     speakPanel->PanelEnable();
     voiceMakePanel->PanelDisable();
+    characterPanel->PanelDisable();
     main_sizer->Layout();
     selectedToolBarType = nsToolBarType::TOOLBAR_SPEAK;
 }
@@ -126,11 +136,26 @@ void nsMainFrame::OnMakeButton(wxCommandEvent& event) {
     singButton->SetSelected(false);
     speakButton->SetSelected(false);
     makeButton->SetSelected(true);
+    characterButton->SetSelected(false);
     singPanel->PanelDisable();
     speakPanel->PanelDisable();
     voiceMakePanel->PanelEnable();
+    characterPanel->PanelDisable();
     main_sizer->Layout();
     selectedToolBarType = nsToolBarType::TOOLBAR_VOICE_MAKE;
+}
+
+void nsMainFrame::OnCharButton(wxCommandEvent& event) {
+    singButton->SetSelected(false);
+    speakButton->SetSelected(false);
+    makeButton->SetSelected(false);
+    characterButton->SetSelected(true);
+    singPanel->PanelDisable();
+    speakPanel->PanelDisable();
+    voiceMakePanel->PanelDisable();
+    characterPanel->PanelEnable();
+    main_sizer->Layout();
+    selectedToolBarType = nsToolBarType::TOOLBAR_CHARACTER;
 }
 
 

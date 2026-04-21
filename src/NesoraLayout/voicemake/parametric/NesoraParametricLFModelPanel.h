@@ -50,6 +50,7 @@ public:
 
 private:
     nsSimpleChartControl* chart;
+    nsSimpleChartControl* chart_integral;
 
     wxStaticText* pitch_param;
     wxStaticText* phonetic_param;
@@ -67,6 +68,7 @@ private:
     double Tp, Te, Ta, Ee, noise_level;
     NesoraParametricLFModel* source_wave;
     std::vector<double> wave;// 48000 / 261.6
+    std::vector<double> wave_integral;// 48000 / 261.6
 
     uint32_t nowSelectedParameter = 0;
     std::map<uint32_t, double> parameters;

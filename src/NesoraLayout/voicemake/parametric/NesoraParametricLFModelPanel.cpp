@@ -20,9 +20,13 @@ void nsParametricLFModelPanel::Init() {
     source_wave->SetParamater(0.4, 0.55, 0.05, 1.0, 0.1);
     source_wave->SetParamater(parameters);
     wave.resize(183);// 48000/261.6
+    wave_integral.resize(183);// 48000/261.6
     double throw_away;
-    for (size_t i = 0;i < wave.size();i++)
+    for (size_t i = 0;i < wave.size();i++) {
         wave[i] = source_wave->Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away) * 2.0 * M_PI);
+        if (i > 0)
+            wave_integral[i] = wave[i] + wave_integral[i - 1];
+    }
 
     wxStaticBoxSizer* sourceSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Liljencrants-Fant Model"));
     wxSizer* pitch_sliderSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -99,11 +103,16 @@ void nsParametricLFModelPanel::Init() {
     ee_sliderSizer->Add(eeslider, 1, wxEXPAND | wxALL, 5);
     sliderSizer->Add(ee_sliderSizer, 0, wxEXPAND | wxALL);
 
-    chart = new nsSimpleChartControl(sourceSizer->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxSize(200, 24));
+    wxSizer* chartSizer = new wxBoxSizer(wxVERTICAL);
+    chart = new nsSimpleChartControl(sourceSizer->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxSize(200, -1));
     chart->SetData(wave);
+    chartSizer->Add(chart, 1, wxEXPAND | wxALL);
+    chart_integral = new nsSimpleChartControl(sourceSizer->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxSize(200, -1));
+    chart_integral->SetData(wave_integral);
+    chartSizer->Add(chart_integral, 1, wxEXPAND | wxALL);
 
     sourceSizer->Add(sliderSizer, 1, wxEXPAND | wxALL);
-    sourceSizer->Add(chart, 0, wxEXPAND | wxALL);
+    sourceSizer->Add(chartSizer, 0, wxEXPAND | wxALL);
     SetSizer(sourceSizer);
 }
 
@@ -179,8 +188,11 @@ void nsParametricLFModelPanel::UpdateChart() {
     double throw_away;
     for (size_t i = 0;i < wave.size();i++) {
         wave[i] = source_wave->Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away) * 2.0 * M_PI);
+        if (i > 0)
+            wave_integral[i] = wave[i] + wave_integral[i - 1];
     }
     chart->SetData(wave);
+    chart_integral->SetData(wave_integral);
 }
 
 std::vector<double> nsParametricLFModelPanel::GetWave() const {

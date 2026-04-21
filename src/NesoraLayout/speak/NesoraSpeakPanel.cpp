@@ -27,7 +27,6 @@ void nsSpeakPanel::PanelDisable() {
 void nsSpeakPanel::menuSetup() {
     // nsID_MAIN_FRAME
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, _("&Hello...\tCtrl-H"), _("Help string shown in status bar for this menu item"));
     menuFile->Append(wxID_OPEN, _("&Open...\tCtrl-O"), _("Open a file"));
     menuFile->Append(wxID_SAVE, _("&Save\tCtrl-S"), _("Save the current file"));
     menuFile->AppendSeparator();

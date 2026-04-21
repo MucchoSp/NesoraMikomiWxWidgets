@@ -17,12 +17,12 @@ void nsParametricLFModelPanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     source_wave = new NesoraParametricLFModel();
 
-    source_wave->SetParamater(0.25, 0.5, 0.1, 0.1, 0.1);
+    source_wave->SetParamater(0.4, 0.55, 0.05, 1.0, 0.1);
     source_wave->SetParamater(parameters);
     wave.resize(183);// 48000/261.6
     double throw_away;
     for (size_t i = 0;i < wave.size();i++)
-        wave[i] = source_wave->Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away));
+        wave[i] = source_wave->Utterance(std::modf((double)i / (double)wave.size() * 2.0, &throw_away) * 2.0 * M_PI);
 
     wxStaticBoxSizer* sourceSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Liljencrants-Fant Model"));
     wxSizer* pitch_sliderSizer = new wxBoxSizer(wxHORIZONTAL);

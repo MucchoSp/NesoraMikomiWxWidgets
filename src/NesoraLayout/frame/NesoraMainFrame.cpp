@@ -61,7 +61,6 @@ nsMainFrame::nsMainFrame()
 
 void nsMainFrame::menuSetup() {
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, _("&Hello...\tCtrl-H"), _("Help string shown in status bar for this menu item"));
     menuFile->Append(wxID_SAVE, _("&Save\tCtrl-S"), _("Save the current file"));
     menuFile->Append(wxID_OPEN, _("&Open...\tCtrl-O"), _("Open a file"));
     menuFile->AppendSeparator();
@@ -80,7 +79,6 @@ void nsMainFrame::menuSetup() {
 
     SetMenuBar(menuBar);
 
-    Bind(wxEVT_MENU, &nsMainFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &nsMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &nsMainFrame::OnExit, this, wxID_EXIT);
     // Bind(wxEVT_MENU, &nsMainFrame::OnSave, this, wxID_SAVE);
@@ -99,12 +97,7 @@ void nsMainFrame::OnExit(wxCommandEvent& event) {
 }
 
 void nsMainFrame::OnAbout(wxCommandEvent& event) {
-    wxMessageBox("This is a wxWidgets' Hello world sample",
-        "About Hello World", wxOK | wxICON_INFORMATION);
-}
-
-void nsMainFrame::OnHello(wxCommandEvent& event) {
-    wxLogMessage("Hello world from wxWidgets!");
+    wxMessageBox("Nesora 1-0\nCopyright (c) 2026 MucchoSP", "About", wxOK);
 }
 
 void nsMainFrame::OnSingButton(wxCommandEvent& event) {

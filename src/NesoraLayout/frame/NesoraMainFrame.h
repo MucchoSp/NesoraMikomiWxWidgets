@@ -50,7 +50,6 @@ private:
 
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
-    void OnHello(wxCommandEvent& event);
     void OnSingButton(wxCommandEvent& event);
     void OnSpeakButton(wxCommandEvent& event);
     void OnMakeButton(wxCommandEvent& event);

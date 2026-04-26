@@ -1,6 +1,8 @@
 [submodule "lib/pocketfft"]
 	path = lib/pocketfft
 	url = https://github.com/mreineck/pocketfft
+	ignore = dirty
 [submodule "lib/wxWidgets"]
 	path = lib/wxWidgets
 	url = https://github.com/wxWidgets/wxWidgets
+	ignore = dirty

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 cmake_minimum_required(VERSION 3.10.0)
+# set(FETCHCONTENT_FULLY_DISCONNECTED ON) # ネットワークへのアクセスができない時にもビルドできるようにする
 project(NesoraMikomi VERSION 0.1.0 LANGUAGES C CXX)
 
 # Request the required wxWidgets libs

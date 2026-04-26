@@ -198,6 +198,8 @@ void NesoraMIDISplineScript::LoadData(const std::vector<unsigned char>& data) {
 
 // ピッチカーブの計算
 double CalculatePitchLineValue(NesoraPitchCurveType curveType, double t) {
+    if (t < 0.0) t = 0.0;
+    if (t > 1.0) t = 1.0;
     switch (curveType) {
         case NesoraPitchCurveType::LINEAR:
             return t;
@@ -224,16 +226,33 @@ double NesoraMIDIPhoneticalScript::GetPitch(double t) {
         if (t >= noteStartTime and t <= noteEndTime) {
             // 現在のノートの範囲内
             double localT = t - noteStartTime;
-            if (i < notes.size() - 1 and localT > note.length - notes[i + 1].frontPitchMoveTimming) {
+            if (i < notes.size() - 1 and (localT > note.length - (note.preparationTime + notes[i + 1].frontPitchMoveTimming))) {
                 // 次のノートのピッチ移行の範囲内
                 if (t >= noteEndTime - notes[i + 1].frontPitchMoveTimming) {
                     double curveT = (t - (noteEndTime - notes[i + 1].frontPitchMoveTimming)) / notes[i + 1].frontPitchMoveTime;
-                    return CalculatePitchLineValue(notes[i + 1].frontPitchMoveCurve, curveT) * (notes[i + 1].pitch - note.pitch) + note.pitch;
+                    double preparationPitch = note.pitch * (1.0 - std::pow(2.0, note.preparationPitch / 1200.0)) * ((i > 0) ? ((note.pitch < notes[i + 1].pitch) ? 1.0 : -1.0) : 1.0); // centを周波数に変換
+                    double startPitch = note.pitch + preparationPitch;
+                    double overshootPitch = notes[i + 1].pitch * (1.0 - std::pow(2.0, notes[i + 1].overshootPitch / 1200.0)) * ((i > 0) ? ((note.pitch < notes[i + 1].pitch) ? -1.0 : 1.0) : 1.0); // centを周波数に変換
+                    double endPitch = notes[i + 1].pitch + overshootPitch;
+                    return CalculatePitchLineValue(notes[i + 1].frontPitchMoveCurve, curveT) * (endPitch - startPitch) + startPitch;
+                } else {
+                    double curveT = (localT - (note.length - (note.preparationTime + notes[i + 1].frontPitchMoveTimming))) / note.preparationTime;
+                    double preparationPitch = note.pitch * (1.0 - std::pow(2.0, note.preparationPitch / 1200.0)) * ((i > 0) ? ((note.pitch < notes[i + 1].pitch) ? 1.0 : -1.0) : 1.0); // centを周波数に変換
+                    return CalculatePitchLineValue(notes[i + 1].frontPitchMoveCurve, curveT) * preparationPitch + note.pitch;
                 }
             } else if (localT < (note.frontPitchMoveTime - note.frontPitchMoveTimming)) {
                 // ピッチ移行中
-                double curveT = (localT - (note.frontPitchMoveTimming + note.frontPitchMoveTime)) / (note.frontPitchMoveTime);
-                return CalculatePitchLineValue(note.frontPitchMoveCurve, curveT) * (note.pitch - ((i > 0) ? notes[i - 1].pitch : note.pitch)) + ((i > 0) ? notes[i - 1].pitch : note.pitch);
+                double curveT = (localT - (note.frontPitchMoveTime - note.frontPitchMoveTimming)) / note.frontPitchMoveTime + 1.0;
+                double overshootPitch = note.pitch * (1.0 - std::pow(2.0, note.overshootPitch / 1200.0)) * ((i > 0) ? ((notes[i - 1].pitch < note.pitch) ? -1.0 : 1.0) : 1.0); // centを周波数に変換
+                double endPitch = note.pitch + overshootPitch;
+                double preparationPitch = notes[i - 1].pitch * (1.0 - std::pow(2.0, notes[i - 1].preparationPitch / 1200.0)) * ((i > 0) ? ((notes[i - 1].pitch < note.pitch) ? 1.0 : -1.0) : 1.0); // centを周波数に変換
+                double startPitch = (i > 0) ? notes[i - 1].pitch + preparationPitch : endPitch;
+                return CalculatePitchLineValue(note.frontPitchMoveCurve, curveT) * (endPitch - startPitch) + startPitch;
+            } else if (localT < (note.frontPitchMoveTime - note.frontPitchMoveTimming) + note.overshootTime) {
+                // オーバーシュート中
+                double overshootT = 1.0 - (localT - (note.frontPitchMoveTime - note.frontPitchMoveTimming)) / note.overshootTime;
+                double overshootPitch = note.pitch * (1.0 - std::pow(2.0, note.overshootPitch / 1200.0)) * ((i > 0) ? ((notes[i - 1].pitch < note.pitch) ? -1.0 : 1.0) : 1.0); // centを周波数に変換
+                return CalculatePitchLineValue(note.frontPitchMoveCurve, overshootT) * overshootPitch + note.pitch;
             } else if (localT < note.modulationStartTime) {
                 // モジュレーション前
                 return note.pitch;
@@ -241,6 +260,9 @@ double NesoraMIDIPhoneticalScript::GetPitch(double t) {
                 // モジュレーション中
                 double modulationT = localT - note.modulationStartTime;
                 double modulationStrength = note.pitch * (1.0 - std::pow(2.0, note.modulationStrength / 1200.0 / 2.0)); // centを周波数に変換
+                double modulationFadeIn = (localT < note.modulationStartTime + note.modulationFadeInTime) ? (modulationT / note.modulationFadeInTime) : 1.0;
+                double modulationFadeOut = (localT > note.length - note.modulationFadeOutTime) ? ((note.length - localT) / note.modulationFadeOutTime) : 1.0;
+                modulationStrength *= std::min(modulationFadeIn, modulationFadeOut); // フェードを適用
                 double modulationValue = modulationStrength * sin(2.0 * M_PI * note.modulationFrequency * modulationT / 1000.0);
                 return note.pitch + modulationValue;
             }

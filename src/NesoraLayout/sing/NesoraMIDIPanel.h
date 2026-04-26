@@ -140,7 +140,7 @@ private:
     constexpr static double uvLengthMax = 1.0;
     constexpr static double svLengthMax = 1.0;
     constexpr static double frontPitchMoveTimeMax = 1000.0;
-    constexpr static double frontPitchMoveTimmingMax = 100.0;
+    constexpr static double frontPitchMoveTimmingMax = 1000.0;
     constexpr static double modulationStrengthMax = 100.0;
     constexpr static double modulationFrequencyMax = 20.0;
     constexpr static double modulationStartTimeMax = 2000.0;

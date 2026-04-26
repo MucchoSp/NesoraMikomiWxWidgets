@@ -230,14 +230,14 @@ double NesoraMIDIPhoneticalScript::GetPitch(double t) {
                 // 次のノートのピッチ移行の範囲内
                 if (t >= noteEndTime - notes[i + 1].frontPitchMoveTimming) {
                     double curveT = (t - (noteEndTime - notes[i + 1].frontPitchMoveTimming)) / notes[i + 1].frontPitchMoveTime;
-                    double preparationPitch = note.pitch * (1.0 - std::pow(2.0, note.preparationPitch / 1200.0)) * ((i > 0) ? ((note.pitch < notes[i + 1].pitch) ? 1.0 : -1.0) : 1.0); // centを周波数に変換
-                    double startPitch = note.pitch + preparationPitch;
-                    double overshootPitch = notes[i + 1].pitch * (1.0 - std::pow(2.0, notes[i + 1].overshootPitch / 1200.0)) * ((i > 0) ? ((note.pitch < notes[i + 1].pitch) ? -1.0 : 1.0) : 1.0); // centを周波数に変換
+                    double overshootPitch = notes[i + 1].pitch * (1.0 - std::pow(2.0, notes[i + 1].overshootPitch / 1200.0)) * ((note.pitch < notes[i + 1].pitch) ? -1.0 : 1.0); // centを周波数に変換
                     double endPitch = notes[i + 1].pitch + overshootPitch;
+                    double preparationPitch = note.pitch * (1.0 - std::pow(2.0, note.preparationPitch / 1200.0)) * ((note.pitch < notes[i + 1].pitch) ? 1.0 : -1.0); // centを周波数に変換
+                    double startPitch = note.pitch + preparationPitch;
                     return CalculatePitchLineValue(notes[i + 1].frontPitchMoveCurve, curveT) * (endPitch - startPitch) + startPitch;
                 } else {
                     double curveT = (localT - (note.length - (note.preparationTime + notes[i + 1].frontPitchMoveTimming))) / note.preparationTime;
-                    double preparationPitch = note.pitch * (1.0 - std::pow(2.0, note.preparationPitch / 1200.0)) * ((i > 0) ? ((note.pitch < notes[i + 1].pitch) ? 1.0 : -1.0) : 1.0); // centを周波数に変換
+                    double preparationPitch = note.pitch * (1.0 - std::pow(2.0, note.preparationPitch / 1200.0)) * ((note.pitch < notes[i + 1].pitch) ? 1.0 : -1.0); // centを周波数に変換
                     return CalculatePitchLineValue(notes[i + 1].frontPitchMoveCurve, curveT) * preparationPitch + note.pitch;
                 }
             } else if (localT < (note.frontPitchMoveTime - note.frontPitchMoveTimming)) {

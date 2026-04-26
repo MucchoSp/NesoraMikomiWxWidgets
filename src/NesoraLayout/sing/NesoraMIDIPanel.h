@@ -24,11 +24,23 @@
 
 #include "../../Nesora/Nesora.h"
 
+enum class MidiNoteBoxControlPointID {
+    None,
+    FrontPitchMoveTimmingControlPoint,
+    OvershootPitchControlPoint,
+    PreparationPitchControlPoint,
+    ModulationControlPoint,
+    ModulationFrequencyControlPoint,
+    ModulationFadeInTimeControlPoint,
+    ModulationFadeOutTimeControlPoint,
+};
+
 // ノート（音符）を管理する構造体
 struct MidiNoteBox {
     int id;
     
     NesoraMidiNotePhoneticalInfo note; // MIDIノートの情報（ピッチ、開始時間、長さなど）
+    std::map<MidiNoteBoxControlPointID, wxRect2DDouble> controlPoints; // コントロールポイントの位置とサイズ
 
     wxRect2DDouble rect;  // 描画領域（当たり判定用）
     wxRect2DDouble startRectBuffer;  // 描画領域（バッファー用）
@@ -45,7 +57,8 @@ enum class NesoraPianoRollCanvasMouseDragState {
     AddNote,
     SelectingRange, // 範囲選択中
     DraggingNotes,  // ノート移動中
-    ResizingNote    // ノートの長さ変更中
+    ResizingNote,    // ノートの長さ変更中
+    ControlPointDragging // 操作点をドラッグ中
 };
 
 const int NESORA_MIDI_PANEL_NOTE_HEIGHT = 20; // 1鍵あたりの高さ
@@ -225,7 +238,10 @@ private:
     bool tookAction = false;        // ドラッグ操作中に実際にノートの追加や移動などのアクションが発生したか
     bool isNotePreview = true;      // プレビュー表示するかどうか(仮)
     std::atomic<double> playbackTimeInSec{0.0}; // 再生位置ライン用の現在時刻(秒)
-    double playbackVisualDelayInSec = 0.05;      // 実際の出音遅延を見越した表示補正(秒)
+    double playbackVisualDelayInSec = 0.05;     // 実際の出音遅延を見越した表示補正(秒)
+
+    int selectedNoteIdx = -1;                   // 現在選択されているノートのインデックス
+    MidiNoteBoxControlPointID draggingControlPointIdx;      //ドラッグ中の操作点のインデックス
 
     NesoraPianoRollCanvasMouseDragState mouseDragState = NesoraPianoRollCanvasMouseDragState::None;
     
@@ -238,9 +254,12 @@ private:
     std::vector<int> GetSelectedNoteOrder() const;
     int GetNextSelectedNoteIndex(int currentNoteIdx) const;
     void ResolveOverlaps();
+    void PitchControlPointUpdate();
+    void PitchLineUpdate();
 
     void NoteSelectClear();
     void ChangeSelectNote();
+    MidiNoteBox CreateNewMidiNoteBox(MidiNoteBox box);
 
     void OnPaint(wxPaintEvent& event);
     void OnLeftDown(wxMouseEvent& event);

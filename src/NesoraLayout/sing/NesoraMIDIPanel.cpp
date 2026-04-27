@@ -120,9 +120,9 @@ MidiNoteBox NesoraPianoRollCanvas::CreateNewMidiNoteBox(MidiNoteBox box) {
     box.controlPoints[MidiNoteBoxControlPointID::PreparationPitchControlPoint] = wxRect2DDouble(box.rect.m_x + box.rect.m_width - TimeToPixel(box.note.preparationTime, pixelPerBeet * bpm / 60.0) + box.rect.m_x - 5,
                                                                                                             box.note.preparationPitch * NESORA_MIDI_PANEL_NOTE_HEIGHT / 100.0 + box.rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
     box.controlPoints[MidiNoteBoxControlPointID::ModulationControlPoint] = wxRect2DDouble(TimeToPixel(box.note.modulationStartTime, pixelPerBeet * bpm / 60.0) + box.rect.m_x - 5,
-                                                                                                      box.note.modulationStrength * NESORA_MIDI_PANEL_NOTE_HEIGHT / 100.0 + box.rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
+                                                                                                      box.rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
     box.controlPoints[MidiNoteBoxControlPointID::ModulationFrequencyControlPoint] = wxRect2DDouble(TimeToPixel(box.note.modulationStartTime + 1000.0 / box.note.modulationFrequency, pixelPerBeet * bpm / 60.0) + box.rect.m_x - 5,
-                                                                                                               box.rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
+                                                                                                               box.note.modulationStrength * NESORA_MIDI_PANEL_NOTE_HEIGHT / 100.0 + box.rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
     box.controlPoints[MidiNoteBoxControlPointID::ModulationFadeInTimeControlPoint] = wxRect2DDouble(TimeToPixel(box.note.modulationStartTime + box.note.modulationFadeInTime, pixelPerBeet * bpm / 60.0) + box.rect.m_x - 5,
                                                                                                                 box.rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
     box.controlPoints[MidiNoteBoxControlPointID::ModulationFadeOutTimeControlPoint] = wxRect2DDouble(TimeToPixel(box.note.length - box.note.preparationTime - box.note.modulationFadeOutTime, pixelPerBeet * bpm / 60.0) + box.rect.m_x - 5,
@@ -583,8 +583,8 @@ void NesoraPianoRollCanvas::Init() {
     
     // スクロール範囲の設定(横: 4小節, 縦: 128鍵分 * 20px)
     screenWidth = pixelPerBeet * timeSignatureNumerator * 4.0;
-    screenHeight = 128 * 20;
-    SetScrollbars(ppux, ppuy, screenWidth / ppux, screenHeight / ppuy);
+    screenHeight = NESORA_MIDI_PANEL_KEY_COUNT * NESORA_MIDI_PANEL_NOTE_HEIGHT;
+    SetScrollbars(ppux, ppuy, screenWidth / ppux, screenHeight / ppuy, 0, screenHeight / 2.0 / ppuy);
 
     // イベントバインド
     Bind(wxEVT_PAINT, &NesoraPianoRollCanvas::OnPaint, this);
@@ -806,9 +806,9 @@ void NesoraPianoRollCanvas::PitchControlPointUpdate() {
     notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::PreparationPitchControlPoint] = wxRect2DDouble(notes[selectedNoteIdx].rect.m_width - TimeToPixel(notes[selectedNoteIdx].note.preparationTime, pixelPerBeet * bpm / 60.0) + notes[selectedNoteIdx].rect.m_x - 5,
                                                                                                             notes[selectedNoteIdx].note.preparationPitch * NESORA_MIDI_PANEL_NOTE_HEIGHT / 100.0 + notes[selectedNoteIdx].rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
     notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationControlPoint] = wxRect2DDouble(TimeToPixel(notes[selectedNoteIdx].note.modulationStartTime, pixelPerBeet * bpm / 60.0) + notes[selectedNoteIdx].rect.m_x - 5,
-                                                                                                      notes[selectedNoteIdx].note.modulationStrength * NESORA_MIDI_PANEL_NOTE_HEIGHT / 100.0 + notes[selectedNoteIdx].rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
+                                                                                                      notes[selectedNoteIdx].rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
     notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationFrequencyControlPoint] = wxRect2DDouble(TimeToPixel(notes[selectedNoteIdx].note.modulationStartTime + 1000.0 / notes[selectedNoteIdx].note.modulationFrequency, pixelPerBeet * bpm / 60.0) + notes[selectedNoteIdx].rect.m_x - 5,
-                                                                                                               notes[selectedNoteIdx].rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
+                                                                                                               -notes[selectedNoteIdx].note.modulationStrength * NESORA_MIDI_PANEL_NOTE_HEIGHT / 100.0 + notes[selectedNoteIdx].rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
     notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationFadeInTimeControlPoint] = wxRect2DDouble(TimeToPixel(notes[selectedNoteIdx].note.modulationStartTime + notes[selectedNoteIdx].note.modulationFadeInTime, pixelPerBeet * bpm / 60.0) + notes[selectedNoteIdx].rect.m_x - 5,
                                                                                                                 notes[selectedNoteIdx].rect.m_y - 5 + NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0, 10, 10);
     notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationFadeOutTimeControlPoint] = wxRect2DDouble(TimeToPixel(notes[selectedNoteIdx].note.length - notes[selectedNoteIdx].note.preparationTime - notes[selectedNoteIdx].note.modulationFadeOutTime, pixelPerBeet * bpm / 60.0) + notes[selectedNoteIdx].rect.m_x - 5,
@@ -826,31 +826,31 @@ void NesoraPianoRollCanvas::PitchLineUpdate() {
         break;
         case MidiNoteBoxControlPointID::OvershootPitchControlPoint: {
             notes[selectedNoteIdx].note.frontPitchMoveTime = PixelToTime(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - notes[selectedNoteIdx].rect.m_x + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width / 2.0, pixelPerBeet * bpm / 60.0) + notes[selectedNoteIdx].note.frontPitchMoveTimming;
-            notes[selectedNoteIdx].note.overshootPitch = (notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_y - notes[selectedNoteIdx].rect.m_y + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_height / 2.0) * 100.0 / NESORA_MIDI_PANEL_NOTE_HEIGHT;
+            notes[selectedNoteIdx].note.overshootPitch = (notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_y - notes[selectedNoteIdx].rect.m_y + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_height / 2.0  - NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0) * 100.0 / NESORA_MIDI_PANEL_NOTE_HEIGHT;
         }
         break;
         case MidiNoteBoxControlPointID::ModulationControlPoint: {
             notes[selectedNoteIdx].note.modulationStartTime = PixelToTime(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - notes[selectedNoteIdx].rect.m_x + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width / 2.0, pixelPerBeet * bpm / 60.0);
-            notes[selectedNoteIdx].note.modulationStrength = std::abs(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_y - notes[selectedNoteIdx].rect.m_y + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_height / 2.0) * 100.0 / NESORA_MIDI_PANEL_NOTE_HEIGHT;
             notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationFrequencyControlPoint].m_x = TimeToPixel(notes[selectedNoteIdx].note.modulationStartTime + 1000.0 / notes[selectedNoteIdx].note.modulationFrequency, pixelPerBeet * bpm / 60.0) + notes[selectedNoteIdx].rect.m_x - 5;
             notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationFadeInTimeControlPoint].m_x = TimeToPixel(notes[selectedNoteIdx].note.modulationStartTime + notes[selectedNoteIdx].note.modulationFadeInTime, pixelPerBeet * bpm / 60.0) + notes[selectedNoteIdx].rect.m_x - 5;
         }
         break;
         case MidiNoteBoxControlPointID::ModulationFrequencyControlPoint: {
-            notes[selectedNoteIdx].note.modulationFrequency = 1000.0 / PixelToTime(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationControlPoint].m_x + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width / 2.0, pixelPerBeet * bpm / 60.0);
+            notes[selectedNoteIdx].note.modulationFrequency = 1000.0 / PixelToTime(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationControlPoint].m_x - 5 + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width / 2.0, pixelPerBeet * bpm / 60.0);
+            notes[selectedNoteIdx].note.modulationStrength = std::abs(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_y - notes[selectedNoteIdx].rect.m_y + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_height / 2.0 - NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0) * 100.0 / NESORA_MIDI_PANEL_NOTE_HEIGHT;
         }
         break;
         case MidiNoteBoxControlPointID::ModulationFadeInTimeControlPoint: {
-            notes[selectedNoteIdx].note.modulationFadeInTime = PixelToTime(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationControlPoint].m_x + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width / 2.0, pixelPerBeet * bpm / 60.0);
+            notes[selectedNoteIdx].note.modulationFadeInTime = PixelToTime(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::ModulationControlPoint].m_x - 5 + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width / 2.0, pixelPerBeet * bpm / 60.0);
         }
         break;
         case MidiNoteBoxControlPointID::ModulationFadeOutTimeControlPoint: {
-            notes[selectedNoteIdx].note.modulationFadeOutTime = PixelToTime(-(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::PreparationPitchControlPoint].m_x + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width / 2.0), pixelPerBeet * bpm / 60.0);
+            notes[selectedNoteIdx].note.modulationFadeOutTime = PixelToTime(-(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - notes[selectedNoteIdx].controlPoints[MidiNoteBoxControlPointID::PreparationPitchControlPoint].m_x - 5 + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width / 2.0), pixelPerBeet * bpm / 60.0);
         }
         break;
         case MidiNoteBoxControlPointID::PreparationPitchControlPoint: {
             notes[selectedNoteIdx].note.preparationTime = PixelToTime(-(notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - (notes[selectedNoteIdx].rect.m_x + notes[selectedNoteIdx].rect.m_width) + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width / 2.0), pixelPerBeet * bpm / 60.0);
-            notes[selectedNoteIdx].note.preparationPitch = (notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_y - notes[selectedNoteIdx].rect.m_y + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_height / 2.0) * 100.0 / NESORA_MIDI_PANEL_NOTE_HEIGHT;
+            notes[selectedNoteIdx].note.preparationPitch = (notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_y - notes[selectedNoteIdx].rect.m_y - notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_height / 2.0) * 100.0 / NESORA_MIDI_PANEL_NOTE_HEIGHT;
         }
         default:
         break;
@@ -995,10 +995,55 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
         if (selectedNoteIdx != -1 && selectedNoteIdx < (int)notes.size()) {
             gc->SetPen(wxPen(nsGetColor(nsColorType::PRIMARY), 2));
             gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
-            for (const auto& controlPoint : notes[selectedNoteIdx].controlPoints)
+            for (const auto& controlPoint : notes[selectedNoteIdx].controlPoints) {
                 gc->DrawEllipse(controlPoint.second.m_x, controlPoint.second.m_y, controlPoint.second.m_width, controlPoint.second.m_height);
+            }
         }
 
+        // 操作点のパラメータ
+        gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
+        gc->SetPen(wxPen(nsGetColor(nsColorType::BACKGROUND_SHADOW)));
+        gc->SetFont(font, nsGetColor(nsColorType::ON_BACKGROUND));
+        if(selectedNoteIdx != -1 and draggingControlPointIdx != MidiNoteBoxControlPointID::None){
+            wxString outputString = "Error";
+            switch (draggingControlPointIdx) {
+            case MidiNoteBoxControlPointID::FrontPitchMoveTimmingControlPoint: {
+                outputString = wxString::Format(_("Pitch move start(%0.2fms)"), notes[selectedNoteIdx].note.frontPitchMoveTimming);
+            }
+            break;
+            case MidiNoteBoxControlPointID::OvershootPitchControlPoint: {
+                outputString = wxString::Format(_("Overshoot(%0.2fms, %0.2fcent)"), notes[selectedNoteIdx].note.frontPitchMoveTime, notes[selectedNoteIdx].note.overshootPitch);
+            }
+            break;
+            case MidiNoteBoxControlPointID::ModulationControlPoint: {
+                outputString = wxString::Format(_("Modulation start(%0.2fms)"), notes[selectedNoteIdx].note.modulationStartTime);
+            }
+            break;
+            case MidiNoteBoxControlPointID::ModulationFrequencyControlPoint: {
+                outputString = wxString::Format(_("Modulation frequency(%0.2fHz, %0.2fcent)"), notes[selectedNoteIdx].note.modulationFrequency, notes[selectedNoteIdx].note.modulationStrength);
+            }
+            break;
+            case MidiNoteBoxControlPointID::ModulationFadeInTimeControlPoint: {
+                outputString = wxString::Format(_("Modulation fade in(%0.2fms)"), notes[selectedNoteIdx].note.modulationFadeInTime);
+            }
+            break;
+            case MidiNoteBoxControlPointID::ModulationFadeOutTimeControlPoint: {
+                outputString = wxString::Format(_("Modulation fade out(%0.2fms)"), notes[selectedNoteIdx].note.modulationFadeOutTime);
+            }
+            break;
+            case MidiNoteBoxControlPointID::PreparationPitchControlPoint: {
+                outputString = wxString::Format(_("Preparation(%0.2fms, %0.2fcent)"), notes[selectedNoteIdx].note.preparationTime, notes[selectedNoteIdx].note.preparationPitch);
+            }
+            default:
+            break;
+            }
+            double tw, th;
+            gc->GetTextExtent(outputString, &tw, &th);
+            int x = notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width + tw < size.GetWidth() ? notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_width : notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_x - tw;
+            int y = notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_y + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_height + th < size.GetHeight() ? notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_y + notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_height : notes[selectedNoteIdx].controlPoints[draggingControlPointIdx].m_y - th;
+            gc->DrawRectangle(x, y, tw, th);
+            gc->DrawText(outputString, x, y);
+        }
         delete gc;
     }
 }
@@ -1113,6 +1158,7 @@ void NesoraPianoRollCanvas::OnMouseMove(wxMouseEvent& event) {
                 if (controlPoint.second.Contains(mousePos)) {
                     draggingControlPointIdx = controlPoint.first;
                     onControlPoint = true;
+                    SetCursor(wxNullCursor); // 通常カーソル
                     break;
                 }
             }

@@ -129,7 +129,7 @@ inline wxColour nsGetColor(nsColorType type) {
             case nsColorType::BACKGROUND_HOVER:
                 return wxColour(0x21, 0x28, 0x4C);
             case nsColorType::BACKGROUND_SHADOW:
-                return wxColour(0x00, 0x00, 0x00, 0x1F);
+                return wxColour(0xFF, 0xFF, 0xFF, 0x1F);
             case nsColorType::ON_BACKGROUND:
                 return wxColour(0xF9, 0xFD, 0xFF);
             case nsColorType::ON_BACKGROUND_THIN:

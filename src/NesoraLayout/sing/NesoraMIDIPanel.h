@@ -203,7 +203,14 @@ public:
     void ClearPlaybackLine();
     bool IsLyricEditing() const;
 
-    void SetLinkedPianoKeys(NesoraPianoKeys* keys) { m_linkedKeys = keys; }
+    void SetLinkedPianoKeys(NesoraPianoKeys* keys) {
+        m_linkedKeys = keys;
+        int x, y;
+        GetViewStart(&x, &y);
+        int ppux, ppuy;
+        GetScrollPixelsPerUnit(&ppux, &ppuy);
+        m_linkedKeys->SetScrollOffset(y * ppuy);
+    }
     void SetLinkedTimeline(NesoraTimeline* timeline) { m_linkedTimeline = timeline; }
     void SetLinkedMIDINoteEditor(NesoraPhoneticalMIDINoteEditor* editor);
 private:

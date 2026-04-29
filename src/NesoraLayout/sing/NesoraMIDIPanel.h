@@ -61,9 +61,8 @@ enum class NesoraPianoRollCanvasMouseDragState {
     ControlPointDragging // 操作点をドラッグ中
 };
 
-const int NESORA_MIDI_PANEL_NOTE_HEIGHT = 20; // 1鍵あたりの高さ
+const double NESORA_MIDI_PANEL_A4_KEY_Y = 59.5; //上から数えたA4の場所
 const int NESORA_MIDI_PANEL_KEY_COUNT = 128; // 鍵の数
-const double NESORA_MIDI_PANEL_A4_KEY_Y = 1160.0 - NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0; // A4の鍵のY座標
 const double NESORA_MIDI_PANEL_QUANTIME_WIDTH = 32.0;
 const double NESORA_MIDI_PANEL_RESIZE_HANDLE_WIDTH = 8.0; // 右端の判定幅(px)
 
@@ -171,9 +170,11 @@ public:
         Bind(wxEVT_PAINT, &NesoraPianoKeys::OnPaint, this);
     }
     void SetScrollOffset(int yOffset) { m_yOffset = yOffset; Refresh(); }
+    void SetNoteHeight(double noteHeight) { m_noteHeight = noteHeight; }
 private:
     void OnPaint(wxPaintEvent& event);
     int m_yOffset = 0;
+    double m_noteHeight = 20;
 };
 
 class NesoraTimeline : public wxWindow {
@@ -241,6 +242,9 @@ private:
     double timeSignatureNumerator = 4.0;    // 拍子の分子
     double timeSignatureDenominator = 4.0;  // 拍子の分母
 
+    double pixelPerNote = 20;          // 1鍵あたりの高さ
+    double A4KeyY = NESORA_MIDI_PANEL_A4_KEY_Y * 20; // A4の鍵のY座標
+
     bool isAddNote = false;         // ノート追加モードかどうか
     bool tookAction = false;        // ドラッグ操作中に実際にノートの追加や移動などのアクションが発生したか
     bool isNotePreview = true;      // プレビュー表示するかどうか(仮)
@@ -276,6 +280,11 @@ private:
     void OnRightUp(wxMouseEvent& event);
     void OnMouseMove(wxMouseEvent& event);
     void OnSize(wxSizeEvent& event);
+    void OnZoom(wxZoomGestureEvent& event);
+    void OnMouseWheel(wxMouseEvent& event);
+    void OnKeyDown(wxKeyEvent& event);
+    void OnScroll(wxScrollWinEvent& event);
+    void OnMagnify(wxMouseEvent& event);
 
     void BeginLyricEdit(int noteIdx);
     void EndLyricEdit(bool commit);
@@ -286,8 +295,7 @@ private:
 
     void SetScrollWidth();
 
-    void OnKeyDown(wxKeyEvent& event);
-    void OnScroll(wxScrollWinEvent& event);
+    void DoZoom(int deltax, int deltay, const wxPoint2DDouble center);
 };
 
 class nsMIDIControl : public wxWindow {

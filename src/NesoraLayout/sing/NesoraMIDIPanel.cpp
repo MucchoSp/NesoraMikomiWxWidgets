@@ -983,6 +983,8 @@ void NesoraPianoRollCanvas::DoZoom(int deltax, int deltay, const wxPoint2DDouble
     m_linkedTimeline->SetScrollOffset(newViewXPx);
     m_linkedKeys->SetNoteHeight(pixelPerNote);
     m_linkedKeys->SetScrollOffset(newViewYUnits * ppuy);
+
+    quantizeWidth = pixelPerBeet / std::pow(2.0, std::floor(std::sqrt(pixelPerBeet / NESORA_MIDI_PANEL_QUANTIME_MIN_WIDTH)));
 }
 
 // MARK: OnPaint
@@ -1204,7 +1206,7 @@ void NesoraPianoRollCanvas::OnMouseMove(wxMouseEvent& event) {
         case NesoraPianoRollCanvasMouseDragState::ResizingNote: {
             for (auto& note : notes) {
                 if (note.isSelected) {
-                    note.rect.m_width = note.startRectBuffer.m_x + std::floor((mousePos.m_x - startMousePos.m_x) / NESORA_MIDI_PANEL_QUANTIME_WIDTH) * NESORA_MIDI_PANEL_QUANTIME_WIDTH - note.startRectBuffer.m_x + note.startRectBuffer.m_width;
+                    note.rect.m_width = note.startRectBuffer.m_x + std::floor((mousePos.m_x - startMousePos.m_x) / quantizeWidth) * quantizeWidth - note.startRectBuffer.m_x + note.startRectBuffer.m_width;
                     if (note.rect.m_width < 0) {
                         note.rect.m_width *= -1;
                         note.rect.m_x = note.startRectBuffer.m_x - note.rect.m_width;
@@ -1372,8 +1374,8 @@ void NesoraPianoRollCanvas::OnLeftUp(wxMouseEvent& event) {
     wxPoint2DDouble mousePos = GetMousePos(event);
     // ノートの長さがフレーズよりも短かったら削除
     notes.erase(
-        std::remove_if(notes.begin(), notes.end(), [](MidiNoteBox value) {
-            return std::abs(value.rect.m_width) < NESORA_MIDI_PANEL_QUANTIME_WIDTH;
+        std::remove_if(notes.begin(), notes.end(), [&](MidiNoteBox value) {
+            return std::abs(value.rect.m_width) < quantizeWidth;
             }),
         notes.end()
     );
@@ -1441,8 +1443,8 @@ void NesoraPianoRollCanvas::OnRightUp(wxMouseEvent& event) {
 
     // ノートの長さがフレーズよりも短かったら削除
     notes.erase(
-        std::remove_if(notes.begin(), notes.end(), [](MidiNoteBox value) {
-            return std::abs(value.rect.m_width) < NESORA_MIDI_PANEL_QUANTIME_WIDTH;
+        std::remove_if(notes.begin(), notes.end(), [&](MidiNoteBox value) {
+            return std::abs(value.rect.m_width) < quantizeWidth;
             }),
         notes.end()
     );

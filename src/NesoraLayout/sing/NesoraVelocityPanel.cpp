@@ -18,9 +18,9 @@ void nsVelocityControl::OnPaint(wxPaintEvent& event) {
             velocities.resize(128, 0.5);
         }
         for (size_t i = 0; i < velocities.size(); i++) {
-            double x = i * NESORA_MIDI_PANEL_QUANTIME_WIDTH;
+            double x = i * NESORA_MIDI_PANEL_QUANTIME_MIN_WIDTH;
             double y = size.GetHeight() * (1.0 - velocities[i]);
-            double w = NESORA_MIDI_PANEL_QUANTIME_WIDTH;
+            double w = NESORA_MIDI_PANEL_QUANTIME_MIN_WIDTH;
             double h = size.GetHeight() * velocities[i];
 
             gc->SetBrush(wxBrush(nsGetColor(nsColorType::PRIMARY)));

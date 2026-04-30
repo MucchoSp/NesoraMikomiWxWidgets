@@ -63,7 +63,7 @@ enum class NesoraPianoRollCanvasMouseDragState {
 
 const double NESORA_MIDI_PANEL_A4_KEY_Y = 59.5; //上から数えたA4の場所
 const int NESORA_MIDI_PANEL_KEY_COUNT = 128; // 鍵の数
-const double NESORA_MIDI_PANEL_QUANTIME_WIDTH = 32.0;
+const double NESORA_MIDI_PANEL_QUANTIME_MIN_WIDTH = 32.0;
 const double NESORA_MIDI_PANEL_RESIZE_HANDLE_WIDTH = 8.0; // 右端の判定幅(px)
 
 class NesoraPhoneticalMIDINoteEditor : public wxWindow {
@@ -241,6 +241,7 @@ private:
     double scriptLengthInBar = 9.0;         // スクリプトの長さ（小節数）
     double timeSignatureNumerator = 4.0;    // 拍子の分子
     double timeSignatureDenominator = 4.0;  // 拍子の分母
+    double quantizeWidth = 32;              // グリッドの幅
 
     double pixelPerNote = 20;          // 1鍵あたりの高さ
     double A4KeyY = NESORA_MIDI_PANEL_A4_KEY_Y * 20; // A4の鍵のY座標

@@ -66,103 +66,6 @@ const int NESORA_MIDI_PANEL_KEY_COUNT = 128; // 鍵の数
 const double NESORA_MIDI_PANEL_QUANTIME_MIN_WIDTH = 32.0;
 const double NESORA_MIDI_PANEL_RESIZE_HANDLE_WIDTH = 8.0; // 右端の判定幅(px)
 
-class NesoraPhoneticalMIDINoteEditor : public wxWindow {
-public:
-    NesoraPhoneticalMIDINoteEditor(wxWindow* parent) : wxWindow(parent, wxID_ANY) {
-        Init();
-    }
-    void EditNote(MidiNoteBox* note);
-    void BindNoteUpdateEvent(std::function<void()>handler);
-    void SetParentSizer(wxSizer* sizer) { parentSizer = sizer; }
-private:
-    void Init();
-    void OnPaint(wxPaintEvent& event);
-    MidiNoteBox* note;
-    std::function<void()> m_noteUpdateHandler;
-
-    wxSizer* parentSizer = nullptr;
-
-    wxTextCtrl* lyricEditor = nullptr;
-    
-    wxStaticText* frontOverlap_param;
-    wxStaticText* backOverlap_param;
-    wxStaticText* strength_param;
-    wxStaticText* frontTransitionTime_param;
-    wxStaticText* backTransitionTime_param;
-    wxStaticText* cl_length_param;
-    wxStaticText* uv_length_param;
-    wxStaticText* sv_length_param;
-    wxStaticText* frontPitchMoveTime_param;
-    wxStaticText* frontPitchMoveTimming_param;
-    wxStaticText* modulationStrength_param;
-    wxStaticText* modulationFrequency_param;
-    wxStaticText* modulationStartTime_param;
-    wxStaticText* modulationFadeInTime_param;
-    wxStaticText* modulationFadeOutTime_param;
-    wxStaticText* overshootTime_param;
-    wxStaticText* overshootPitch_param;
-    wxStaticText* preparationTime_param;
-    wxStaticText* preparationPitch_param;
-
-    nsSlider* frontOverlap_slider;
-    nsSlider* backOverlap_slider;
-    nsSlider* strength_slider;
-    nsSlider* frontTransitionTime_slider;
-    nsSlider* backTransitionTime_slider;
-    nsSlider* cl_length_slider;
-    nsSlider* uv_length_slider;
-    nsSlider* sv_length_slider;
-    nsSlider* frontPitchMoveTime_slider;
-    nsSlider* frontPitchMoveTimming_slider;
-    nsSlider* modulationStrength_slider;
-    nsSlider* modulationFrequency_slider;
-    nsSlider* modulationStartTime_slider;
-    nsSlider* modulationFadeInTime_slider;
-    nsSlider* modulationFadeOutTime_slider;
-    nsSlider* overshootTime_slider;
-    nsSlider* overshootPitch_slider;
-    nsSlider* preparationTime_slider;
-    nsSlider* preparationPitch_slider;
-
-    void OnFrontOverlapSlide(wxCommandEvent& event);
-    void OnBackOverlapSlide(wxCommandEvent& event);
-    void OnStrengthSlide(wxCommandEvent& event);
-    void OnFrontTransitionTimeSlide(wxCommandEvent& event);
-    void OnBackTransitionTimeSlide(wxCommandEvent& event);
-    void OnCLLengthSlide(wxCommandEvent& event);
-    void OnUVLengthSlide(wxCommandEvent& event);
-    void OnSVLengthSlide(wxCommandEvent& event);
-    void OnFrontPitchMoveTimeSlide(wxCommandEvent& event);
-    void OnFrontPitchMoveTimmingSlide(wxCommandEvent& event);
-    void OnModulationStrengthSlide(wxCommandEvent& event);
-    void OnModulationFrequencySlide(wxCommandEvent& event);
-    void OnModulationStartTimeSlide(wxCommandEvent& event);
-    void OnModulationFadeInTimeSlide(wxCommandEvent& event);
-    void OnModulationFadeOutTimeSlide(wxCommandEvent& event);
-    void OnOvershootTimeSlide(wxCommandEvent& event);
-    void OnOvershootPitchSlide(wxCommandEvent& event);
-    void OnPreparationTimeSlide(wxCommandEvent& event);
-    void OnPreparationPitchSlide(wxCommandEvent& event);
-    
-    constexpr static double frontOverlapMax = 100.0;
-    constexpr static double backOverlapMax = 100.0;
-    constexpr static double strengthMax = 100.0;
-    constexpr static double transitionTimeMax = 2000.0;
-    constexpr static double clLengthMax = 1.0;
-    constexpr static double uvLengthMax = 1.0;
-    constexpr static double svLengthMax = 1.0;
-    constexpr static double frontPitchMoveTimeMax = 1000.0;
-    constexpr static double frontPitchMoveTimmingMax = 1000.0;
-    constexpr static double modulationStrengthMax = 100.0;
-    constexpr static double modulationFrequencyMax = 20.0;
-    constexpr static double modulationStartTimeMax = 2000.0;
-    constexpr static double modulationFadeTimeMax = 2000.0;
-    constexpr static double overshootTimeMax = 1000.0;
-    constexpr static double overshootPitchMax = 300.0;
-    constexpr static double preparationTimeMax = 2000.0;
-    constexpr static double preparationPitchMax = 300.0;
-};
-
 class NesoraPianoKeys : public wxWindow {
 public:
     NesoraPianoKeys(wxWindow* parent) : wxWindow(parent, wxID_ANY) {
@@ -213,12 +116,10 @@ public:
         m_linkedKeys->SetScrollOffset(y * ppuy);
     }
     void SetLinkedTimeline(NesoraTimeline* timeline) { m_linkedTimeline = timeline; }
-    void SetLinkedMIDINoteEditor(NesoraPhoneticalMIDINoteEditor* editor);
 private:
     
     NesoraPianoKeys* m_linkedKeys = nullptr;
     NesoraTimeline* m_linkedTimeline = nullptr;
-    NesoraPhoneticalMIDINoteEditor* m_linkedMIDINoteEditor = nullptr;
         
     std::vector<MidiNoteBox> notes;
     NesoraMIDIPhoneticalScript midiScript;

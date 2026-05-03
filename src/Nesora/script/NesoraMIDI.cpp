@@ -104,7 +104,7 @@ double NesoraMIDISplineScript::GetPitch(double t) {
     return 0.0;
 }
 
-double NesoraMIDISplineScript::Volume(double t) {
+double NesoraMIDISplineScript::GetEnvelope(double t) {
     return 0.0;
 }
 
@@ -215,10 +215,9 @@ double CalculatePitchLineValue(NesoraPitchCurveType curveType, double t) {
 // MARK: NesoraMIDIPhoneticalScript
 
 double NesoraMIDIPhoneticalScript::GetPitch(double t) {
-    t = t * 1000.0; // 秒からミリ秒に変換
     double noteStartTime = 0.0;
     double noteEndTime = 0.0;
-    for(size_t i = 0; i < notes.size(); i++) {
+    for (size_t i = 0; i < notes.size(); i++) {
         const auto& note = notes[i];
         noteStartTime = noteEndTime;
         noteEndTime = noteStartTime + note.length;
@@ -272,7 +271,22 @@ double NesoraMIDIPhoneticalScript::GetPitch(double t) {
     return 0.0;
 }
 
-double NesoraMIDIPhoneticalScript::Volume(double t) {
+double NesoraMIDIPhoneticalScript::GetEnvelope(double t) {
+    double noteStartTime = 0.0;
+    double noteEndTime = 0.0;
+    for (size_t i = 0; i < notes.size(); i++) {
+        const auto& note = notes[i];
+        noteStartTime = noteEndTime;
+        noteEndTime = noteStartTime + note.length;
+
+        if (t >= noteStartTime and t <= noteEndTime) {
+            // 現在のノートの範囲内
+            double localT = t - noteStartTime;
+            return note.strength;
+        }
+
+    }
+
     return 0.0;
 }
 
@@ -294,13 +308,13 @@ std::vector<NesoraMidiNotePhoneticalInfo>& NesoraMIDIPhoneticalScript::GetNotes(
 
 void NesoraMIDIPhoneticalScript::CalculateNoteParam(double sampleRate) {
     pitchLine.clear();
-    envelope.clear();
+    envelopeLine.clear();
 
     double currentTime = 0.0; // 現在の時間(s)
     while(1) {
         pitchLine.push_back(GetPitch(currentTime));
-        envelope.push_back(Volume(currentTime));
-        currentTime += 1.0 / sampleRate; // 1/sampleRate sごとに更新
+        envelopeLine.push_back(GetEnvelope(currentTime));
+        currentTime += 1000.0 / sampleRate; // 1000/sampleRate[s](1/sampleRate[ms])ごとに更新
         if (pitchLine.back() == 0.0) break; // 最後のノートの長さを超えたら終了
     }
 

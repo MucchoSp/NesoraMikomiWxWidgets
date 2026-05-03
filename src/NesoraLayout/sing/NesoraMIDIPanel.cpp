@@ -347,6 +347,7 @@ void NesoraPianoRollCanvas::ResolveOverlaps() {
     midiScript.SetNotes(MIDINoteBoxToMidiNote(notes, pixcelPerSecond, pixelPerNote, A4KeyY));
     midiScript.CalculateNoteParam(pixcelPerSecond);
     pitchLine = midiScript.GetPitchLine();
+    m_linkedEnvelopeline->SetEnvelopeline(midiScript.GetEnvelopeLine());
     
     // スクロール範囲の更新
     SetScrollWidth();
@@ -422,13 +423,24 @@ void NesoraPianoRollCanvas::PitchLineUpdate() {
     Refresh();
 }
 
+void NesoraPianoRollCanvas::EnvelopeLineUpdate() {
+    double pixcelPerSecond = pixelPerBeet * bpm / 60.0;
+    midiScript.SetNotes(MIDINoteBoxToMidiNote(notes, pixcelPerSecond, pixelPerNote, A4KeyY));
+    midiScript.CalculateNoteParam(pixcelPerSecond);
+    pitchLine = midiScript.GetPitchLine();
+    if (m_linkedEnvelopeline) {
+        m_linkedEnvelopeline->SetEnvelopeline(midiScript.GetEnvelopeLine());
+    }
+    Refresh();
+}
+
 // 選択ノートをクリア
 void NesoraPianoRollCanvas::NoteSelectClear() {
     for (auto& note : notes)
         note.isSelected = false;
     
-    // m_linkedMIDINoteEditor->EditNote(nullptr);
     selectedNoteIdx = -1;
+    m_linkedEnvelopeline->EnvelopeControlPointUpdate(nullptr);
     return;
 }
 
@@ -443,12 +455,12 @@ void NesoraPianoRollCanvas::ChangeSelectNote() {
     }
     
     if (selectedNotes.size() == 1) {
-        // m_linkedMIDINoteEditor->EditNote(&notes[selectedNotes[0]]);
         selectedNoteIdx = selectedNotes[0];
         PitchControlPointUpdate();
+        m_linkedEnvelopeline->EnvelopeControlPointUpdate(&notes[selectedNoteIdx]);
     } else {
-        // m_linkedMIDINoteEditor->EditNote(nullptr);
         selectedNoteIdx = -1;
+        m_linkedEnvelopeline->EnvelopeControlPointUpdate(nullptr);
     }
 }
 
@@ -460,7 +472,8 @@ void NesoraPianoRollCanvas::SetScrollWidth() {
     scriptLengthInBar = std::max(PixelToBar(w, pixelPerBeet, timeSignatureNumerator), PixelToBar(currentX, pixelPerBeet, timeSignatureNumerator) + 2.0); // 2小節分の余裕を持たせる
     screenWidth = scriptLengthInBar * pixelPerBeet * timeSignatureNumerator;
     SetScrollbars(ppux, ppuy, screenWidth / ppux, screenHeight / ppuy, x, y);
-    m_linkedTimeline->SetScriptLengthInBar(scriptLengthInBar);
+    if (m_linkedTimeline) m_linkedTimeline->SetScriptLengthInBar(scriptLengthInBar);
+    if (m_linkedEnvelopeline) m_linkedEnvelopeline->SetScriptLengthInBar(scriptLengthInBar);
 }
 
 void NesoraPianoRollCanvas::DoZoom(int deltax, int deltay, const wxPoint2DDouble center) {
@@ -469,10 +482,11 @@ void NesoraPianoRollCanvas::DoZoom(int deltax, int deltay, const wxPoint2DDouble
         pixelPerBeet += deltax;
         if (pixelPerBeet < 10)
             pixelPerBeet = 10;
-
-        m_linkedTimeline->SetBarWidth(pixelPerBeet * timeSignatureNumerator);
-
         double pixcelPerSecond = pixelPerBeet * bpm / 60.0;
+
+        if (m_linkedTimeline) m_linkedTimeline->SetBarWidth(pixelPerBeet * timeSignatureNumerator);
+        if (m_linkedEnvelopeline) m_linkedEnvelopeline->SetpixelPerSecond(pixcelPerSecond);
+
         for (auto& note : notes) {
             note.rect.m_width = note.note.length * pixcelPerSecond / 1000.0;
         }
@@ -487,6 +501,7 @@ void NesoraPianoRollCanvas::DoZoom(int deltax, int deltay, const wxPoint2DDouble
         PitchControlPointUpdate();
         midiScript.CalculateNoteParam(pixcelPerSecond);
         pitchLine = midiScript.GetPitchLine();
+        m_linkedEnvelopeline->SetEnvelopeline(midiScript.GetEnvelopeLine());
         Refresh();
     }
     if (deltay) {
@@ -494,7 +509,7 @@ void NesoraPianoRollCanvas::DoZoom(int deltax, int deltay, const wxPoint2DDouble
         if (pixelPerNote < 10)
             pixelPerNote = 10;
 
-        m_linkedKeys->SetNoteHeight(pixelPerNote);
+        if (m_linkedKeys) m_linkedKeys->SetNoteHeight(pixelPerNote);
         A4KeyY = NESORA_MIDI_PANEL_A4_KEY_Y * pixelPerNote;
 
         double pixcelPerSecond = pixelPerBeet * bpm / 60.0;
@@ -505,6 +520,7 @@ void NesoraPianoRollCanvas::DoZoom(int deltax, int deltay, const wxPoint2DDouble
         PitchControlPointUpdate();
         midiScript.CalculateNoteParam(pixcelPerSecond);
         pitchLine = midiScript.GetPitchLine();
+        m_linkedEnvelopeline->SetEnvelopeline(midiScript.GetEnvelopeLine());
         Refresh();
     }
 
@@ -533,10 +549,19 @@ void NesoraPianoRollCanvas::DoZoom(int deltax, int deltay, const wxPoint2DDouble
     int newViewYUnits = std::max(0, (int)std::lround(newViewYPx / (double)ppuy));
 
     SetScrollbars(ppux, ppuy, screenWidth / ppux, screenHeight / ppuy, newViewXUnits, newViewYUnits);
-    m_linkedTimeline->SetScriptLengthInBar(scriptLengthInBar);
-    m_linkedTimeline->SetScrollOffset(newViewXPx);
-    m_linkedKeys->SetNoteHeight(pixelPerNote);
-    m_linkedKeys->SetScrollOffset(newViewYUnits * ppuy);
+    if (m_linkedTimeline) {
+        m_linkedTimeline->SetScriptLengthInBar(scriptLengthInBar);
+        m_linkedTimeline->SetScrollOffset(newViewXPx);
+    }
+    if (m_linkedEnvelopeline) {
+        m_linkedEnvelopeline->SetScriptLengthInBar(scriptLengthInBar);
+        m_linkedEnvelopeline->SetBarWidth(pixelPerBeet * timeSignatureNumerator);
+        m_linkedEnvelopeline->SetScrollOffset(newViewXPx);
+    }
+    if (m_linkedKeys) {
+        m_linkedKeys->SetNoteHeight(pixelPerNote);
+        m_linkedKeys->SetScrollOffset(newViewYUnits * ppuy);
+    }
 
     quantizeWidth = pixelPerBeet / std::pow(2.0, std::floor(std::sqrt(pixelPerBeet / NESORA_MIDI_PANEL_QUANTIME_MIN_WIDTH)));
 }
@@ -1158,6 +1183,7 @@ void NesoraPianoRollCanvas::OnScroll(wxScrollWinEvent& event) {
     int dy = y - lastScrollY;
 
     if (m_linkedTimeline) m_linkedTimeline->SetScrollOffset((x + dx) * ppux);
+    if (m_linkedEnvelopeline) m_linkedEnvelopeline->SetScrollOffset((x + dx) * ppux);
     if (m_linkedKeys) m_linkedKeys->SetScrollOffset((y + dy) * ppuy);
     lastScrollX = x;
     lastScrollY = y;
@@ -1260,6 +1286,184 @@ void NesoraTimeline::OnPaint(wxPaintEvent& event) {
     delete gc;
 }
 
+// MARK: NesoraEnvelopeline
+
+wxPoint2DDouble NesoraEnvelopeline::GetMousePos(const wxMouseEvent& event) const {
+    wxPoint pos = event.GetPosition();
+    return wxPoint2DDouble(pos.x, pos.y);
+}
+
+wxRect2DDouble NesoraEnvelopeline::GetStrengthControlPointRect() const {
+    if (note) {
+        const wxSize size = GetClientSize();
+        const double x = note->rect.m_x - m_xOffset + 14.0;
+        const double usableHeight = std::max(1.0, (double)size.GetHeight() - margin * 2.0);
+        const double y = margin + (1.0 - std::clamp(note->note.strength, 0.0, 1.0)) * usableHeight;
+        return wxRect2DDouble(x - pointSize / 2.0, y - pointSize / 2.0, pointSize, pointSize);
+    }
+
+    return wxRect2DDouble();
+}
+
+wxRect2DDouble NesoraEnvelopeline::GetClLengthControlPointRect() const {
+    if (note) {
+        const double x = note->rect.m_x - m_xOffset + std::clamp(note->note.cl_length, 0.0, note->note.length) * m_pixelPerSecond / 1000.0;
+        const wxSize size = GetClientSize();
+        const double y = std::max(12.0, (double)size.GetHeight() - 14.0);
+        return wxRect2DDouble(x - pointSize / 2.0, y - pointSize / 2.0, pointSize, pointSize);
+    }
+
+    return wxRect2DDouble();
+}
+
+void NesoraEnvelopeline::ControlPointUpdate() {
+    strengthRect = GetStrengthControlPointRect();
+    clLengthRect = GetClLengthControlPointRect();
+}
+
+void NesoraEnvelopeline::ApplyControlPointDrag(const wxPoint2DDouble& mousePos) {
+    if (draggingControlPoint == EnvelopeControlPointID::StrengthControlPoint) {
+        const wxSize size = GetClientSize();
+        const double usableHeight = std::max(1.0, static_cast<double>(size.GetHeight()) - margin * 2.0);
+        const double normalized = 1.0 - ((mousePos.m_y - margin) / usableHeight);
+        note->note.strength = std::clamp(normalized, 0.0, 1.0);
+    } else if (draggingControlPoint == EnvelopeControlPointID::ClLengthControlPoint) {
+        const double clLength = (mousePos.m_x + m_xOffset - note->rect.m_x) * 1000.0 / std::max(1.0, m_pixelPerSecond);
+        note->note.cl_length = std::clamp(clLength, 0.0, note->note.length);
+    }
+
+    ControlPointUpdate();
+    if (m_linkedPianoRoll) {
+        m_linkedPianoRoll->EnvelopeLineUpdate();
+    } else {
+        Refresh(false);
+    }
+
+    return;
+}
+
+void NesoraEnvelopeline::OnPaint(wxPaintEvent& event) {
+    wxAutoBufferedPaintDC dc(this);
+    dc.Clear();
+    wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
+    if (!gc) return;
+
+    wxSize size = GetClientSize();
+    gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND_THIN)));
+    gc->SetFont(GetFont(), nsGetColor(nsColorType::ON_BACKGROUND));
+
+    // エンベロープラインの描画
+    if (envelopeLine.size() >= 2) {
+        gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND), 2));
+        std::vector<wxPoint2DDouble> linePoints;
+        for (size_t i = 0; i < scriptLengthInBar * m_barWidth && i < envelopeLine.size(); i++) {
+            linePoints.push_back(wxPoint2DDouble(i - m_xOffset, (size.GetHeight() - margin) - envelopeLine[i] * (size.GetHeight() - margin * 2.0))); // エンベロープをY座標に変換
+        }
+        if (linePoints.size() >= 2)
+            gc->StrokeLines(linePoints.size(), linePoints.data());
+    }
+    if (note) {
+        gc->SetPen(wxPen(nsGetColor(nsColorType::PRIMARY), 2));
+        gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
+        gc->DrawEllipse(strengthRect.m_x, strengthRect.m_y, strengthRect.m_width, strengthRect.m_height);
+        gc->DrawEllipse(clLengthRect.m_x, clLengthRect.m_y, clLengthRect.m_width, clLengthRect.m_height);
+
+        gc->SetFont(GetFont(), nsGetColor(nsColorType::ON_BACKGROUND));
+        if (strengthControlPointIsHover) {
+            draggingControlPoint = EnvelopeControlPointID::StrengthControlPoint;
+
+            wxString outputString = wxString::Format("strength(%0.2f)", note->note.strength);
+            double tw, th;
+            gc->GetTextExtent(outputString, &tw, &th);
+            int x = strengthRect.m_x + strengthRect.m_width + tw < size.GetWidth() ? strengthRect.m_x + strengthRect.m_width : strengthRect.m_x - tw;
+            int y = strengthRect.m_y + strengthRect.m_height + th < size.GetHeight() ? strengthRect.m_y + strengthRect.m_height : strengthRect.m_y - th;
+            gc->DrawRectangle(x, y, tw, th);
+            gc->DrawText(outputString, x, y);
+        } else if (clLengthControlPointIsHover) {
+            draggingControlPoint = EnvelopeControlPointID::ClLengthControlPoint;
+
+            wxString outputString = wxString::Format("cl_length(%0.2fms)", note->note.cl_length);
+            double tw, th;
+            gc->GetTextExtent(outputString, &tw, &th);
+            int x = clLengthRect.m_x + clLengthRect.m_width + tw < size.GetWidth() ? clLengthRect.m_x + clLengthRect.m_width : clLengthRect.m_x - tw;
+            int y = clLengthRect.m_y + clLengthRect.m_height + th < size.GetHeight() ? clLengthRect.m_y + clLengthRect.m_height : clLengthRect.m_y - th;
+            gc->DrawRectangle(x, y, tw, th);
+            gc->DrawText(outputString, x, y);
+        }
+    }
+    delete gc;
+}
+
+void NesoraEnvelopeline::EnvelopeControlPointUpdate(MidiNoteBox* selectedNote) {
+    note = selectedNote;
+    draggingControlPoint = EnvelopeControlPointID::None;
+    ControlPointUpdate();
+    Refresh(false);
+}
+
+void NesoraEnvelopeline::OnLeftDown(wxMouseEvent& event) {
+    if (note) {
+        const wxPoint2DDouble mousePos = GetMousePos(event);
+        if (strengthRect.Contains(mousePos)) {
+            draggingControlPoint = EnvelopeControlPointID::StrengthControlPoint;
+        } else if (clLengthRect.Contains(mousePos)) {
+            draggingControlPoint = EnvelopeControlPointID::ClLengthControlPoint;
+        } else {
+            event.Skip();
+            return;
+        }
+
+        CaptureMouse();
+        ApplyControlPointDrag(mousePos);
+        Refresh(false);
+    }
+    event.Skip();
+}
+
+void NesoraEnvelopeline::OnLeftUp(wxMouseEvent& event) {
+    if (HasCapture()) {
+        ReleaseMouse();
+    }
+    draggingControlPoint = EnvelopeControlPointID::None;
+    event.Skip();
+}
+
+void NesoraEnvelopeline::OnMouseMove(wxMouseEvent& event) {
+    const wxPoint2DDouble mousePos = GetMousePos(event);
+
+    if (note) {
+        if (event.Dragging() && HasCapture()) {
+            ApplyControlPointDrag(mousePos);
+            Refresh(false);
+            event.Skip(false);
+            return;
+        }
+
+        if (strengthRect.Contains(mousePos)) {
+            strengthControlPointIsHover = true;
+            clLengthControlPointIsHover = false;
+        } else if (clLengthRect.Contains(mousePos)) {
+            strengthControlPointIsHover = false;
+            clLengthControlPointIsHover = true;
+        } else {
+            strengthControlPointIsHover = false;
+            clLengthControlPointIsHover = false;
+            SetCursor(wxNullCursor);
+        }
+
+        Refresh(false);
+    }
+    event.Skip();
+}
+
+void NesoraEnvelopeline::OnLeaveWindow(wxMouseEvent& event) {
+    if (!HasCapture()) {
+        SetCursor(wxNullCursor);
+    }
+    event.Skip();
+}
+
+
 
 // MARK:NesoraMIDIPanel
 
@@ -1280,15 +1484,22 @@ void NesoraMIDIPanel::Init() {
     topSizer->Add(timeline, 1, wxEXPAND);
 
     wxBoxSizer* middleSizer = new wxBoxSizer(wxHORIZONTAL);
-
     // ピアノ鍵盤（左側）
     NesoraPianoKeys* keys = new NesoraPianoKeys(MIDIEditorSizer->GetStaticBox());
     keys->SetMinSize(wxSize(60, -1));
     middleSizer->Add(keys, 0, wxEXPAND);
-
     middleSizer->Add(pianoRoll, 1, wxEXPAND);
+
+    // エンベロープライン（下部）
+    wxBoxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+    bottomSizer->AddSpacer(60); // ピアノ鍵盤の幅分のスペースを確保
+    NesoraEnvelopeline* envelopeline = new NesoraEnvelopeline(MIDIEditorSizer->GetStaticBox());
+    envelopeline->SetMinSize(wxSize(-1, 60));
+    bottomSizer->Add(envelopeline, 1, wxEXPAND);
+
     MIDIEditorSizer->Add(topSizer, 0, wxEXPAND);
     MIDIEditorSizer->Add(middleSizer, 1, wxEXPAND);
+    MIDIEditorSizer->Add(bottomSizer, 0, wxEXPAND);
     
     
     mainSizer->Add(MIDIEditorSizer, 1, wxEXPAND | wxALL, 5);
@@ -1299,6 +1510,8 @@ void NesoraMIDIPanel::Init() {
     // 同期設定
     pianoRoll->SetLinkedPianoKeys(keys);
     pianoRoll->SetLinkedTimeline(timeline);
+    pianoRoll->SetLinkedEnvelopeline(envelopeline);
+    envelopeline->SetLinkedPianoRoll(pianoRoll);
 
     playbackLineTimer.SetOwner(this);
     Bind(wxEVT_TIMER, &NesoraMIDIPanel::OnPlaybackTimer, this, playbackLineTimer.GetId());
@@ -1307,7 +1520,7 @@ void NesoraMIDIPanel::Init() {
 
 double NesoraMIDIPanel::GetPitch(double samplingFrequency) {
     const double nowPitch = pianoRoll->GetPitch(nowPlayTime);
-    nowPlayTime += 1.0 / samplingFrequency;
+    nowPlayTime += 1000.0 / samplingFrequency;
     return nowPitch;
 }
 

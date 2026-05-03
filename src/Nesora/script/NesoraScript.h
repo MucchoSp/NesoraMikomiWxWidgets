@@ -13,7 +13,7 @@ public:
     NesoraScriptBase(){}
 
     virtual double GetPitch(double t) = 0;
-    virtual double Volume(double t) = 0;
+    virtual double GetEnvelope(double t) = 0;
     virtual ParametricNesoraParameter Vowel(double t) = 0;
 
     virtual std::vector<unsigned char> SaveData() = 0;

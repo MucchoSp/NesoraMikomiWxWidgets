@@ -40,7 +40,7 @@ public:
     NesoraMIDISplineScript(const std::vector<NesoraMidiNote>& notes) : notes(notes) {}
 
     double GetPitch(double t) override;
-    double Volume(double t) override;
+    double GetEnvelope(double t) override;
     ParametricNesoraParameter Vowel(double t) override;
 
     void SetNotes(const std::vector<NesoraMidiNote>& in_notes);
@@ -71,7 +71,7 @@ public:
     NesoraMIDIPhoneticalScript(const std::vector<NesoraMidiNotePhoneticalInfo>& notes) : notes(notes) {}
 
     double GetPitch(double t) override;
-    double Volume(double t) override;
+    double GetEnvelope(double t) override;
     ParametricNesoraParameter Vowel(double t) override;
 
     void SetNotes(const std::vector<NesoraMidiNotePhoneticalInfo>& in_notes);
@@ -80,7 +80,7 @@ public:
 
     void CalculateNoteParam(double sampleRate); // ピッチラインの計算とエンベロープの計算
     std::vector<double> GetPitchLine() const { return pitchLine; }
-    std::vector<double> GetEnvelope() const { return envelope; }
+    std::vector<double> GetEnvelopeLine() const { return envelopeLine; }
 
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;
@@ -88,7 +88,7 @@ private:
 
     std::vector<NesoraMidiNotePhoneticalInfo> notes;
     std::vector<double> pitchLine;
-    std::vector<double> envelope;
+    std::vector<double> envelopeLine;
 
     double A4Pitch = 440.0; // A4の周波数
 };

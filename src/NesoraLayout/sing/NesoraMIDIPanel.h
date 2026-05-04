@@ -155,10 +155,9 @@ private:
     MidiNoteBox* note = nullptr;
     NesoraPianoRollCanvas* m_linkedPianoRoll = nullptr;
     EnvelopeControlPointID draggingControlPoint = EnvelopeControlPointID::None;
+    EnvelopeControlPointID hoverControlPoint = EnvelopeControlPointID::None;
     wxRect2DDouble strengthRect;
-    bool strengthControlPointIsHover;
     wxRect2DDouble clLengthRect;
-    bool clLengthControlPointIsHover;
 };
 
 class NesoraPianoRollCanvas : public wxScrolledWindow {
@@ -169,6 +168,7 @@ public:
 
     void Init();
     double GetPitch(double t);
+    double GetEnvelope(double t);
     void ClearPlaybackLine();
     bool IsLyricEditing() const;
     void EnvelopeLineUpdate();
@@ -306,7 +306,9 @@ public:
     }
     
     void Init();
-    double GetPitch(double samplingFrequency);
+    double GetPitch();
+    double GetEnvelope();
+    void ProceedTime(double samplingFrequency);
     void PlayStop();
     bool IsLyricEditing() const;
 

@@ -647,7 +647,7 @@ void NesoraPianoRollCanvas::OnPaint(wxPaintEvent& event) {
         // 現在の再生位置ラインを描画
         const double pixelPerSecond = pixelPerBeet * bpm / 60.0;
         const double playbackTimeForDraw = std::max(0.0, playbackTimeInSec.load() - playbackVisualDelayInSec);
-        const double playheadX = playbackTimeForDraw * pixelPerSecond;
+        const double playheadX = playbackTimeForDraw * pixelPerSecond / 1000.0;
         if (playheadX >= visibleRect.m_x && playheadX <= visibleRect.m_x + visibleRect.m_width) {
             gc->SetPen(wxPen(nsGetColor(nsColorType::ON_BACKGROUND), 2));
             gc->StrokeLine(playheadX, visibleRect.m_y, playheadX, visibleRect.m_y + visibleRect.m_height);
@@ -1218,6 +1218,11 @@ double NesoraPianoRollCanvas::GetPitch(double t) {
     return midiScript.GetPitch(t);
 }
 
+double NesoraPianoRollCanvas::GetEnvelope(double t) {
+    playbackTimeInSec.store(t);
+    return midiScript.GetEnvelope(t);
+}
+
 void NesoraPianoRollCanvas::ClearPlaybackLine() {
     playbackTimeInSec.store(0.0);
     Refresh(false);
@@ -1369,7 +1374,7 @@ void NesoraEnvelopeline::OnPaint(wxPaintEvent& event) {
         gc->DrawEllipse(clLengthRect.m_x, clLengthRect.m_y, clLengthRect.m_width, clLengthRect.m_height);
 
         gc->SetFont(GetFont(), nsGetColor(nsColorType::ON_BACKGROUND));
-        if (strengthControlPointIsHover) {
+        if (hoverControlPoint == EnvelopeControlPointID::StrengthControlPoint) {
             draggingControlPoint = EnvelopeControlPointID::StrengthControlPoint;
 
             wxString outputString = wxString::Format("strength(%0.2f)", note->note.strength);
@@ -1379,7 +1384,7 @@ void NesoraEnvelopeline::OnPaint(wxPaintEvent& event) {
             int y = strengthRect.m_y + strengthRect.m_height + th < size.GetHeight() ? strengthRect.m_y + strengthRect.m_height : strengthRect.m_y - th;
             gc->DrawRectangle(x, y, tw, th);
             gc->DrawText(outputString, x, y);
-        } else if (clLengthControlPointIsHover) {
+        } else if (hoverControlPoint == EnvelopeControlPointID::ClLengthControlPoint) {
             draggingControlPoint = EnvelopeControlPointID::ClLengthControlPoint;
 
             wxString outputString = wxString::Format("cl_length(%0.2fms)", note->note.cl_length);
@@ -1440,14 +1445,11 @@ void NesoraEnvelopeline::OnMouseMove(wxMouseEvent& event) {
         }
 
         if (strengthRect.Contains(mousePos)) {
-            strengthControlPointIsHover = true;
-            clLengthControlPointIsHover = false;
+            hoverControlPoint = EnvelopeControlPointID::StrengthControlPoint;
         } else if (clLengthRect.Contains(mousePos)) {
-            strengthControlPointIsHover = false;
-            clLengthControlPointIsHover = true;
+            hoverControlPoint = EnvelopeControlPointID::ClLengthControlPoint;
         } else {
-            strengthControlPointIsHover = false;
-            clLengthControlPointIsHover = false;
+            hoverControlPoint = EnvelopeControlPointID::None;
             SetCursor(wxNullCursor);
         }
 
@@ -1518,10 +1520,16 @@ void NesoraMIDIPanel::Init() {
     playbackLineTimer.Start(16);
 }
 
-double NesoraMIDIPanel::GetPitch(double samplingFrequency) {
-    const double nowPitch = pianoRoll->GetPitch(nowPlayTime);
+double NesoraMIDIPanel::GetPitch() {
+    return pianoRoll->GetPitch(nowPlayTime);
+}
+
+double NesoraMIDIPanel::GetEnvelope() {
+    return pianoRoll->GetEnvelope(nowPlayTime);
+}
+
+void NesoraMIDIPanel::ProceedTime(double samplingFrequency) {
     nowPlayTime += 1000.0 / samplingFrequency;
-    return nowPitch;
 }
 
 bool NesoraMIDIPanel::IsLyricEditing() const {

@@ -16,6 +16,7 @@
 
 #include "../../../NesoraStyle/NesoraStyle.h"
 
+#include "../NesoraVoiceMakePanelBase.h"
 #include "../../NesoraIDs.h"
 #include "../../NesoraEvents.h"
 
@@ -86,7 +87,7 @@ public:
 
 // MARK:nsParametricSOSIIRFilterPanel
 
-class nsParametricSOSIIRFilterPanel : public wxPanel {
+class nsParametricSOSIIRFilterPanel : public nsFilterPanelBase {
 public:
     nsParametricSOSIIRFilterPanel() {
         Init();
@@ -96,17 +97,17 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-        const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name)
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsFilterPanelBase(parent, winid, pos, size, style, name)
     {
         Init();
     }
     ~nsParametricSOSIIRFilterPanel() {
         
     }
-    void Init();
-    void Update();
+    void Init() override;
+    void Update() override;
 
-    NesoraParametricSOSIIRFilter* GetIIRFilter();
+    NesoraFilterBase* GetFilter() override;
 
 private:
     nsParametricSOSIIRFrequencyResponseControl* iirFilter;

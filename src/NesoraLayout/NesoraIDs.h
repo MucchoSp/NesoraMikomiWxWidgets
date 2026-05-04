@@ -9,8 +9,9 @@
 #define NESORA_IDS_H
 
 enum {
-    ID_Hello = wxID_HIGHEST,
-    ID_EXIT,
+    ID_EXIT = wxID_HIGHEST,
+    ID_IMPORT,
+    ID_EXPORT,
     nsID_SPEAK_BUTTON,
     nsID_SING_BUTTON,
     nsID_VOICE_MAKE_BUTTON,

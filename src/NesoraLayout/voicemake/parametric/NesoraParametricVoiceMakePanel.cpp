@@ -53,10 +53,10 @@ void nsParametricVoiceMakePanel::Init() {
     wxSizer* horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
     wxSizer* filterHorizontalSizer = new wxBoxSizer(wxHORIZONTAL);
     playInterfacePanel = new nsParametricVoiceMakePlayInterfacePanel(this, wxID_ANY);
-    sourceSoundPanel = new nsParametricRosenbergWavePanel(this, wxID_ANY);
+    sourceSoundPanel = new nsParametricLFModelPanel(this, wxID_ANY);
     filterPanel = new nsParametricSOSIIRFilterPanel(this, wxID_ANY);
     parametricPanel = new nsParametricPanel(this, wxID_ANY);
-    voice = new NesoraMikomiVoice(sourceSoundPanel->GetSource(), filterPanel->GetIIRFilter());
+    voice = new NesoraMikomiVoice(sourceSoundPanel->GetSource(), filterPanel->GetFilter());
 
     horizontalSizer->Add(playInterfacePanel, 0, wxEXPAND | wxALL);
     horizontalSizer->Add(sourceSoundPanel, 1, wxEXPAND | wxALL);
@@ -82,6 +82,11 @@ void nsParametricVoiceMakePanel::OnStopButtonClicked(wxCommandEvent& event) {
 
 
 void nsParametricVoiceMakePanel::InitAudioDevice() {
+    if (isPlaying) {
+        return;
+    }
+    isPlaying = true;
+
     deviceConfig = ma_device_config_init(ma_device_type_playback);
     deviceConfig.playback.format = ma_format_f32;
     deviceConfig.playback.channels = 1;
@@ -102,6 +107,7 @@ void nsParametricVoiceMakePanel::InitAudioDevice() {
 }
 
 void nsParametricVoiceMakePanel::UninitAudioDevice() {
+    isPlaying = false;
     ma_device_uninit(&device);
 }
 
@@ -168,3 +174,43 @@ void nsParametricVoiceMakePanel::OnOpen(wxCommandEvent& event) {
     static_cast<wxFrame* >(wxGetTopLevelParent(this))->SetStatusText(msg);
     // wxLogMessage("Voice loaded from '%s'.", openFileDialog.GetPath());
 }
+
+void nsParametricVoiceMakePanel::PanelEnable() {
+    Show();
+    menuSetup();
+}
+
+void nsParametricVoiceMakePanel::PanelDisable() {
+    Hide();
+}
+
+void nsParametricVoiceMakePanel::menuSetup() {
+    // nsID_MAIN_FRAME
+    wxMenu* menuFile = new wxMenu;
+    menuFile->Append(wxID_OPEN, _("&Open...\tCtrl-O"), _("Open a file"));
+    menuFile->Append(wxID_SAVE, _("&Save\tCtrl-S"), _("Save the current file"));
+    menuFile->AppendSeparator();
+    menuFile->Append(ID_IMPORT, _("&Import...\tCtrl-I"), _("Import a file"));
+    menuFile->Append(ID_EXPORT, _("&Export...\tCtrl-E"), _("Export the current file"));
+    menuFile->AppendSeparator();
+    menuFile->Append(wxID_EXIT);
+    
+    wxMenu* menuHelp = new wxMenu;
+    menuHelp->Append(wxID_ABOUT);
+    
+    wxMenu* menuEdit = new wxMenu;
+    // menuEdit->Append(nsID_ESCAPE, _("&Deselect\tEsc"));
+    
+    wxMenuBar* menuBar = new wxMenuBar;
+    menuBar->Append(menuFile, _("&File"));
+    menuBar->Append(menuEdit, _("&Edit"));
+    menuBar->Append(menuHelp, _("&Help"));
+    
+    wxFrame* mainFrame = (wxFrame*)wxWindow::FindWindowById(nsID_MAIN_FRAME);
+    mainFrame->SetMenuBar(menuBar);
+
+    mainFrame->Bind(wxEVT_MENU, &nsParametricVoiceMakePanel::OnSave, this, wxID_SAVE);
+    mainFrame->Bind(wxEVT_MENU, &nsParametricVoiceMakePanel::OnOpen, this, wxID_OPEN);
+}
+
+

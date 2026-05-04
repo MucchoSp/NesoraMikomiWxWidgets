@@ -33,8 +33,14 @@ public:
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);
 
+    void PanelEnable();
+    void PanelDisable();
+
 private:
     NesoraMikomiVoice* voice;
+
+    void menuSetup();
+    
 };
 
 #endif // NESORA_SPEAK_PANEL_H

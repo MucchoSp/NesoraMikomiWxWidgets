@@ -15,6 +15,7 @@
 #include <atomic>
 // #include <sstream>
 #include <string>
+# include <functional>
 
 #include "../../NesoraStyle/NesoraStyle.h"
 
@@ -23,11 +24,25 @@
 
 #include "../../Nesora/Nesora.h"
 
+enum class MidiNoteBoxControlPointID {
+    None,
+    FrontPitchMoveTimmingControlPoint,
+    OvershootPitchControlPoint,
+    PreparationPitchControlPoint,
+    ModulationControlPoint,
+    ModulationFrequencyControlPoint,
+    ModulationFadeInTimeControlPoint,
+    ModulationFadeOutTimeControlPoint,
+};
+
+class NesoraPianoRollCanvas;
+
 // ノート（音符）を管理する構造体
 struct MidiNoteBox {
     int id;
     
     NesoraMidiNotePhoneticalInfo note; // MIDIノートの情報（ピッチ、開始時間、長さなど）
+    std::map<MidiNoteBoxControlPointID, wxRect2DDouble> controlPoints; // コントロールポイントの位置とサイズ
 
     wxRect2DDouble rect;  // 描画領域（当たり判定用）
     wxRect2DDouble startRectBuffer;  // 描画領域（バッファー用）
@@ -44,13 +59,13 @@ enum class NesoraPianoRollCanvasMouseDragState {
     AddNote,
     SelectingRange, // 範囲選択中
     DraggingNotes,  // ノート移動中
-    ResizingNote    // ノートの長さ変更中
+    ResizingNote,    // ノートの長さ変更中
+    ControlPointDragging // 操作点をドラッグ中
 };
 
-const int NESORA_MIDI_PANEL_NOTE_HEIGHT = 20; // 1鍵あたりの高さ
+const double NESORA_MIDI_PANEL_A4_KEY_Y = 59.5; //上から数えたA4の場所
 const int NESORA_MIDI_PANEL_KEY_COUNT = 128; // 鍵の数
-const double NESORA_MIDI_PANEL_A4_KEY_Y = 1160.0 - NESORA_MIDI_PANEL_NOTE_HEIGHT / 2.0; // A4の鍵のY座標
-const double NESORA_MIDI_PANEL_QUANTIME_WIDTH = 32.0;
+const double NESORA_MIDI_PANEL_QUANTIME_MIN_WIDTH = 32.0;
 const double NESORA_MIDI_PANEL_RESIZE_HANDLE_WIDTH = 8.0; // 右端の判定幅(px)
 
 class NesoraPianoKeys : public wxWindow {
@@ -60,9 +75,11 @@ public:
         Bind(wxEVT_PAINT, &NesoraPianoKeys::OnPaint, this);
     }
     void SetScrollOffset(int yOffset) { m_yOffset = yOffset; Refresh(); }
+    void SetNoteHeight(double noteHeight) { m_noteHeight = noteHeight; }
 private:
     void OnPaint(wxPaintEvent& event);
     int m_yOffset = 0;
+    double m_noteHeight = 20;
 };
 
 class NesoraTimeline : public wxWindow {
@@ -81,6 +98,68 @@ private:
     double scriptLengthInBar = 0.0; // スクリプトの長さ（小節数）
 };
 
+class NesoraEnvelopeline : public wxWindow {
+public:
+    NesoraEnvelopeline(wxWindow* parent) : wxWindow(parent, wxID_ANY) {
+        SetBackgroundStyle(wxBG_STYLE_PAINT);
+        Bind(wxEVT_PAINT, &NesoraEnvelopeline::OnPaint, this);
+        Bind(wxEVT_LEFT_DOWN, &NesoraEnvelopeline::OnLeftDown, this);
+        Bind(wxEVT_LEFT_UP, &NesoraEnvelopeline::OnLeftUp, this);
+        Bind(wxEVT_MOTION, &NesoraEnvelopeline::OnMouseMove, this);
+        Bind(wxEVT_LEAVE_WINDOW, &NesoraEnvelopeline::OnLeaveWindow, this);
+    }
+    void SetScrollOffset(int xOffset) {
+        m_xOffset = xOffset;
+        ControlPointUpdate();
+        Refresh();
+    }
+    void SetpixelPerSecond(double pixelPerSecond) {
+        m_pixelPerSecond = pixelPerSecond;
+        ControlPointUpdate();
+        Refresh();
+    }
+    void SetNowSelectedNote(MidiNoteBox* selectedNote) { note = selectedNote; }
+    void SetEnvelopeline(std::vector<double> line) { envelopeLine = line; Refresh(); }
+    void SetBarWidth(double barWidth) { m_barWidth = barWidth; }
+    void SetScriptLengthInBar(double lengthInBar) { scriptLengthInBar = lengthInBar; Refresh(); }
+    void SetLinkedPianoRoll(NesoraPianoRollCanvas* pianoRoll) { m_linkedPianoRoll = pianoRoll; }
+
+    void EnvelopeControlPointUpdate(MidiNoteBox* selectedNote);
+
+private:
+    enum class EnvelopeControlPointID {
+        None,
+        StrengthControlPoint,
+        ClLengthControlPoint,
+    };
+
+    void OnPaint(wxPaintEvent& event);
+    void OnLeftDown(wxMouseEvent& event);
+    void OnLeftUp(wxMouseEvent& event);
+    void OnMouseMove(wxMouseEvent& event);
+    void OnLeaveWindow(wxMouseEvent& event);
+    wxPoint2DDouble GetMousePos(const wxMouseEvent& event) const;
+    wxRect2DDouble GetStrengthControlPointRect() const;
+    wxRect2DDouble GetClLengthControlPointRect() const;
+    void ControlPointUpdate();
+    void ApplyControlPointDrag(const wxPoint2DDouble& mousePos);
+
+    int m_xOffset = 0;
+    double m_pixelPerSecond = 64.0;             // 1秒あたりのピクセル数
+    int m_barWidth = 256; // 1小節の幅（px）
+    double scriptLengthInBar = 0.0; // スクリプトの長さ（小節数）
+    double margin = 12.0;
+    double pointSize = 10.0;
+
+    std::vector<double> envelopeLine;
+    MidiNoteBox* note = nullptr;
+    NesoraPianoRollCanvas* m_linkedPianoRoll = nullptr;
+    EnvelopeControlPointID draggingControlPoint = EnvelopeControlPointID::None;
+    EnvelopeControlPointID hoverControlPoint = EnvelopeControlPointID::None;
+    wxRect2DDouble strengthRect;
+    wxRect2DDouble clLengthRect;
+};
+
 class NesoraPianoRollCanvas : public wxScrolledWindow {
 public:
     NesoraPianoRollCanvas(wxWindow* parent) : wxScrolledWindow(parent, wxID_ANY) {
@@ -89,13 +168,29 @@ public:
 
     void Init();
     double GetPitch(double t);
+    double GetEnvelope(double t);
     void ClearPlaybackLine();
     bool IsLyricEditing() const;
+    void EnvelopeLineUpdate();
 
+    void SetLinkedPianoKeys(NesoraPianoKeys* keys) {
+        m_linkedKeys = keys;
+        int x, y;
+        GetViewStart(&x, &y);
+        int ppux, ppuy;
+        GetScrollPixelsPerUnit(&ppux, &ppuy);
+        m_linkedKeys->SetScrollOffset(y * ppuy);
+    }
+    void SetLinkedTimeline(NesoraTimeline* timeline) { m_linkedTimeline = timeline; }
+    void SetLinkedEnvelopeline(NesoraEnvelopeline* envelopeline) {
+        m_linkedEnvelopeline = envelopeline;
+    }
+private:
+    
     NesoraPianoKeys* m_linkedKeys = nullptr;
     NesoraTimeline* m_linkedTimeline = nullptr;
-
-private:
+    NesoraEnvelopeline* m_linkedEnvelopeline = nullptr;
+        
     std::vector<MidiNoteBox> notes;
     NesoraMIDIPhoneticalScript midiScript;
     std::vector<double> pitchLine;
@@ -117,12 +212,19 @@ private:
     double scriptLengthInBar = 9.0;         // スクリプトの長さ（小節数）
     double timeSignatureNumerator = 4.0;    // 拍子の分子
     double timeSignatureDenominator = 4.0;  // 拍子の分母
+    double quantizeWidth = 32;              // グリッドの幅
+
+    double pixelPerNote = 20;          // 1鍵あたりの高さ
+    double A4KeyY = NESORA_MIDI_PANEL_A4_KEY_Y * 20; // A4の鍵のY座標
 
     bool isAddNote = false;         // ノート追加モードかどうか
     bool tookAction = false;        // ドラッグ操作中に実際にノートの追加や移動などのアクションが発生したか
     bool isNotePreview = true;      // プレビュー表示するかどうか(仮)
     std::atomic<double> playbackTimeInSec{0.0}; // 再生位置ライン用の現在時刻(秒)
-    double playbackVisualDelayInSec = 0.05;      // 実際の出音遅延を見越した表示補正(秒)
+    double playbackVisualDelayInSec = 0.05;     // 実際の出音遅延を見越した表示補正(秒)
+
+    int selectedNoteIdx = -1;                   // 現在選択されているノートのインデックス
+    MidiNoteBoxControlPointID draggingControlPointIdx;      //ドラッグ中の操作点のインデックス
 
     NesoraPianoRollCanvasMouseDragState mouseDragState = NesoraPianoRollCanvasMouseDragState::None;
     
@@ -135,8 +237,12 @@ private:
     std::vector<int> GetSelectedNoteOrder() const;
     int GetNextSelectedNoteIndex(int currentNoteIdx) const;
     void ResolveOverlaps();
+    void PitchControlPointUpdate();
+    void PitchLineUpdate();
 
     void NoteSelectClear();
+    void ChangeSelectNote();
+    MidiNoteBox CreateNewMidiNoteBox(MidiNoteBox box);
 
     void OnPaint(wxPaintEvent& event);
     void OnLeftDown(wxMouseEvent& event);
@@ -146,6 +252,11 @@ private:
     void OnRightUp(wxMouseEvent& event);
     void OnMouseMove(wxMouseEvent& event);
     void OnSize(wxSizeEvent& event);
+    void OnZoom(wxZoomGestureEvent& event);
+    void OnMouseWheel(wxMouseEvent& event);
+    void OnKeyDown(wxKeyEvent& event);
+    void OnScroll(wxScrollWinEvent& event);
+    void OnMagnify(wxMouseEvent& event);
 
     void BeginLyricEdit(int noteIdx);
     void EndLyricEdit(bool commit);
@@ -156,8 +267,7 @@ private:
 
     void SetScrollWidth();
 
-    void OnKeyDown(wxKeyEvent& event);
-    void OnScroll(wxScrollWinEvent& event);
+    void DoZoom(int deltax, int deltay, const wxPoint2DDouble center);
 };
 
 class nsMIDIControl : public wxWindow {
@@ -196,7 +306,9 @@ public:
     }
     
     void Init();
-    double GetPitch(double samplingFrequency);
+    double GetPitch();
+    double GetEnvelope();
+    void ProceedTime(double samplingFrequency);
     void PlayStop();
     bool IsLyricEditing() const;
 
@@ -207,7 +319,7 @@ private:
     NesoraPianoRollCanvas* pianoRoll;
     wxTimer playbackLineTimer;
 
-    double nowPlayTime = 0.0;
+    double nowPlayTime = 0.0;   // 現在の再生位置[ms]
 
     void OnPlaybackTimer(wxTimerEvent& event);
 };

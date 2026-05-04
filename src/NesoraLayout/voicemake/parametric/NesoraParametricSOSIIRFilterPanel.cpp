@@ -396,7 +396,7 @@ void nsParametricSOSIIRFilterPanel::Update() {
     }
 }
 
-NesoraParametricSOSIIRFilter* nsParametricSOSIIRFilterPanel::GetIIRFilter() {
+NesoraFilterBase* nsParametricSOSIIRFilterPanel::GetFilter() {
     return iirFilter->filter;
 }
 

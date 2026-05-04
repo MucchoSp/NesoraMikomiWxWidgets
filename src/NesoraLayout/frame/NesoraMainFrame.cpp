@@ -61,7 +61,6 @@ nsMainFrame::nsMainFrame()
 
 void nsMainFrame::menuSetup() {
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, _("&Hello...\tCtrl-H"), _("Help string shown in status bar for this menu item"));
     menuFile->Append(wxID_SAVE, _("&Save\tCtrl-S"), _("Save the current file"));
     menuFile->Append(wxID_OPEN, _("&Open...\tCtrl-O"), _("Open a file"));
     menuFile->AppendSeparator();
@@ -80,11 +79,10 @@ void nsMainFrame::menuSetup() {
 
     SetMenuBar(menuBar);
 
-    Bind(wxEVT_MENU, &nsMainFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &nsMainFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &nsMainFrame::OnExit, this, wxID_EXIT);
-    Bind(wxEVT_MENU, &nsMainFrame::OnSave, this, wxID_SAVE);
-    Bind(wxEVT_MENU, &nsMainFrame::OnOpen, this, wxID_OPEN);
+    // Bind(wxEVT_MENU, &nsMainFrame::OnSave, this, wxID_SAVE);
+    // Bind(wxEVT_MENU, &nsMainFrame::OnOpen, this, wxID_OPEN);
 }
 
 void nsMainFrame::acceleratorSetup() {
@@ -99,39 +97,16 @@ void nsMainFrame::OnExit(wxCommandEvent& event) {
 }
 
 void nsMainFrame::OnAbout(wxCommandEvent& event) {
-    wxMessageBox("This is a wxWidgets' Hello world sample",
-        "About Hello World", wxOK | wxICON_INFORMATION);
-}
-
-void nsMainFrame::OnHello(wxCommandEvent& event) {
-    wxLogMessage("Hello world from wxWidgets!");
-}
-
-void nsMainFrame::OnSave(wxCommandEvent& event) {
-    if(selectedToolBarType == nsToolBarType::TOOLBAR_SING) {
-        singPanel->OnSave(event);
-    }
-    else if(selectedToolBarType == nsToolBarType::TOOLBAR_SPEAK) {
-        speakPanel->OnSave(event);
-    }
-    else if(selectedToolBarType == nsToolBarType::TOOLBAR_VOICE_MAKE) {
-        voiceMakePanel->OnSave(event);
-    }
-}
-
-void nsMainFrame::OnOpen(wxCommandEvent& event) {
-    if(selectedToolBarType == nsToolBarType::TOOLBAR_VOICE_MAKE) {
-        voiceMakePanel->OnOpen(event);
-    }
+    wxMessageBox("Nesora 1-0\nCopyright (c) 2026 MucchoSP", "About", wxOK);
 }
 
 void nsMainFrame::OnSingButton(wxCommandEvent& event) {
     singButton->SetSelected(true);
     speakButton->SetSelected(false);
     makeButton->SetSelected(false);
-    singPanel->Show();
-    speakPanel->Hide();
-    voiceMakePanel->Hide();
+    singPanel->PanelEnable();
+    speakPanel->PanelDisable();
+    voiceMakePanel->PanelDisable();
     main_sizer->Layout();
     selectedToolBarType = nsToolBarType::TOOLBAR_SING;
 }
@@ -140,9 +115,9 @@ void nsMainFrame::OnSpeakButton(wxCommandEvent& event) {
     singButton->SetSelected(false);
     speakButton->SetSelected(true);
     makeButton->SetSelected(false);
-    singPanel->Hide();
-    speakPanel->Show();
-    voiceMakePanel->Hide();
+    singPanel->PanelDisable();
+    speakPanel->PanelEnable();
+    voiceMakePanel->PanelDisable();
     main_sizer->Layout();
     selectedToolBarType = nsToolBarType::TOOLBAR_SPEAK;
 }
@@ -151,9 +126,9 @@ void nsMainFrame::OnMakeButton(wxCommandEvent& event) {
     singButton->SetSelected(false);
     speakButton->SetSelected(false);
     makeButton->SetSelected(true);
-    singPanel->Hide();
-    speakPanel->Hide();
-    voiceMakePanel->Show();
+    singPanel->PanelDisable();
+    speakPanel->PanelDisable();
+    voiceMakePanel->PanelEnable();
     main_sizer->Layout();
     selectedToolBarType = nsToolBarType::TOOLBAR_VOICE_MAKE;
 }

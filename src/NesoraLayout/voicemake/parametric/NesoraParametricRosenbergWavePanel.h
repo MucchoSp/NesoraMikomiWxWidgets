@@ -16,6 +16,7 @@
 
 #include "../../../NesoraStyle/NesoraStyle.h"
 
+#include "../NesoraVoiceMakePanelBase.h"
 #include "../../NesoraIDs.h"
 #include "../../NesoraEvents.h"
 
@@ -24,7 +25,7 @@
 
 
 
-class nsParametricRosenbergWavePanel : public wxPanel {
+class nsParametricRosenbergWavePanel : public nsSourcePanelBase {
 public:
     nsParametricRosenbergWavePanel() {
         Init();
@@ -35,7 +36,7 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-        const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name)
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsSourcePanelBase(parent, winid, pos, size, style, name)
     {
         Init();
     }
@@ -44,13 +45,13 @@ public:
     ~nsParametricRosenbergWavePanel() {
     }
 
-    void Init();
-    void Update();
+    void Init() override;
+    void Update() override;
     
     std::vector<double> GetWave() const;
-    NesoraParametricRosenbergWave* GetSource();
+    NesoraSourceBase* GetSource() override;
 
-    double GetPitch() const;
+    double GetPitch() const override;
 
 private:
     nsSimpleChartControl* chart;

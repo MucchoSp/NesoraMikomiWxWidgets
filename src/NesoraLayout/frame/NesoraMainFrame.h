@@ -11,6 +11,7 @@
 #include "../speak/NesoraSpeakPanel.h"
 #include "../voicemake/parametric/NesoraParametricVoiceMakePanel.h"
 #include "../character/NesoraCharacterPanel.h"
+#include "../dictionaly/NesoraDictionalyPanel.h"
 
 #ifndef NESORA_MAIN_FRAME_H
 #define NESORA_MAIN_FRAME_H
@@ -20,7 +21,8 @@ enum class nsToolBarType {
     TOOLBAR_SPEAK,
     TOOLBAR_SING,
     TOOLBAR_VOICE_MAKE,
-    TOOLBAR_CHARACTER
+    TOOLBAR_CHARACTER,
+    TOOLBAR_DICTIONALY,
 };
 
 class nsToolBarButton;
@@ -44,11 +46,13 @@ private:
     nsToolBarButton* speakButton;
     nsToolBarButton* makeButton;
     nsToolBarButton* characterButton;
+    nsToolBarButton* dictionalyButton;
 
     nsSingPanel* singPanel;
     nsSpeakPanel* speakPanel;
     nsParametricVoiceMakePanel* voiceMakePanel;
     nsCharacterPanel* characterPanel;
+    nsDictionalyPanel* dictionalyPanel;
 
     wxSizer* main_sizer;
 
@@ -58,6 +62,7 @@ private:
     void OnSpeakButton(wxCommandEvent& event);
     void OnMakeButton(wxCommandEvent& event);
     void OnCharButton(wxCommandEvent& event);
+    void OnDictionalyButton(wxCommandEvent& event);
 };
 
 

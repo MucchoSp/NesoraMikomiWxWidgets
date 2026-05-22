@@ -10,6 +10,7 @@
 #include "../sing/NesoraSingPanel.h"
 #include "../speak/NesoraSpeakPanel.h"
 #include "../voicemake/parametric/NesoraParametricVoiceMakePanel.h"
+#include "../voicemake/phonetic/NesoraPhoneticVoiceMakePanel.h"
 #include "../character/NesoraCharacterPanel.h"
 #include "../dictionaly/NesoraDictionalyPanel.h"
 
@@ -50,7 +51,7 @@ private:
 
     nsSingPanel* singPanel;
     nsSpeakPanel* speakPanel;
-    nsParametricVoiceMakePanel* voiceMakePanel;
+    nsPhoneticVoiceMakePanel* voiceMakePanel;
     nsCharacterPanel* characterPanel;
     nsDictionalyPanel* dictionalyPanel;
 

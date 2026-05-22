@@ -17,7 +17,7 @@ nsMainFrame::nsMainFrame()
     singPanel->Hide();
     speakPanel = new nsSpeakPanel(this, nsID_SPEAK_PANEL, wxDefaultPosition, wxSize(1000, 300));
     speakPanel->Hide();
-    voiceMakePanel = new nsParametricVoiceMakePanel(this, nsID_VOICE_MAKE_PANEL, wxDefaultPosition, wxSize(1000, 300));
+    voiceMakePanel = new nsPhoneticVoiceMakePanel(this, nsID_VOICE_MAKE_PANEL, wxDefaultPosition, wxSize(1000, 300));
     voiceMakePanel->Hide();
     characterPanel = new nsCharacterPanel(this, nsID_CHARACTER_PANEL, wxDefaultPosition, wxSize(1000, 300));
     characterPanel->Hide();
@@ -65,10 +65,10 @@ nsMainFrame::nsMainFrame()
     Bind(wxEVT_COMMAND_BUTTON_CLICKED, &nsMainFrame::OnExit, this, ID_EXIT);
 
     wxCommandEvent evt;
-    // OnMakeButton(evt);
-    // selectedToolBarType = nsToolBarType::TOOLBAR_VOICE_MAKE;
-    OnSingButton(evt);
-    selectedToolBarType = nsToolBarType::TOOLBAR_SING;
+    OnMakeButton(evt);
+    selectedToolBarType = nsToolBarType::TOOLBAR_VOICE_MAKE;
+    // OnSingButton(evt);
+    // selectedToolBarType = nsToolBarType::TOOLBAR_SING;
 }
 
 void nsMainFrame::menuSetup() {

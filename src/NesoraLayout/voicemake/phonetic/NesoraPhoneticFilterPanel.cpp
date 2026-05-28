@@ -27,6 +27,10 @@ nsPhoneticVowelControl::nsPhoneticVowelControl(wxWindow* parent,
     Bind(wxEVT_SIZE, &nsPhoneticVowelControl::OnSize, this);
 }
 
+void nsPhoneticVowelControl::SetFilter(NesoraParametricSOSIIRFilter* filter) {
+    this->filter = filter;
+}
+
 void nsPhoneticVowelControl::OnPaint(wxPaintEvent& event) {
     wxAutoBufferedPaintDC dc(this);
     wxSize size = GetClientSize();
@@ -59,7 +63,7 @@ void nsPhoneticVowelControl::OnPaint(wxPaintEvent& event) {
 
         for (const auto& point : vowelPoints) {
             if (vowelPointEnabled[point.first]) {
-                wxPoint2DDouble graphPoint = { (wxDouble)size.GetWidth() - point.second.m_x * nowGraphScaleX + nowGraphX, point.second.m_y * nowGraphScaleY - nowGraphY };
+                wxPoint2DDouble graphPoint = VowelToGraphPoint(point.second);
                 if (point.first == hoveredVowelType) {
                     gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
                 } else {
@@ -68,15 +72,23 @@ void nsPhoneticVowelControl::OnPaint(wxPaintEvent& event) {
                 gc->DrawEllipse(graphPoint.m_x - 5, graphPoint.m_y - 5, 10, 10);
                 wxString label = wxString::Format("/%s/", nsPhoneticVowelNames[static_cast<size_t>(point.first)]);
                 gc->DrawText(label, graphPoint.m_x + 10, graphPoint.m_y);
+            }else {
+                wxPoint2DDouble graphPoint = VowelToGraphPoint(point.second);
+                gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
+                gc->DrawEllipse(graphPoint.m_x - 5, graphPoint.m_y - 5, 10, 10);
             }
         }
+        
 
+        gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
+        gc->SetPen(wxPen(nsGetColor(nsColorType::BACKGROUND_SHADOW)));
+        gc->SetFont(font, nsGetColor(nsColorType::ON_BACKGROUND));
         if (draggingVowelType != NesoraPhoneticVowelType::None or hoveredVowelType != NesoraPhoneticVowelType::None) {
             NesoraPhoneticVowelType type = (draggingVowelType != NesoraPhoneticVowelType::None) ? draggingVowelType : hoveredVowelType;
-            wxString outputString = wxString::Format("/%s/(%0.2fHz, %0.4f)", nsPhoneticVowelNames[static_cast<size_t>(type)], vowelPoints[type].m_x, vowelPoints[type].m_y);
+            wxString outputString = wxString::Format(" /%s/ (%0.1fHz, %0.1fHz) ", nsPhoneticVowelNames[static_cast<size_t>(type)], vowelPoints[type].m_x, vowelPoints[type].m_y);
             double tw, th;
             gc->GetTextExtent(outputString, &tw, &th);
-            wxPoint2DDouble graphPoint = { (wxDouble)size.GetWidth() - vowelPoints[type].m_x * nowGraphScaleX + nowGraphX, vowelPoints[type].m_y * nowGraphScaleY - nowGraphY };
+            wxPoint2DDouble graphPoint = VowelToGraphPoint(vowelPoints[type]);
             int x = graphPoint.m_x + 5.0 + tw < size.GetWidth() ? graphPoint.m_x + 5.0 : graphPoint.m_x - tw;
             int y = graphPoint.m_y + th < size.GetHeight() ? graphPoint.m_y : graphPoint.m_y - th;
             gc->DrawRectangle(x, y, tw, th);
@@ -90,28 +102,25 @@ void nsPhoneticVowelControl::OnPaint(wxPaintEvent& event) {
 
 void nsPhoneticVowelControl::OnMouseMove(wxMouseEvent& event) {
     wxPoint pos = event.GetPosition();
-    wxSize size = GetClientSize();
-    if (event.MiddleIsDown()) {
+    if (draggingVowelType != NesoraPhoneticVowelType::None and event.LeftIsDown()) {
+        vowelPoints[draggingVowelType] = GraphToVowelPoint(pos);
+        Refresh();
+        lastMousePos = pos;
+        event.Skip();
+        return;
+    }
+    if (event.MiddleIsDown() or (event.LeftIsDown() and draggingVowelType == NesoraPhoneticVowelType::None)) {
         wxPoint delta = pos - lastMousePos;
         nowGraphX += delta.x;
         if (nowGraphX < 0) nowGraphX = 0;
         nowGraphY -= delta.y;
         if (nowGraphY < 0) nowGraphY = 0;
-        Refresh(); // Redraw the control
-    }
-    if (draggingVowelType != NesoraPhoneticVowelType::None and event.LeftIsDown()) {
-        wxPoint2DDouble& vowelPoint = vowelPoints[draggingVowelType];
-        vowelPoint.m_x = -(pos.x - nowGraphX - (wxDouble)size.GetWidth()) / nowGraphScaleX;
-        vowelPoint.m_y = (pos.y + nowGraphY) / nowGraphScaleY;
-        Refresh(); // Redraw the control
-        lastMousePos = pos;
-        event.Skip();
-        return;
+        Refresh();
     }
     NesoraPhoneticVowelType oldSelectedVowelType = hoveredVowelType;
     hoveredVowelType = NesoraPhoneticVowelType::None;
     for (const auto& point : vowelPoints) {
-        wxPoint2DDouble graphPoint = { (wxDouble)size.GetWidth() - point.second.m_x * nowGraphScaleX + nowGraphX, point.second.m_y * nowGraphScaleY - nowGraphY };
+        wxPoint2DDouble graphPoint = VowelToGraphPoint(point.second);
         if (std::abs(pos.x - graphPoint.m_x) < 10 && std::abs(pos.y - graphPoint.m_y) < 10) {
             hoveredVowelType = point.first;
             Refresh();
@@ -129,10 +138,10 @@ void nsPhoneticVowelControl::OnMouseDown(wxMouseEvent& event) {
     wxPoint pos = event.GetPosition();
     wxSize size = GetClientSize();
     for (const auto& point : vowelPoints) {
-        wxPoint2DDouble graphPoint = { (wxDouble)size.GetWidth() - point.second.m_x * nowGraphScaleX + nowGraphX, point.second.m_y * nowGraphScaleY - nowGraphY };
+        wxPoint2DDouble graphPoint = VowelToGraphPoint(point.second);
         if (std::abs(pos.x - graphPoint.m_x) < 10 && std::abs(pos.y - graphPoint.m_y) < 10) {
             draggingVowelType = point.first;
-            Refresh(); // Redraw the control
+            Refresh();
             break;
         }
     }
@@ -153,7 +162,7 @@ void nsPhoneticVowelControl::OnMouseWheel(wxMouseEvent& event) {
         nowGraphScaleX /= 1.1;
         nowGraphScaleY /= 1.1;
     }
-    Refresh(); // Redraw the control
+    Refresh();
     event.Skip();
 }
 
@@ -171,6 +180,21 @@ void nsPhoneticVowelControl::OnSize(wxSizeEvent& event) {
     }
 }
 
+wxPoint2DDouble nsPhoneticVowelControl::GraphToVowelPoint(const wxPoint2DDouble& graphPoint) {
+    return wxPoint2DDouble(-(graphPoint.m_x - nowGraphX - (wxDouble)GetClientSize().GetWidth()) / nowGraphScaleX, (graphPoint.m_y + nowGraphY) / nowGraphScaleY);
+}
+
+wxPoint2DDouble nsPhoneticVowelControl::VowelToGraphPoint(const wxPoint2DDouble& vowelPoint) {
+    return wxPoint2DDouble((wxDouble) GetClientSize().GetWidth() - vowelPoint.m_x * nowGraphScaleX + nowGraphX, vowelPoint.m_y * nowGraphScaleY - nowGraphY);
+}
+
+
+
+
+
+
+
+
 // MARK:nsPhoneticPersonalityControl
 
 nsPhoneticPersonalityControl::nsPhoneticPersonalityControl(wxWindow* parent,
@@ -186,13 +210,21 @@ nsPhoneticPersonalityControl::nsPhoneticPersonalityControl(wxWindow* parent,
     genderSlider = new nsSlider(this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxSize(-1, 15));
     ageSlider = new nsSlider(this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxSize(-1, 15));
     wxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-    mainSizer->Add(new wxStaticText(this, wxID_ANY, _("Gender")), 0, wxLEFT | wxRIGHT | wxTOP, 10);
+    mainSizer->Add(new wxStaticText(this, wxID_ANY, _("Parameter1")), 0, wxLEFT | wxRIGHT | wxTOP, 10);
     mainSizer->Add(genderSlider, 0, wxEXPAND | wxLEFT | wxRIGHT, 10);
-    mainSizer->Add(new wxStaticText(this, wxID_ANY, _("Age")), 0, wxLEFT | wxRIGHT | wxTOP, 10);
+    mainSizer->Add(new wxStaticText(this, wxID_ANY, _("Parameter2")), 0, wxLEFT | wxRIGHT | wxTOP, 10);
     mainSizer->Add(ageSlider, 0, wxEXPAND | wxLEFT | wxRIGHT, 10);
     mainSizer->AddStretchSpacer();
     SetSizer(mainSizer);
 }
+
+void nsPhoneticPersonalityControl::SetFilter(NesoraParametricSOSIIRFilter* filter) {
+    this->filter = filter;
+}
+
+
+
+
 
 
 // MARK:nsIIRFrequencyResponseControl
@@ -209,6 +241,11 @@ nsIIRFrequencyResponseControl::nsIIRFrequencyResponseControl(wxWindow* parent,
 
     Bind(wxEVT_PAINT, &nsIIRFrequencyResponseControl::OnPaint, this);
 }   
+
+void nsIIRFrequencyResponseControl::SetFilter(NesoraParametricSOSIIRFilter* filter) {
+    this->filter = filter;
+    Refresh();
+}
 
 void nsIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
     wxAutoBufferedPaintDC dc(this);
@@ -239,8 +276,8 @@ void nsPhoneticFilterPanel::Init() {
 
     wxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     wxSizer* filterSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticBoxSizer* vowelFormantSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Vowel formant filter"));
-    wxStaticBoxSizer* personalityFormantSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Personality formant filter"));
+    wxStaticBoxSizer* vowelFormantSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Vowel formant"));
+    wxStaticBoxSizer* personalityFormantSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Personality formant"));
     wxStaticBoxSizer* filterResponseSizer = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Filter frequency response"));
 
     vowelFilter = new nsPhoneticVowelControl(vowelFormantSizer->GetStaticBox());
@@ -257,6 +294,10 @@ void nsPhoneticFilterPanel::Init() {
     mainSizer->Add(filterResponseSizer, 0, wxEXPAND | wxALL);
 
     this->SetSizer(mainSizer);
+
+    vowelFilter->SetFilter(filter);
+    personalityFilter->SetFilter(filter);
+    frequencyResponse->SetFilter(filter);
 }
 
 void nsPhoneticFilterPanel::Update() {

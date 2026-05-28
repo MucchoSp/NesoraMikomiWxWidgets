@@ -101,7 +101,7 @@ enum class NesoraPhoneticVowelType {
     close_back_unrounded_vowel,       // ɯ
     close_front_rounded_vowel,        // y
     close_back_rounded_vowel,         // u
-    None,
+    None, 
 };
 const std::array<wxString, 22> nsPhoneticVowelNames = {
     wxString::FromUTF8(_("a")),
@@ -139,6 +139,8 @@ public:
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
         const wxString& name = wxASCII_STR(wxPanelNameStr));
 
+    void SetFilter(NesoraParametricSOSIIRFilter* filter);
+
     void OnPaint(wxPaintEvent& event);
 
     void OnMouseMove(wxMouseEvent& event);
@@ -151,6 +153,7 @@ public:
     void OnSize(wxSizeEvent& event);
     
 private:
+    NesoraParametricSOSIIRFilter* filter;
 
     int nowGraphX = 0;
     int nowGraphY = 0;
@@ -161,6 +164,7 @@ private:
     NesoraPhoneticVowelType hoveredVowelType = NesoraPhoneticVowelType::None;
     NesoraPhoneticVowelType draggingVowelType = NesoraPhoneticVowelType::None;
 
+    wxPoint2DDouble nowVowelPoint = {0, 0};
     std::map<NesoraPhoneticVowelType, wxPoint2DDouble> vowelPoints = {
         {NesoraPhoneticVowelType::open_front_unrounded_vowel, wxPoint2DDouble(1500, 1000)},
         {NesoraPhoneticVowelType::open_central_unrounded_vowel, wxPoint2DDouble(1000, 1000)},
@@ -208,6 +212,8 @@ private:
         {NesoraPhoneticVowelType::close_back_rounded_vowel, true}
     };
 
+    wxPoint2DDouble GraphToVowelPoint(const wxPoint2DDouble& graphPoint);
+    wxPoint2DDouble VowelToGraphPoint(const wxPoint2DDouble& vowelPoint);
 };
 
 
@@ -223,7 +229,11 @@ public:
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
         const wxString& name = wxASCII_STR(wxPanelNameStr));
 
+    void SetFilter(NesoraParametricSOSIIRFilter* filter);
+
 private:
+    NesoraParametricSOSIIRFilter* filter;
+
     nsSlider* genderSlider;
     nsSlider* ageSlider;
 };
@@ -241,7 +251,12 @@ public:
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
         const wxString& name = wxASCII_STR(wxPanelNameStr));
 
+    void SetFilter(NesoraParametricSOSIIRFilter* filter);
+
     void OnPaint(wxPaintEvent& event);
+    
+private:
+    NesoraParametricSOSIIRFilter* filter;
 };
 
 

@@ -57,4 +57,32 @@ public:
     virtual NesoraFilterBase* GetFilter() = 0;
 };
 
+class nsVoiceMakePanelBase : public wxPanel {
+public:
+    nsVoiceMakePanelBase() {
+    }
+    nsVoiceMakePanelBase(wxWindow* parent,
+        wxWindowID winid = wxID_ANY,
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxDefaultSize,
+        long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name)
+    {
+    }
+    ~nsVoiceMakePanelBase() {
+    }
+
+    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    NesoraMikomiVoice* GetVoice() const { return voice; }
+    virtual void OnSave(wxCommandEvent& event) = 0;
+    virtual void OnOpen(wxCommandEvent& event) = 0;
+
+    virtual void PanelEnable() = 0;
+    virtual void PanelDisable() = 0;
+
+protected:
+    NesoraMikomiVoice* voice = nullptr;
+
+};
+
 #endif // NESORA_VOICE_MAKE_PANEL_BASE_H

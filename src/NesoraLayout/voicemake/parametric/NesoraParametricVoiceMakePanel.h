@@ -58,7 +58,7 @@ private:
 
 // MARK:nsParametricVoiceMakePanel
 
-class nsParametricVoiceMakePanel : public wxPanel {
+class nsParametricVoiceMakePanel : public nsVoiceMakePanelBase {
 public:
     nsParametricVoiceMakePanel() {
         Init();
@@ -69,7 +69,7 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-        const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name)
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsVoiceMakePanelBase(parent, winid, pos, size, style, name)
     {
         Init();
     }

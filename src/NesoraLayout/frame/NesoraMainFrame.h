@@ -51,7 +51,7 @@ private:
 
     nsSingPanel* singPanel;
     nsSpeakPanel* speakPanel;
-    nsPhoneticVoiceMakePanel* voiceMakePanel;
+    nsVoiceMakePanelBase* voiceMakePanel;
     nsCharacterPanel* characterPanel;
     nsDictionalyPanel* dictionalyPanel;
 

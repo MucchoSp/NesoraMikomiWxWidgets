@@ -119,33 +119,55 @@ double NesoraParametricLFModel::calculate_I2(double Te, double Ta, double Tc, do
 }
 
 double NesoraParametricLFModel::GetTp() const {
-    return tp;
+    return normal_tp;
 }
 
 double NesoraParametricLFModel::GetTe() const {
-    return te;
+    return normal_te;
 }
 
 double NesoraParametricLFModel::GetTa() const {
-    return ta;
+    return normal_ta;
 }
 
 double NesoraParametricLFModel::GetEe() const {
-    return ee;
+    return normal_ee;
 }
 
 double NesoraParametricLFModel::GetNoise() const {
-    return noise;
+    return normal_noise;
 }
 
 std::vector<unsigned char> NesoraParametricLFModel::SaveData() {
+    std::vector<unsigned char> data;
 
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&normal_tp), reinterpret_cast<unsigned char*>(&normal_tp) + sizeof(normal_tp));
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&normal_te), reinterpret_cast<unsigned char*>(&normal_te) + sizeof(normal_te));
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&normal_ta), reinterpret_cast<unsigned char*>(&normal_ta) + sizeof(normal_ta));
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&normal_ee), reinterpret_cast<unsigned char*>(&normal_ee) + sizeof(normal_ee));
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&normal_noise), reinterpret_cast<unsigned char*>(&normal_noise) + sizeof(normal_noise));
+
+    return data;
 }
 
 void NesoraParametricLFModel::LoadData(const std::vector<unsigned char>& data) {
+    if (data.size() < sizeof(normal_tp) + sizeof(normal_te) + sizeof(normal_ta) + sizeof(normal_ee) + sizeof(normal_noise)) {
+        // データが不足している場合の処理
+        return;
+    }
 
+    size_t offset = 0;
+    std::memcpy(&normal_tp, &data[offset], sizeof(normal_tp));
+    offset += sizeof(normal_tp);
+    std::memcpy(&normal_te, &data[offset], sizeof(normal_te));
+    offset += sizeof(normal_te);
+    std::memcpy(&normal_ta, &data[offset], sizeof(normal_ta));
+    offset += sizeof(normal_ta);
+    std::memcpy(&normal_ee, &data[offset], sizeof(normal_ee));
+    offset += sizeof(normal_ee);
+    std::memcpy(&normal_noise, &data[offset], sizeof(normal_noise));
+    offset += sizeof(normal_noise);
 }
-
 
 
 
@@ -295,11 +317,29 @@ double NesoraParametricLFModelRdParameter::GetNoise() const {
 }
 
 std::vector<unsigned char> NesoraParametricLFModelRdParameter::SaveData() {
+    std::vector<unsigned char> data;
 
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&normal_rd), reinterpret_cast<unsigned char*>(&normal_rd) + sizeof(normal_rd));
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&normal_ee), reinterpret_cast<unsigned char*>(&normal_ee) + sizeof(normal_ee));
+    data.insert(data.end(), reinterpret_cast<unsigned char*>(&normal_noise), reinterpret_cast<unsigned char*>(&normal_noise) + sizeof(normal_noise));
+
+    return data;
 }
 
 void NesoraParametricLFModelRdParameter::LoadData(const std::vector<unsigned char>& data) {
+    if (data.size() < sizeof(normal_rd) + sizeof(normal_ee) + sizeof(normal_noise)) {
+        // データが不足している場合の処理
+        std::cout << "LoadLFModelRdParameterData(filename): failed to read sourceData" << std::endl;
+        return;
+    }
 
+    size_t offset = 0;
+    std::memcpy(&normal_rd, &data[offset], sizeof(normal_rd));
+    offset += sizeof(normal_rd);
+    std::memcpy(&normal_ee, &data[offset], sizeof(normal_ee));
+    offset += sizeof(normal_ee);
+    std::memcpy(&normal_noise, &data[offset], sizeof(normal_noise));
+    offset += sizeof(normal_noise);
 }
 
 

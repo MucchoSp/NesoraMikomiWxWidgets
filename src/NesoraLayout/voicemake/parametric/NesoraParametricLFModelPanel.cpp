@@ -117,7 +117,12 @@ void nsParametricLFModelPanel::Init() {
 }
 
 void nsParametricLFModelPanel::Update() {
-    // TODO: パラメータの更新
+    phonetic_slider->SetValue((int)(source_wave->GetNoise() * 1000.0));
+    tpslider->SetValue((int)(source_wave->GetTp() * 1000.0));
+    teslider->SetValue((int)(source_wave->GetTe() * 1000.0));
+    taslider->SetValue((int)(source_wave->GetTa() * 1000.0));
+    eeslider->SetValue((int)(source_wave->GetEe() * 1000.0));
+    UpdateChart();
 }
 
 

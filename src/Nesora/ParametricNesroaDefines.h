@@ -11,6 +11,24 @@
 struct ParametricNesoraIIRFilterParameter {
     double delta_r;
     double delta_theta;
+
+    std::vector<unsigned char> SaveData() const {
+        std::vector<unsigned char> data;
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&delta_r), reinterpret_cast<const unsigned char*>(&delta_r) + sizeof(delta_r));
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&delta_theta), reinterpret_cast<const unsigned char*>(&delta_theta) + sizeof(delta_theta));
+        return data;
+    }
+    void LoadData(const std::vector<unsigned char>& data) {
+        if (data.size() < sizeof(delta_r) + sizeof(delta_theta)) {
+            // データが不足している場合の処理
+            return;
+        }
+        size_t offset = 0;
+        std::memcpy(&delta_r, &data[offset], sizeof(delta_r));
+        offset += sizeof(delta_r);
+        std::memcpy(&delta_theta, &data[offset], sizeof(delta_theta));
+        offset += sizeof(delta_theta);
+    }
 };
 
 struct ParametricNesoraRosenbergWaveParameter {

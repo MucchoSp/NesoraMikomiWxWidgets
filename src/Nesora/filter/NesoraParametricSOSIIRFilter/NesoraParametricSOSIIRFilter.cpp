@@ -243,7 +243,7 @@ std::vector<unsigned char> NesoraParametricSOSIIRFilter::SaveData() {
         data.insert(data.end(), reinterpret_cast<const unsigned char*>(&deltaSize), reinterpret_cast<const unsigned char*>(&deltaSize) + sizeof(size_t));
         for(const auto& [paramid, paramdelta] : delta) {
             data.insert(data.end(), reinterpret_cast<const unsigned char*>(&paramid), reinterpret_cast<const unsigned char*>(&paramid) + sizeof(uint32_t));
-            std::vector<unsigned char> deltaData = ::SaveData(paramdelta);
+            std::vector<unsigned char> deltaData = paramdelta.SaveData();
             size_t deltaDataSize = deltaData.size();
             data.insert(data.end(), reinterpret_cast<const unsigned char*>(&deltaDataSize), reinterpret_cast<const unsigned char*>(&deltaDataSize) + sizeof(size_t));
             data.insert(data.end(), deltaData.begin(), deltaData.end());
@@ -281,7 +281,7 @@ void NesoraParametricSOSIIRFilter::LoadData(const std::vector<unsigned char>& da
             return;
         }
         NesoraIIRFilterPD point;
-        std::memcpy(&point, data.data() + offset, sizeof(NesoraIIRFilterPD));
+        point.LoadData(std::vector<unsigned char>(data.begin() + offset, data.begin() + offset + filterDataSize));
         offset += filterDataSize;
 
         if (offset + sizeof(size_t) > data.size()) {
@@ -312,7 +312,7 @@ void NesoraParametricSOSIIRFilter::LoadData(const std::vector<unsigned char>& da
                 return;
             }
             ParametricNesoraIIRFilterParameter paramdelta;
-            std::memcpy(&paramdelta, data.data() + offset, sizeof(ParametricNesoraIIRFilterParameter));
+            paramdelta.LoadData(std::vector<unsigned char>(data.begin() + offset, data.begin() + offset + deltaDataSize));
             offset += deltaDataSize;
             delta[paramid] = paramdelta;
         }

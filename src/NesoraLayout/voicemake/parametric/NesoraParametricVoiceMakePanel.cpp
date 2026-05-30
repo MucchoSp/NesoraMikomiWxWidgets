@@ -164,7 +164,9 @@ void nsParametricVoiceMakePanel::OnOpen(wxCommandEvent& event) {
 
     voice->LoadVoiceData(fileData);
 
-    sourceSoundPanel->Update();
+    if (sourceSoundPanel) {
+        sourceSoundPanel->Update();
+    }
     if (filterPanel) {
         filterPanel->Update();
     }

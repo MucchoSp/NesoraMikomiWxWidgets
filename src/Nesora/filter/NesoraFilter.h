@@ -46,6 +46,17 @@ struct NesoraIIRFilterPD {
         data.insert(data.end(), reinterpret_cast<const unsigned char*>(&theta), reinterpret_cast<const unsigned char*>(&theta) + sizeof(theta));
         return data;
     }
+    void LoadData(const std::vector<unsigned char>& data) {
+        if (data.size() < sizeof(r) + sizeof(theta)) {
+            // データが不足している場合の処理
+            return;
+        }
+        size_t offset = 0;
+        std::memcpy(&r, &data[offset], sizeof(r));
+        offset += sizeof(r);
+        std::memcpy(&theta, &data[offset], sizeof(theta));
+        offset += sizeof(theta);
+    }
 };
 
 

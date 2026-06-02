@@ -92,13 +92,12 @@ void nsParameterCard::OnContextMenu(wxContextMenuEvent& event) {
 }
 
 void nsParameterCard::HandleDelete() {
-    wxWindow* parent = GetParent();
-    this->Destroy();
-
+    nsParameterCardScrollContainer* parent = (nsParameterCardScrollContainer*)GetParent();
     if (parent) {
+        this->Destroy();
+        parent->RemoveSelectCard();
         parent->Layout();
-        auto* scrolled = dynamic_cast<wxScrolledWindow*>(parent);
-        if (scrolled) scrolled->FitInside();
+        parent->FitInside();
     }
 }
 

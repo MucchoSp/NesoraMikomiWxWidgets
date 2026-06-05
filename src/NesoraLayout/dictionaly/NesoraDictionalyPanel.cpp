@@ -4,7 +4,18 @@
 #include "NesoraDictionalyPanel.h"
 
 void nsDictionalyPanel::Init() {
-    wxStaticText* label = new wxStaticText(this, wxID_ANY, _("This is the Dictionaly Panel"), wxPoint(10, 10));
+    SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
+    // wxStaticText* label = new wxStaticText(this, wxID_ANY, _("This is the Dictionaly Panel"), wxPoint(10, 10));
+
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxHORIZONTAL);
+
+    index = new NesoraDictionalyIndexPanel(this, wxID_ANY);
+    editDictionalyPanel = new NesoraDictionalyEditPanel(this, wxID_ANY);
+    
+    mainSizer->Add(index, 0, wxEXPAND | wxALL, 5);
+    mainSizer->Add(editDictionalyPanel, 1, wxEXPAND | wxALL, 5);
+
+    SetSizer(mainSizer);
 }
 
 void nsDictionalyPanel::OnSave(wxCommandEvent& event) {

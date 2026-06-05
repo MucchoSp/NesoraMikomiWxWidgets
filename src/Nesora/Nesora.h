@@ -10,6 +10,7 @@
 #include "source/NesoraSource.h"
 #include "voice/NesoraVoice.h"
 #include "script/NesoraScript.h"
+#include "dictionaly/NesoraDictionaly.h"
 
 #include "filter/NesoraParametricSOSIIRFilter/NesoraParametricSOSIIRFilter.h"
 #include "filter/NesoraThroughFilter.h"

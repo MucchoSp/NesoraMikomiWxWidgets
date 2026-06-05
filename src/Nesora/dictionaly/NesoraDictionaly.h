@@ -22,4 +22,38 @@ public:
 private:
 };
 
+
+class NesoraVowelDictionaly : public NesoraDictionalyBase {
+public:
+    NesoraVowelDictionaly(){}
+
+    std::map<uint32_t, ParametricNesoraParameter> Vowel(double t) override;
+
+    std::vector<unsigned char> SaveData() override;
+    void LoadData(const std::vector<unsigned char>& data) override;
+
+    void AddWord(const std::string& word, const std::map<uint32_t, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>>& parameterDeltas) {
+        ParametricNesoraDictionalyWord newWord;
+        newWord.word = word;
+        newWord.parameterDeltas = parameterDeltas;
+        parameters[word] = newWord;
+    }
+    ParametricNesoraDictionalyWord GetWord(const std::string& word) const {
+        auto it = parameters.find(word);
+        if (it != parameters.end()) {
+            return it->second;
+        } else {
+            return ParametricNesoraDictionalyWord(); // 見つからない場合は空の単語を返す
+        }
+    }
+    ParametricNesoraDictionalyWord& GetWord(const std::string& word) {
+        return parameters[word]; // 存在しない場合は新しい単語が作成される
+    }
+
+private:
+    ParametricNesoraDictionary parameters; // パラメータの辞書
+};
+
+
+
 #endif //NESORA_DICTIONALY_H

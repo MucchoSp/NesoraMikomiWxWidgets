@@ -44,6 +44,10 @@ struct ParametricNesoraParameter {
     double a0;
 };
 
+
+
+//MARK: MIDI
+
 struct NesoraMidiNote {
     double pitch;       // 0-127 (MIDIノート番号)
     double intensity;   // 強弱（0.0-1.0）
@@ -97,6 +101,30 @@ struct NesoraMidiNotePhoneticalInfo {
     double preparationTime;         // プレパレーション時間(ms)
     double preparationPitch;        // プレパレーションのピッチ(cent)
 };
+
+
+
+
+
+// MARK: 辞書
+
+struct ParametricNesoraDictionalyWordDeltaAndTime {
+    double parameterDeltas;                 // パラメータの変化（IDと変化量のペア）
+    double time;                            // 変化が起こるタイミング(ms)
+};
+
+struct ParametricNesoraDictionalyEnvelopePoint {
+    double time;   // 時間(ms)
+    double value;  // 値
+};
+
+struct ParametricNesoraDictionalyWord {
+    std::string word;
+    std::map<uint32_t, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>> parameterDeltas;   // パラメータの変化
+    std::vector<ParametricNesoraDictionalyEnvelopePoint> envelope;             // エンベロープのリスト
+};
+
+typedef std::map<std::string, ParametricNesoraDictionalyWord> ParametricNesoraDictionary;
 
 
 

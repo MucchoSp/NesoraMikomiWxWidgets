@@ -8,6 +8,11 @@
 
 #include <wx/wx.h>
 
+#define MINIAUDIO_IMPLEMENTATION
+#include "../../../lib/miniaudio_split/miniaudio.h"
+
+#include "NesoraDictionalyIndexPanel.h"
+#include "NesoraDictionalyEditPanel.h"
 #include "../../NesoraStyle/NesoraStyle.h"
 #include "../../NesoraLayout/NesoraIDs.h"
 
@@ -35,6 +40,9 @@ public:
 
 private:
     NesoraMikomiVoice* voice;
+
+    NesoraDictionalyIndexPanel* index;
+    NesoraDictionalyEditPanel* editDictionalyPanel;
 
     void menuSetup();
     

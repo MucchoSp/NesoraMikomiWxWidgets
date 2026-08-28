@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
-#ifndef NESORA_DICTIONALY_INDEX_Panel_H
-#define NESORA_DICTIONALY_INDEX_Panel_H
+#ifndef NESORA_DICTIONALY_INDEX_PANEL_H
+#define NESORA_DICTIONALY_INDEX_PANEL_H
 
 #include <wx/wx.h>
 
@@ -12,6 +12,7 @@
 #include "../../NesoraLayout/NesoraIDs.h"
 
 #include "../../Nesora/Nesora.h"
+#include "NesoraDictionalyEditPanel.h"
 
 
 
@@ -31,12 +32,20 @@ public:
     void SetSelected(bool selected);
     bool IsSelected() const;
 
+    void SetWordText(const std::string& text);
+    std::string GetWordText() const;
+
+    void SetSymbolText(const std::string& text);
+    std::string GetSymbolText() const;
+
+    void ChangeWord();
+
     ParametricNesoraDictionalyWord word;
 private:
     bool isSelected;
 
     wxStaticText* wordText;
-    wxStaticText* parameterDeltaCountText;
+    wxStaticText* symbolText;
 
     void OnLeftDown(wxMouseEvent& event);
     void OnContextMenu(wxContextMenuEvent& event);
@@ -65,9 +74,13 @@ public:
     void SelectItem(NesoraDictionalyIndexWord* item);
     NesoraDictionalyIndexWord* GetSelectedItem() const;
 
+    void SetEditPanel(NesoraDictionalyEditPanel* editPanel) { this->editPanel = editPanel; }
+
 private:
     NesoraVowelDictionaly vowelDictionaly;
     std::vector<NesoraDictionalyIndexWord*> items;
+
+    NesoraDictionalyEditPanel* editPanel;
 
     NesoraDictionalyIndexWord* selectedItem;
 
@@ -92,7 +105,11 @@ public:
 
     void Init();
 
+    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    void SetEditPanel(NesoraDictionalyEditPanel* editPanel) { scrollContainer->SetEditPanel(editPanel); }
+
 private:
+    NesoraMikomiVoice* voice;
     NesoraVowelDictionaly vowelDictionaly;
 
     nsButton* addButton;
@@ -102,6 +119,4 @@ private:
 };
 
 
-
-
-#endif // NESORA_DICTIONALY_INDEX_Panel_H
+#endif // NESORA_DICTIONALY_INDEX_PANEL_H

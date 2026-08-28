@@ -13,9 +13,9 @@ void NesoraDictionalyIndexWord::Init() {
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
     wordText = new wxStaticText(this, wxID_ANY, "Word");
-    parameterDeltaCountText = new wxStaticText(this, wxID_ANY, "Parameter Delta Count");
+    symbolText = new wxStaticText(this, wxID_ANY, "Symbol");
     sizer->Add(wordText, 0, wxEXPAND | wxALL);
-    sizer->Add(parameterDeltaCountText, 0, wxEXPAND | wxALL);
+    sizer->Add(symbolText, 0, wxEXPAND | wxALL);
 
     SetSizer(sizer);
 
@@ -32,20 +32,47 @@ void NesoraDictionalyIndexWord::SetSelected(bool selected) {
         SetBackgroundColour(nsGetColor(nsColorType::SECONDARY));
         wordText->SetBackgroundColour(nsGetColor(nsColorType::SECONDARY));
         wordText->SetForegroundColour(nsGetColor(nsColorType::ON_SECONDARY));
-        parameterDeltaCountText->SetBackgroundColour(nsGetColor(nsColorType::SECONDARY));
-        parameterDeltaCountText->SetForegroundColour(nsGetColor(nsColorType::ON_SECONDARY));
+        symbolText->SetBackgroundColour(nsGetColor(nsColorType::SECONDARY));
+        symbolText->SetForegroundColour(nsGetColor(nsColorType::ON_SECONDARY));
     } else {
         SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
         wordText->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
         wordText->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
-        parameterDeltaCountText->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
-        parameterDeltaCountText->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
+        symbolText->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
+        symbolText->SetForegroundColour(nsGetColor(nsColorType::ON_BACKGROUND));
     }
+    Refresh();
+}
+
+void NesoraDictionalyIndexWord::ChangeWord() {
+    if (word.word.empty()) {
+        wordText->SetLabelText("Empty");
+    }
+    else {
+        wordText->SetLabelText(word.word);
+    }
+    symbolText->SetLabelText("[" + word.symbol + "]");
     Refresh();
 }
 
 bool NesoraDictionalyIndexWord::IsSelected() const {
     return isSelected;
+}
+
+void NesoraDictionalyIndexWord::SetWordText(const std::string& text) {
+    wordText->SetLabel(text);
+}
+
+void NesoraDictionalyIndexWord::SetSymbolText(const std::string& text) {
+    symbolText->SetLabel(text);
+}
+
+std::string NesoraDictionalyIndexWord::GetWordText() const {
+    return wordText->GetLabel().ToStdString();
+}
+
+std::string NesoraDictionalyIndexWord::GetSymbolText() const {
+    return symbolText->GetLabel().ToStdString();
 }
 
 void NesoraDictionalyIndexWord::OnLeftDown(wxMouseEvent& event) {
@@ -130,14 +157,13 @@ void NesoraDictionalyIndexScrollContainer::AddCard() {
     
     mainSizer->Add(card, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // nsAddParameterEvent event(nsEVT_ADD_PARAMETER, GetId());
-    // event.SetEventObject(this);
-    // event.SetData(card->ID);
-    // this->GetEventHandler()->ProcessEvent(event);
-
     SelectItem(card);
 
     FitInside();
+
+    if (editPanel) {
+        editPanel->SetWord(card);
+    }
 }
 
 void NesoraDictionalyIndexScrollContainer::RemoveSelectCard() {
@@ -154,13 +180,10 @@ void NesoraDictionalyIndexScrollContainer::SelectItem(NesoraDictionalyIndexWord*
         selectedItem->SetSelected(true);
     }
 
-    // nsSelectedParameterChangeEvent event(nsEVT_SELECTED_PARAMETER_CHANGED, GetId());
-    // event.SetEventObject(this);
-    // if (selectedItem)
-    //     event.SetID(selectedItem->ID);
-    // else
-    //     event.SetID(0);
-    // this->GetEventHandler()->ProcessEvent(event);
+    if (editPanel) {
+        if (selectedItem)
+            editPanel->SetWord(selectedItem);
+    }
 }
 
 NesoraDictionalyIndexWord* NesoraDictionalyIndexScrollContainer::GetSelectedItem() const {

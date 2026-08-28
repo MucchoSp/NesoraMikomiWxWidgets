@@ -12,10 +12,18 @@ void nsDictionalyPanel::Init() {
     index = new NesoraDictionalyIndexPanel(this, wxID_ANY);
     editDictionalyPanel = new NesoraDictionalyEditPanel(this, wxID_ANY);
     
-    mainSizer->Add(index, 0, wxEXPAND | wxALL, 5);
-    mainSizer->Add(editDictionalyPanel, 1, wxEXPAND | wxALL, 5);
+    mainSizer->Add(index, 0, wxEXPAND | wxALL);
+    mainSizer->Add(editDictionalyPanel, 1, wxEXPAND | wxALL);
 
     SetSizer(mainSizer);
+
+    index->SetEditPanel(editDictionalyPanel);
+}
+
+void nsDictionalyPanel::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    index->SetVoice(voice);
+    editDictionalyPanel->SetVoice(voice);
 }
 
 void nsDictionalyPanel::OnSave(wxCommandEvent& event) {

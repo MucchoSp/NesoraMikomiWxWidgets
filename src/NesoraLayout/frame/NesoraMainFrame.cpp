@@ -27,6 +27,7 @@ nsMainFrame::nsMainFrame()
     voice = voiceMakePanel->GetVoice();
     singPanel->SetVoice(voice);
     speakPanel->SetVoice(voice);
+    dictionalyPanel->SetVoice(voice);
 
     main_sizer = new wxBoxSizer(wxVERTICAL);
     wxSizer* toolbar_sizer = new wxBoxSizer(wxHORIZONTAL);

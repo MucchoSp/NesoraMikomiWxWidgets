@@ -30,7 +30,7 @@ public:
     }
 
     void Init();
-    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    void SetVoice(NesoraMikomiVoice* voice);
     NesoraMikomiVoice* GetVoice() const { return voice; }
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);

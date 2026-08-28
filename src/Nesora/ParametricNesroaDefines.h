@@ -120,8 +120,34 @@ struct ParametricNesoraDictionalyEnvelopePoint {
 
 struct ParametricNesoraDictionalyWord {
     std::string word;
+    std::string symbol;
     std::map<uint32_t, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>> parameterDeltas;   // パラメータの変化
     std::vector<ParametricNesoraDictionalyEnvelopePoint> envelope;             // エンベロープのリスト
+
+
+    /*
+
+        -------fixedTime-------><--(dynamic)--><------blankTime-------
+    ----0-----------------s-----+-------------+-----------------------+----
+        |           c     |     |      a      |          lc           |
+    ----0-----------------s-----+-------------+-----------------------+----
+        <---overlapTime---                          <---fadeoutTime---
+
+    それぞれの変数の役割
+    overlapTimeは、基準からどのくらい先んじるかの時間
+    fixedTimeは、前方の、発声が固定されている時間
+    dynamicは長さが可変の時間
+    blankTimeは、後方の、発声が固定されている時間
+    fadeoutTimeはフェードアウト時間
+
+    blankTimeの発音は後続の音素によって異なるのでちょっと扱いめんどいね
+    場合によっては、後続がある場合はblankTime部分を消し飛ばして後続のfixedTimeで処理させるのも手か
+    */
+
+    double overlapTime;     // 前の単語との重なり時間(ms)
+    double fixedTime;       // 固定時間長(ms)
+    double blankTime;       // 終了時間長(ms)
+    double fadeoutTime;     // フェードアウト時間(ms)
 };
 
 typedef std::map<std::string, ParametricNesoraDictionalyWord> ParametricNesoraDictionary;

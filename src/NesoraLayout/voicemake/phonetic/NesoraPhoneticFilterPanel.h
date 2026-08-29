@@ -42,7 +42,7 @@
 //     private:
 //    
 //     std::vector<double> frequencyResponse;
-//     std::map<uint32_t, double> parameters;
+//     ParametricNesoraDelta parameters;
 //    
 //     uint32_t nowSelectedParameter = 0;
 //    
@@ -263,7 +263,7 @@ private:
 
 // MARK:nsPhoneticFilterPanel
 
-class nsPhoneticFilterPanel : public nsFilterPanelBase {
+class nsPhoneticFilterPanel : public nsParametricFilterPanelBase {
 public:
     nsPhoneticFilterPanel() {
         Init();
@@ -273,7 +273,7 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsFilterPanelBase(parent, winid, pos, size, style, name)
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsParametricFilterPanelBase(parent, winid, pos, size, style, name)
     {
         Init();
     }
@@ -283,7 +283,9 @@ public:
     void Init() override;
     void Update() override;
 
-    NesoraFilterBase* GetFilter() override;
+    void SetParameter(ParametricNesoraDelta* parameters) override;
+
+    NesoraParametricFilterBase* GetFilter() override;
 
 private:
     NesoraParametricSOSIIRFilter* filter;

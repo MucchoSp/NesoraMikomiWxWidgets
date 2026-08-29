@@ -56,7 +56,7 @@ void nsPhoneticVoiceMakePanel::Init() {
     sourceSoundPanel = new nsPhoneticLFModelPanel(this, wxID_ANY);
     filterPanel = new nsPhoneticFilterPanel(this, wxID_ANY);
     // parametricPanel = new nsPhoneticPanel(this, wxID_ANY);
-    voice = new NesoraMikomiVoice(sourceSoundPanel->GetSource(), filterPanel->GetFilter());
+    voice = new NesoraMikomiParametricVoice(sourceSoundPanel->GetSource(), filterPanel->GetFilter());
 
     horizontalSizer->Add(playInterfacePanel, 0, wxEXPAND | wxALL);
     horizontalSizer->Add(sourceSoundPanel, 1, wxEXPAND | wxALL);
@@ -117,7 +117,7 @@ void nsPhoneticVoiceMakePanel::data_callback(ma_device* pDevice, void* pOutput, 
 
     nsPhoneticVoiceMakePanel* frame = (nsPhoneticVoiceMakePanel*)pDevice->pUserData;
     for (ma_uint32 i = 0; i < frameCount; i++) {
-        out[i] = (float)frame->voice->Synthesize(frame->sourceSoundPanel->GetPitch(), NesoraDefaultSamplingFrequency) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
+        out[i] = (float)frame->voice->Synthesize(frame->parameters, frame->sourceSoundPanel->GetPitch(), NesoraDefaultSamplingFrequency) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
     }
 }
 

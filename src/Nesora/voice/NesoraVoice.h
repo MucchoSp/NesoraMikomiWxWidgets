@@ -54,4 +54,36 @@ private:
 
 };
 
+class NesoraMikomiParametricVoice : public NesoraVoice {
+public:
+    NesoraMikomiParametricVoice() {}
+    NesoraMikomiParametricVoice(NesoraSourceBase* src, NesoraParametricFilterBase* flt) : source(src), filter(flt) {}
+    ~NesoraMikomiParametricVoice() {}
+
+    void SetSource(NesoraSourceBase* src);
+    void SetFilter(NesoraParametricFilterBase* flt);
+
+    double Synthesize(const ParametricNesoraDelta& parameters, double radian);
+    double Synthesize(const ParametricNesoraDelta& parameters, double frequency, double samplingFrequency);
+    double GetRadian() const { return radian; }
+    void SetRadian(double r) { radian = r; }
+
+    void SaveVoiceData(const std::string& filename);
+    void LoadVoiceData(const std::string& filename);
+
+    std::vector<unsigned char> GetVoiceData();
+    void LoadVoiceData(const std::vector<unsigned char>& fileData);
+
+    NesoraSourceBase* GetSource() const { return source; }
+    NesoraParametricFilterBase* GetFilter() const { return filter; }
+
+private:
+
+    NesoraSourceBase* source;
+    NesoraParametricFilterBase* filter;
+
+    double radian = 0.0;
+
+};
+
 #endif // NESORA_VOICE_H

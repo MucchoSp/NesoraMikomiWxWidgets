@@ -148,9 +148,12 @@ public:
     uint32_t ID;
 
     void Init(uint32_t ID = 0, double param = 0);
+    void Init(ParametricNesoraDeltaValue* param);
 
     void SetSelected(bool selected);
     bool IsSelected() const;
+
+    ParametricNesoraDeltaValue* GetParameterPair() const { return parameterPair; }
 
     wxStaticText* nameStaticText;
     wxStaticText* IDStaticText;
@@ -158,6 +161,7 @@ public:
     nsSlider* parameter;
 
 private:
+    ParametricNesoraDeltaValue* parameterPair;
 
     bool isDragging = false;
     bool isSelected = false;
@@ -208,9 +212,11 @@ public:
     void SelectItem(nsParameterCard* item);
     nsParameterCard* GetSelectedItem() const;
 
+    void SetParameters(ParametricNesoraDelta* params);
+
 private:
 
-    std::map<uint32_t, double> parameter;
+    ParametricNesoraDelta* parameter;
     std::vector<nsParameterCard> parameters;
 
     nsParameterCard* selectedItem;
@@ -242,9 +248,11 @@ public:
 
     void Init();
 
+    void SetParameters(ParametricNesoraDelta* params);
+
 private:
 
-    std::map<uint32_t, double> parameter;
+    ParametricNesoraDelta* parameter;
     std::vector<nsParameterCard> parameters;
 
     nsButton* addButton;

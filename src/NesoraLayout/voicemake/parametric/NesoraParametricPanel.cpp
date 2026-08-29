@@ -48,7 +48,14 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
     this->Bind(wxEVT_CONTEXT_MENU, &nsParameterCard::OnContextMenu, this);
 }
 
+void nsParameterCard::Init(ParametricNesoraDeltaValue* param) {
+    Init(param->ID, param->delta);
+    parameterPair = param;
+}
+
 void nsParameterCard::OnParameterSlide(wxCommandEvent& event) {
+    parameterPair->delta = (double)parameter->GetValue() / (double)parameter->GetMax();
+
     nsParameterChangeEvent sendEvent(nsEVT_PARAMETER_CHANGED, GetId());
     sendEvent.SetEventObject(this);
 
@@ -301,6 +308,8 @@ nsParameterCardScrollContainer::~nsParameterCardScrollContainer() {
 
 void nsParameterCardScrollContainer::AddCard() {
     nsParameterCard* card = new nsParameterCard(this);
+    parameter->emplace_back(card->ID, 0.0);
+    card->Init(&parameter->back());
     
     mainSizer->Add(card, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
@@ -331,14 +340,28 @@ void nsParameterCardScrollContainer::SelectItem(nsParameterCard* item) {
     nsSelectedParameterChangeEvent event(nsEVT_SELECTED_PARAMETER_CHANGED, GetId());
     event.SetEventObject(this);
     if (selectedItem)
-        event.SetID(selectedItem->ID);
+        event.SetIndex(selectedItem->ID);
     else
-        event.SetID(0);
+        event.SetIndex(-1);
     this->GetEventHandler()->ProcessEvent(event);
 }
 
 nsParameterCard* nsParameterCardScrollContainer::GetSelectedItem() const {
     return selectedItem;
+}
+
+void nsParameterCardScrollContainer::SetParameters(ParametricNesoraDelta* params) {
+    parameter = params;
+
+    mainSizer->Clear(true); // 既存のカードを削除
+
+    for (auto& param : *parameter) {
+        nsParameterCard* card = new nsParameterCard(this);
+        card->Init(&param);
+        mainSizer->Add(card, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    }
+
+    FitInside();
 }
 
 // 背景をクリックしたとき
@@ -374,6 +397,11 @@ void nsParametricPanel::Init() {
     sizer->Add(addButton, 0, wxEXPAND | wxALL);
 
     this->SetSizer(sizer);
+}
+
+void nsParametricPanel::SetParameters(ParametricNesoraDelta* params) {
+    parameter = params;
+    scrollWindow->SetParameters(parameter);
 }
 
 void nsParametricPanel::OnAddButton(wxCommandEvent& event) {

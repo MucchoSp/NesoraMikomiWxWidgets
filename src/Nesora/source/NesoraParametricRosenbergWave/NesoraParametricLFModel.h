@@ -33,7 +33,7 @@ public:
     }
 
     void SetParamater(double Tp, double Te, double Ta, double Ee, double noise_level);
-    void SetParamater(const std::map<uint32_t, double>& parameters) {}
+    void SetParamater(const ParametricNesoraDelta& parameters) {}
     void SetDelta(const std::map<uint32_t, ParametricNesoraRosenbergWaveParameter>& in_delta) {}
     void AddDelta(uint32_t in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value) {}
     double GetTp() const;
@@ -44,7 +44,7 @@ public:
 
     double Utterance(double radian) override;
 
-    const NesoraLFModelParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const { return NesoraLFModelParameter(); }
+    const NesoraLFModelParameter GetParametricSource(const ParametricNesoraDelta& parameters) const { return NesoraLFModelParameter(); }
     const NesoraLFModelParameter GetParametricSource(const uint32_t parameterID, const double delta) const { return NesoraLFModelParameter(); }
 
     std::vector<unsigned char> SaveData() override;
@@ -73,7 +73,7 @@ public:
     }
 
     void SetParamater(double Rd,  double Ee, double noise_level);
-    void SetParamater(const std::map<uint32_t, double>& parameters) {}
+    void SetParamater(const ParametricNesoraDelta& parameters) {}
     void SetDelta(const std::map<uint32_t, ParametricNesoraRosenbergWaveParameter>& in_delta) {}
     void AddDelta(uint32_t in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value) {}
     double GetRd() const;
@@ -82,7 +82,7 @@ public:
 
     double Utterance(double radian) override;
 
-    const NesoraLFModelParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const { return NesoraLFModelParameter(); }
+    const NesoraLFModelParameter GetParametricSource(const ParametricNesoraDelta& parameters) const { return NesoraLFModelParameter(); }
     const NesoraLFModelParameter GetParametricSource(const uint32_t parameterID, const double delta) const { return NesoraLFModelParameter(); }
 
     std::vector<unsigned char> SaveData() override;

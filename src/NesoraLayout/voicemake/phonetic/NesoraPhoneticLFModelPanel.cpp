@@ -122,17 +122,17 @@ void nsPhoneticLFModelPanel::Update() {
 
 
 void nsPhoneticLFModelPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
+    nowSelectedParameter = event.GetIndex();
     Update();
 }
 
 void nsPhoneticLFModelPanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
+    // parameters[event.GetID()] = event.GetParam();
     Update();
 }
 
 void nsPhoneticLFModelPanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
+    // parameters[event.GetData()] = 0.0;
     nowSelectedParameter = event.GetData();
     Update();
 }
@@ -286,17 +286,17 @@ void nsPhoneticLFModelRdParameterPanel::Update() {
 
 
 void nsPhoneticLFModelRdParameterPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
+    nowSelectedParameter = event.GetIndex();
     Update();
 }
 
 void nsPhoneticLFModelRdParameterPanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
+    // parameters[event.GetID()] = event.GetParam();
     Update();
 }
 
 void nsPhoneticLFModelRdParameterPanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
+    // parameters[event.GetData()] = 0.0;
     nowSelectedParameter = event.GetData();
     Update();
 }

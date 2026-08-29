@@ -30,8 +30,8 @@ public:
     }
 
     void Init();
-    void SetVoice(NesoraMikomiVoice* voice);
-    NesoraMikomiVoice* GetVoice() const { return voice; }
+    void SetVoice(NesoraMikomiParametricVoice* voice);
+    NesoraMikomiParametricVoice* GetVoice() const { return voice; }
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);
 
@@ -39,7 +39,7 @@ public:
     void PanelDisable();
 
 private:
-    NesoraMikomiVoice* voice;
+    NesoraMikomiParametricVoice* voice;
 
     NesoraDictionalyIndexPanel* index;
     NesoraDictionalyEditPanel* editDictionalyPanel;

@@ -56,7 +56,7 @@ void nsParametricVoiceMakePanel::Init() {
     sourceSoundPanel = new nsParametricLFModelPanel(this, wxID_ANY);
     filterPanel = new nsParametricSOSIIRFilterPanel(this, wxID_ANY);
     parametricPanel = new nsParametricPanel(this, wxID_ANY);
-    voice = new NesoraMikomiVoice(sourceSoundPanel->GetSource(), filterPanel->GetFilter());
+    voice = new NesoraMikomiParametricVoice(sourceSoundPanel->GetSource(), filterPanel->GetFilter());
 
     horizontalSizer->Add(playInterfacePanel, 0, wxEXPAND | wxALL);
     horizontalSizer->Add(sourceSoundPanel, 1, wxEXPAND | wxALL);
@@ -66,6 +66,9 @@ void nsParametricVoiceMakePanel::Init() {
     sizer->Add(filterHorizontalSizer, 1, wxEXPAND | wxALL);
 
     this->SetSizer(sizer);
+
+    parametricPanel->SetParameters(&parameters);
+    filterPanel->SetParameter(&parameters);
 
     playInterfacePanel->playButton->Bind(wxEVT_BUTTON, &nsParametricVoiceMakePanel::OnPlayButtonClicked, this);
     playInterfacePanel->stopButton->Bind(wxEVT_BUTTON, &nsParametricVoiceMakePanel::OnStopButtonClicked, this);
@@ -117,7 +120,7 @@ void nsParametricVoiceMakePanel::data_callback(ma_device* pDevice, void* pOutput
 
     nsParametricVoiceMakePanel* frame = (nsParametricVoiceMakePanel*)pDevice->pUserData;
     for (ma_uint32 i = 0; i < frameCount; i++) {
-        out[i] = (float)frame->voice->Synthesize(frame->sourceSoundPanel->GetPitch(), NesoraDefaultSamplingFrequency) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
+        out[i] = (float)frame->voice->Synthesize(frame->parameters, frame->sourceSoundPanel->GetPitch(), NesoraDefaultSamplingFrequency) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
     }
 }
 

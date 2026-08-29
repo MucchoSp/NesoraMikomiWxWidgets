@@ -26,20 +26,21 @@ public:
     void Reset();
     
     void SetPoint(NesoraIIRFilterPD in_point);
-    void SetDelta(const std::map<uint32_t, ParametricNesoraIIRFilterParameter>& in_delta);
-    void AddDelta(uint32_t in_delta_ID, ParametricNesoraIIRFilterParameter in_delta_value);
-    void SetDestinationPoint(uint32_t parameterID, NesoraIIRFilterPD in_point);
-    void CalculateCoefficients(const std::map<uint32_t, double>& parameters);
+    void SetDelta(const std::vector<ParametricNesoraIIRFilterParameter>& in_delta);
+    void AddDelta(size_t in_delta_Index, ParametricNesoraIIRFilterParameter in_delta_value);
+    void SetDestinationPoint(size_t parameterIndex, NesoraIIRFilterPD in_point);
+    void CalculateCoefficients(const ParametricNesoraDelta& parameters);
     double CalculateFrequencyResponse(double omega) const;
     
     double Filter(double x);
+    double Filter(const ParametricNesoraDelta& parameters, double x);
     
     NesoraIIRFilterPD GetPoint();
     const NesoraIIRFilterPD& GetPoint() const;
-    const NesoraIIRFilterPD GetParametricPoint(const std::map<uint32_t, double>& parameters) const;
-    const NesoraIIRFilterPD GetParametricPoint(const uint32_t parameterID, const double delta) const;
-    std::map<uint32_t, ParametricNesoraIIRFilterParameter> GetDelta() const;
-    const ParametricNesoraIIRFilterParameter GetDelta(const uint32_t parameterID) const;
+    const NesoraIIRFilterPD GetParametricPoint(const ParametricNesoraDelta& parameters) const;
+    const NesoraIIRFilterPD GetParametricPoint(const size_t parameterIndex, const double delta) const;
+    std::vector<ParametricNesoraIIRFilterParameter> GetDelta() const;
+    const ParametricNesoraIIRFilterParameter GetDelta(const size_t parameterIndex) const;
 
 private:
     NesoraIIRFilterPD point = {0};
@@ -48,22 +49,23 @@ private:
     double b0 = 1, b1 = 0, b2 = 0;
     double a1 = 0, a2 = 0;
 
-    std::map<uint32_t, ParametricNesoraIIRFilterParameter> delta;
+    // std::map<uint32_t, ParametricNesoraIIRFilterParameter> delta;
+    std::vector<ParametricNesoraIIRFilterParameter> delta;
 };
 
 
-class NesoraParametricSOSIIRFilter : public NesoraFilterBase {
+class NesoraParametricSOSIIRFilter : public NesoraParametricFilterBase {
 public:
     NesoraParametricSOSIIRFilter(){}
     NesoraParametricSOSIIRFilter(int in_samplingFrequency) : samplingFrequency(in_samplingFrequency) {}
 
     void Reset();
 
-    void CalculateCoefficients(const std::map<uint32_t, double>& parameters);
+    void CalculateCoefficients(const ParametricNesoraDelta& parameters);
     const std::vector<double>& CalculateFrequencyResponse(int num_samples);
     const std::vector<double>& GetResponse() const;
 
-    double Filter(double x) override;
+    double Filter(const ParametricNesoraDelta& parameters, double x) override;
 
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;

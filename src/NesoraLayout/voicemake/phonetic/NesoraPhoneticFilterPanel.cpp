@@ -303,6 +303,10 @@ void nsPhoneticFilterPanel::Init() {
 void nsPhoneticFilterPanel::Update() {
 }
 
-NesoraFilterBase* nsPhoneticFilterPanel::GetFilter() {
+void nsPhoneticFilterPanel::SetParameter(ParametricNesoraDelta* parameters) {
+    
+}
+
+NesoraParametricFilterBase* nsPhoneticFilterPanel::GetFilter() {
     return filter;
 }

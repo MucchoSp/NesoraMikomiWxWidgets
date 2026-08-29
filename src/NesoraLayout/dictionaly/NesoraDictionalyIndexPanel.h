@@ -105,11 +105,11 @@ public:
 
     void Init();
 
-    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    void SetVoice(NesoraMikomiParametricVoice* voice) { this->voice = voice; }
     void SetEditPanel(NesoraDictionalyEditPanel* editPanel) { scrollContainer->SetEditPanel(editPanel); }
 
 private:
-    NesoraMikomiVoice* voice;
+    NesoraMikomiParametricVoice* voice;
     NesoraVowelDictionaly vowelDictionaly;
 
     nsButton* addButton;

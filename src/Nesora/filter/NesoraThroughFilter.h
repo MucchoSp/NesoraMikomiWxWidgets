@@ -8,11 +8,11 @@
 #ifndef NESORA_THROUGH_FILTER_H
 #define NESORA_THROUGH_FILTER_H
 
-class NesoraThroughFilter : public NesoraFilterBase {
+class NesoraThroughFilter : public NesoraParametricFilterBase {
 public:
     NesoraThroughFilter(){}
 
-    double Filter(double x) override {
+    double Filter(const ParametricNesoraDelta& parameters, double x) override {
         return x; // 入力をそのまま出力する
     }
 

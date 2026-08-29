@@ -35,7 +35,7 @@ public:
     nsMainFrame();
 
 private:
-    NesoraMikomiVoice* voice;
+    NesoraMikomiParametricVoice* voice;
 
     void menuSetup();
     void acceleratorSetup();
@@ -51,7 +51,7 @@ private:
 
     nsSingPanel* singPanel;
     nsSpeakPanel* speakPanel;
-    nsVoiceMakePanelBase* voiceMakePanel;
+    nsParametricVoiceMakePanelBase* voiceMakePanel;
     nsCharacterPanel* characterPanel;
     nsDictionalyPanel* dictionalyPanel;
 

@@ -571,7 +571,7 @@ void NesoraDictionalyEditPanel::Init() {
     SetSizer(mainSizer);
 }
 
-void NesoraDictionalyEditPanel::SetVoice(NesoraMikomiVoice* voice) {
+void NesoraDictionalyEditPanel::SetVoice(NesoraMikomiParametricVoice* voice) {
     this->voice = voice;
 }
 

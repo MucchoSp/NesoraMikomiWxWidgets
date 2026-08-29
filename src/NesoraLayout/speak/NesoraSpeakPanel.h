@@ -28,8 +28,8 @@ public:
     }
 
     void Init();
-    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
-    NesoraMikomiVoice* GetVoice() const { return voice; }
+    void SetVoice(NesoraMikomiParametricVoice* voice) { this->voice = voice; }
+    NesoraMikomiParametricVoice* GetVoice() const { return voice; }
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);
 
@@ -37,7 +37,7 @@ public:
     void PanelDisable();
 
 private:
-    NesoraMikomiVoice* voice;
+    NesoraMikomiParametricVoice* voice;
 
     void menuSetup();
     

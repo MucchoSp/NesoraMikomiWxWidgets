@@ -31,7 +31,7 @@ public:
     }
 
     void SetParamater(double tau1, double tau2, double a0, double noise_level);
-    void SetParamater(const std::map<uint32_t, double>& parameters);
+    void SetParamater(const ParametricNesoraDelta& parameters);
     void SetDelta(const std::map<uint32_t, ParametricNesoraRosenbergWaveParameter>& in_delta);
     void AddDelta(uint32_t in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value);
     void SetA0(double a0);
@@ -42,7 +42,7 @@ public:
 
     double Utterance(double radian) override;
 
-    const NesoraRosenbergParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const;
+    const NesoraRosenbergParameter GetParametricSource(const ParametricNesoraDelta& parameters) const;
     const NesoraRosenbergParameter GetParametricSource(const uint32_t parameterID, const double delta) const;
 
     std::vector<unsigned char> SaveData() override;

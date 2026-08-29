@@ -44,6 +44,14 @@ struct ParametricNesoraParameter {
     double a0;
 };
 
+struct ParametricNesoraDeltaValue{
+    uint32_t ID;
+    double delta;
+    ParametricNesoraDeltaValue(uint32_t in_ID, double in_delta) : ID(in_ID), delta(in_delta) {}
+};
+
+typedef std::vector<ParametricNesoraDeltaValue> ParametricNesoraDelta;
+
 
 
 //MARK: MIDI

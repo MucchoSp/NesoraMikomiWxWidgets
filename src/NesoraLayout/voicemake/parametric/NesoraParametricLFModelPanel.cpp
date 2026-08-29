@@ -127,17 +127,17 @@ void nsParametricLFModelPanel::Update() {
 
 
 void nsParametricLFModelPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
+    nowSelectedParameter = event.GetIndex();
     Update();
 }
 
 void nsParametricLFModelPanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
+    // parameters[event.GetID()] = event.GetParam();
     Update();
 }
 
 void nsParametricLFModelPanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
+    // parameters[event.GetData()] = 0.0;
     nowSelectedParameter = event.GetData();
     Update();
 }
@@ -291,17 +291,17 @@ void nsParametricLFModelRdParameterPanel::Update() {
 
 
 void nsParametricLFModelRdParameterPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
+    nowSelectedParameter = event.GetIndex();
     Update();
 }
 
 void nsParametricLFModelRdParameterPanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
+    // parameters[event.GetID()] = event.GetParam();
     Update();
 }
 
 void nsParametricLFModelRdParameterPanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
+    // parameters[event.GetData()] = 0.0;
     nowSelectedParameter = event.GetData();
     Update();
 }

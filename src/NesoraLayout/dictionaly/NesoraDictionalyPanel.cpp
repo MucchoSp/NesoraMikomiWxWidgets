@@ -20,7 +20,7 @@ void nsDictionalyPanel::Init() {
     index->SetEditPanel(editDictionalyPanel);
 }
 
-void nsDictionalyPanel::SetVoice(NesoraMikomiVoice* voice) {
+void nsDictionalyPanel::SetVoice(NesoraMikomiParametricVoice* voice) {
     this->voice = voice;
     index->SetVoice(voice);
     editDictionalyPanel->SetVoice(voice);

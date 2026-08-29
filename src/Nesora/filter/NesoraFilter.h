@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include "../NesoraDefines.h"
+#include "../ParametricNesroaDefines.h"
 
 #ifndef NESORA_FILTER_H
 #define NESORA_FILTER_H
@@ -27,7 +28,7 @@ class NesoraParametricFilterBase {
 public:
     NesoraParametricFilterBase(){}
 
-    virtual double Filter(const std::map<uint32_t, double>& parameters, double x) = 0;
+    virtual double Filter(const ParametricNesoraDelta& parameters, double x) = 0;
 
     virtual std::vector<unsigned char> SaveData() = 0;
     virtual void LoadData(const std::vector<unsigned char>& data) = 0;

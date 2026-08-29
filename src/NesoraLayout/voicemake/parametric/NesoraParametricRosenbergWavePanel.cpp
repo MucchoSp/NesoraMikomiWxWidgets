@@ -87,7 +87,7 @@ void nsParametricRosenbergWavePanel::Init() {
 void nsParametricRosenbergWavePanel::Update() {
     if (!source_wave) return;
 
-    NesoraRosenbergParameter loaded_source = source_wave->GetParametricSource(nowSelectedParameter, parameters[nowSelectedParameter]);
+    NesoraRosenbergParameter loaded_source = source_wave->GetParametricSource(nowSelectedParameter, parameters[0/*nowSelectedParameter*/].delta);
 
     t1slider->SetLimit(0, static_cast<int>(loaded_source.tau2 * 1000.0));
     t1slider->SetValue(static_cast<int>(loaded_source.tau1 * 1000.0));
@@ -109,17 +109,17 @@ void nsParametricRosenbergWavePanel::Update() {
 
 
 void nsParametricRosenbergWavePanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
+    nowSelectedParameter = event.GetIndex();
     Update();
 }
 
 void nsParametricRosenbergWavePanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
+    // parameters[event.GetID()] = event.GetParam();
     Update();
 }
 
 void nsParametricRosenbergWavePanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
+    // parameters[event.GetData()] = 0.0;
     nowSelectedParameter = event.GetData();
     Update();
 }

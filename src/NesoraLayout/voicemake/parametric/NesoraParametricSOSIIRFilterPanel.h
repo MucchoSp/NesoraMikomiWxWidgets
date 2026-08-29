@@ -41,13 +41,15 @@ public:
     NesoraParametricSOSIIRFilter* filter;
     // UIを更新
     void SyncControlPointsFromFilter();
-    void SetSelectedParameter(uint32_t param);
-    private:
+    void SetSelectedParameterIndex(int param);
+
+    void SetParameter(ParametricNesoraDelta* parameters);
+private:
     
     std::vector<double> frequencyResponse;
-    std::map<uint32_t, double> parameters;
+    ParametricNesoraDelta* parameters;
     
-    uint32_t nowSelectedParameter = 0;
+    size_t nowSelectedParameterIndex = 0;
     
     std::vector<wxRect2DDouble> controlPoints;              //操作点
     std::vector<wxRect2DDouble> destinationControlPoints;   //いま選択されているパラメーターにより飛ばされる先の場所
@@ -78,7 +80,6 @@ public:
     void OnRightDown(wxMouseEvent& event);
     void OnRightUp(wxMouseEvent& event);
     void OnSize(wxSizeEvent& event);
-
 };
 
 
@@ -87,7 +88,7 @@ public:
 
 // MARK:nsParametricSOSIIRFilterPanel
 
-class nsParametricSOSIIRFilterPanel : public nsFilterPanelBase {
+class nsParametricSOSIIRFilterPanel : public nsParametricFilterPanelBase {
 public:
     nsParametricSOSIIRFilterPanel() {
         Init();
@@ -97,7 +98,7 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsFilterPanelBase(parent, winid, pos, size, style, name)
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsParametricFilterPanelBase(parent, winid, pos, size, style, name)
     {
         Init();
     }
@@ -107,7 +108,9 @@ public:
     void Init() override;
     void Update() override;
 
-    NesoraFilterBase* GetFilter() override;
+    void SetParameter(ParametricNesoraDelta* parameters) override;
+
+    NesoraParametricFilterBase* GetFilter() override;
 
 private:
     nsParametricSOSIIRFrequencyResponseControl* iirFilter;

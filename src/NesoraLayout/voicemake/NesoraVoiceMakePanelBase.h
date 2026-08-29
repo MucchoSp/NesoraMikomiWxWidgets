@@ -57,6 +57,30 @@ public:
     virtual NesoraFilterBase* GetFilter() = 0;
 };
 
+
+class nsParametricFilterPanelBase : public wxPanel {
+public:
+    nsParametricFilterPanelBase() {
+    }
+    nsParametricFilterPanelBase(wxWindow* parent,
+        wxWindowID winid = wxID_ANY,
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxDefaultSize,
+        long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name)
+    {
+    }
+    ~nsParametricFilterPanelBase() {
+    }
+
+    virtual void Init() = 0;
+    virtual void Update() = 0;
+
+    virtual void SetParameter(ParametricNesoraDelta* parameters) = 0;
+
+    virtual NesoraParametricFilterBase* GetFilter() = 0;
+};
+
 class nsVoiceMakePanelBase : public wxPanel {
 public:
     nsVoiceMakePanelBase() {
@@ -84,5 +108,34 @@ protected:
     NesoraMikomiVoice* voice = nullptr;
 
 };
+
+class nsParametricVoiceMakePanelBase : public wxPanel {
+public:
+    nsParametricVoiceMakePanelBase() {
+    }
+    nsParametricVoiceMakePanelBase(wxWindow* parent,
+        wxWindowID winid = wxID_ANY,
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxDefaultSize,
+        long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name)
+    {
+    }
+    ~nsParametricVoiceMakePanelBase() {
+    }
+
+    void SetVoice(NesoraMikomiParametricVoice* voice) { this->voice = voice; }
+    NesoraMikomiParametricVoice* GetVoice() const { return voice; }
+    virtual void OnSave(wxCommandEvent& event) = 0;
+    virtual void OnOpen(wxCommandEvent& event) = 0;
+
+    virtual void PanelEnable() = 0;
+    virtual void PanelDisable() = 0;
+
+protected:
+    NesoraMikomiParametricVoice* voice = nullptr;
+
+};
+
 
 #endif // NESORA_VOICE_MAKE_PANEL_BASE_H

@@ -20,7 +20,7 @@ void NesoraParametricRosenbergWave::SetParamater(double tau1, double tau2, doubl
     normal_noise = noise_level;
 }
 
-void NesoraParametricRosenbergWave::SetParamater(const std::map<uint32_t, double>& parameters) {
+void NesoraParametricRosenbergWave::SetParamater(const ParametricNesoraDelta& parameters) {
     t1 = normal_t1;
     t2 = normal_t2;
     a0 = normal_a0;
@@ -72,7 +72,7 @@ double NesoraParametricRosenbergWave::GetNoise() const {
     return normal_noise;
 }
 
-const NesoraRosenbergParameter NesoraParametricRosenbergWave::GetParametricSource(const std::map<uint32_t, double>& parameters) const {
+const NesoraRosenbergParameter NesoraParametricRosenbergWave::GetParametricSource(const ParametricNesoraDelta& parameters) const {
     NesoraRosenbergParameter out;
     out.tau1 = normal_t1;
     out.tau2 = normal_t2;

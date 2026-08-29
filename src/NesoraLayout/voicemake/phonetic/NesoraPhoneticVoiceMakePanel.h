@@ -59,7 +59,7 @@ private:
 
 // MARK:nsPhoneticVoiceMakePanel
 
-class nsPhoneticVoiceMakePanel : public nsVoiceMakePanelBase {
+class nsPhoneticVoiceMakePanel : public nsParametricVoiceMakePanelBase {
 public:
     nsPhoneticVoiceMakePanel() {
         Init();
@@ -70,7 +70,7 @@ public:
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
-        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsVoiceMakePanelBase(parent, winid, pos, size, style, name)
+        const wxString& name = wxASCII_STR(wxPanelNameStr)) : nsParametricVoiceMakePanelBase(parent, winid, pos, size, style, name)
     {
         Init();
     }
@@ -80,8 +80,8 @@ public:
     }
 
     void Init();
-    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
-    NesoraMikomiVoice* GetVoice() const { return voice; }
+    void SetVoice(NesoraMikomiParametricVoice* voice) { this->voice = voice; }
+    NesoraMikomiParametricVoice* GetVoice() const { return voice; }
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);
 
@@ -93,10 +93,12 @@ private:
     std::vector<double> wave;// 48000 / 261.6
 
     nsSourcePanelBase* sourceSoundPanel;
-    nsFilterPanelBase* filterPanel;
+    nsParametricFilterPanelBase* filterPanel;
     nsPhoneticVoiceMakePlayInterfacePanel* playInterfacePanel;
     // nsParametricPanel* parametricPanel;
-    NesoraMikomiVoice* voice;
+
+    NesoraMikomiParametricVoice* voice;
+    ParametricNesoraDelta parameters;
 
     void menuSetup();
     

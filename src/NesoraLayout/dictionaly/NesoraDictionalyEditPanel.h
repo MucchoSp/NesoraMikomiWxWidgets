@@ -206,7 +206,7 @@ public:
     void SetWord(ParametricNesoraDictionalyWord* word);
 
 private:
-    NesoraMikomiVoice* voice;
+    NesoraMikomiParametricVoice* voice;
     ParametricNesoraDictionalyWord* word;
 
     wxStaticText* timelineText;
@@ -250,11 +250,11 @@ public:
 
     void Init();
 
-    void SetVoice(NesoraMikomiVoice* voice);
+    void SetVoice(NesoraMikomiParametricVoice* voice);
     void SetWord(NesoraDictionalyIndexWord* indexWord);
 
 private:
-    NesoraMikomiVoice* voice;
+    NesoraMikomiParametricVoice* voice;
     NesoraDictionalyIndexWord* indexWord;
 
     NesoraDictionalyTitlePanel* titlePanel;

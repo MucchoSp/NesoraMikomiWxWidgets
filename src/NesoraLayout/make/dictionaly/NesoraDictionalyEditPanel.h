@@ -8,10 +8,10 @@
 
 #include <wx/wx.h>
 
-#include "../../NesoraStyle/NesoraStyle.h"
-#include "../../NesoraLayout/NesoraIDs.h"
+#include "../../../NesoraStyle/NesoraStyle.h"
+#include "../../../NesoraLayout/NesoraIDs.h"
 
-#include "../../Nesora/Nesora.h"
+#include "../../../Nesora/Nesora.h"
 
 class NesoraDictionalyIndexWord;
 

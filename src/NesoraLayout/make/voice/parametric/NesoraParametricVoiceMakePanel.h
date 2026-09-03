@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
-#ifndef NESORA_PHONETIC_VOICE_MAKE_PANEL_H
-#define NESORA_PHONETIC_VOICE_MAKE_PANEL_H
+#ifndef NESORA_PARAMETRIC_VOICE_MAKE_PANEL_H
+#define NESORA_PARAMETRIC_VOICE_MAKE_PANEL_H
 
 #include <wx/wx.h>
 #include <wx/filedlg.h>
@@ -12,28 +12,27 @@
 
 #include <sstream>
 
-#define MINIAUDIO_IMPLEMENTATION
-#include "../../../../lib/miniaudio_split/miniaudio.h"
-
-#include "../../../NesoraStyle/NesoraStyle.h"
+#include "../../../../NesoraStyle/NesoraStyle.h"
 
 #include "../NesoraVoiceMakePanelBase.h"
-#include "NesoraPhoneticFilterPanel.h"
-#include "NesoraPhoneticLFModelPanel.h"
+#include "NesoraParametricRosenbergWavePanel.h"
+#include "NesoraParametricLFModelPanel.h"
+#include "NesoraParametricSOSIIRFilterPanel.h"
+#include "NesoraParametricPanel.h"
 
-#include "../../NesoraIDs.h"
-#include "../../../Nesora/Nesora.h"
+#include "../../../NesoraIDs.h"
+#include "../../../../Nesora/Nesora.h"
 
 
 
 
-class nsPhoneticVoiceMakePlayInterfacePanel : public wxPanel {
+class nsParametricVoiceMakePlayInterfacePanel : public wxPanel {
 public:
-    nsPhoneticVoiceMakePlayInterfacePanel() {
+    nsParametricVoiceMakePlayInterfacePanel() {
         Init();
     }
 
-    nsPhoneticVoiceMakePlayInterfacePanel(wxWindow* parent,
+    nsParametricVoiceMakePlayInterfacePanel(wxWindow* parent,
         wxWindowID winid = wxID_ANY,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
@@ -57,15 +56,15 @@ private:
 };
 
 
-// MARK:nsPhoneticVoiceMakePanel
+// MARK:nsParametricVoiceMakePanel
 
-class nsPhoneticVoiceMakePanel : public nsVoiceMakePanelBase {
+class nsParametricVoiceMakePanel : public nsVoiceMakePanelBase {
 public:
-    nsPhoneticVoiceMakePanel() {
+    nsParametricVoiceMakePanel() {
         Init();
     }
 
-    nsPhoneticVoiceMakePanel(wxWindow* parent,
+    nsParametricVoiceMakePanel(wxWindow* parent,
         wxWindowID winid = wxID_ANY,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
@@ -75,7 +74,7 @@ public:
         Init();
     }
 
-    ~nsPhoneticVoiceMakePanel() {
+    ~nsParametricVoiceMakePanel() {
         UninitAudioDevice();
     }
 
@@ -94,8 +93,8 @@ private:
 
     nsSourcePanelBase* sourceSoundPanel;
     nsFilterPanelBase* filterPanel;
-    nsPhoneticVoiceMakePlayInterfacePanel* playInterfacePanel;
-    // nsParametricPanel* parametricPanel;
+    nsParametricVoiceMakePlayInterfacePanel* playInterfacePanel;
+    nsParametricPanel* parametricPanel;
     NesoraMikomiVoice* voice;
 
     void menuSetup();
@@ -115,4 +114,4 @@ private:
 
 };
 
-#endif // NESORA_PHONETIC_VOICE_MAKE_PANEL_H
+#endif // NESORA_PARAMETRIC_VOICE_MAKE_PANEL_H

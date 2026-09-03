@@ -11,13 +11,13 @@
 #include <wx/valnum.h>
 #include <wx/overlay.h>
 
-#include "../../../NesoraStyle/NesoraStyle.h"
+#include "../../../../NesoraStyle/NesoraStyle.h"
 
-#include "../../NesoraIDs.h"
-#include "../../NesoraEvents.h"
+#include "../../../NesoraIDs.h"
+#include "../../../NesoraEvents.h"
 
-#include "../../../Nesora/Nesora.h"
-#include "../../../Nesora/filter/NesoraParametricSOSIIRFilter/NesoraParametricSOSIIRFilter.h"
+#include "../../../../Nesora/Nesora.h"
+#include "../../../../Nesora/filter/NesoraParametricSOSIIRFilter/NesoraParametricSOSIIRFilter.h"
 
 
 

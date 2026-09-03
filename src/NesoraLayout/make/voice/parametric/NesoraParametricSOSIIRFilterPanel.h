@@ -12,16 +12,16 @@
 #include <sstream>
 
 #define MINIAUDIO_IMPLEMENTATION
-#include "../../../../lib/miniaudio_split/miniaudio.h"
+#include "../../../../../lib/miniaudio_split/miniaudio.h"
 
-#include "../../../NesoraStyle/NesoraStyle.h"
+#include "../../../../NesoraStyle/NesoraStyle.h"
 
 #include "../NesoraVoiceMakePanelBase.h"
-#include "../../NesoraIDs.h"
-#include "../../NesoraEvents.h"
+#include "../../../NesoraIDs.h"
+#include "../../../NesoraEvents.h"
 
-#include "../../../Nesora/Nesora.h"
-#include "../../../Nesora/filter/NesoraParametricSOSIIRFilter/NesoraParametricSOSIIRFilter.h"
+#include "../../../../Nesora/Nesora.h"
+#include "../../../../Nesora/filter/NesoraParametricSOSIIRFilter/NesoraParametricSOSIIRFilter.h"
 
 
 

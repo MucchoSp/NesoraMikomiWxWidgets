@@ -8,7 +8,7 @@
 
 #include <wx/wx.h>
 
-#include "../../Nesora/Nesora.h"
+#include "../../../Nesora/Nesora.h"
 
 
 class nsSourcePanelBase : public wxPanel {

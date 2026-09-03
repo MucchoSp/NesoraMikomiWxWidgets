@@ -9,24 +9,29 @@
 #include "../../NesoraLayout/NesoraIDs.h"
 #include "../sing/NesoraSingPanel.h"
 #include "../speak/NesoraSpeakPanel.h"
-#include "../voicemake/parametric/NesoraParametricVoiceMakePanel.h"
-#include "../voicemake/phonetic/NesoraPhoneticVoiceMakePanel.h"
-#include "../character/NesoraCharacterPanel.h"
-#include "../dictionaly/NesoraDictionalyPanel.h"
+#include "../make/voice/parametric/NesoraParametricVoiceMakePanel.h"
+#include "../make/voice/phonetic/NesoraPhoneticVoiceMakePanel.h"
+#include "../make/character/NesoraCharacterPanel.h"
+#include "../make/dictionaly/NesoraDictionalyPanel.h"
 
 #ifndef NESORA_MAIN_FRAME_H
 #define NESORA_MAIN_FRAME_H
 
 
 enum class nsToolBarType {
+    TOOLBAR_MAKE,
     TOOLBAR_SPEAK,
     TOOLBAR_SING,
-    TOOLBAR_VOICE_MAKE,
+};
+
+enum class nsMakeToolBarType {
+    TOOLBAR_VOICE,
     TOOLBAR_CHARACTER,
     TOOLBAR_DICTIONALY,
 };
 
 class nsToolBarButton;
+class nsMakePanel;
 
 // MARK: nsMainFrame
 
@@ -43,26 +48,57 @@ private:
     wxPanel* toolSelectorPanel;
     nsToolBarType selectedToolBarType;
 
+    nsToolBarButton* makeButton;
     nsToolBarButton* singButton;
     nsToolBarButton* speakButton;
-    nsToolBarButton* makeButton;
-    nsToolBarButton* characterButton;
-    nsToolBarButton* dictionalyButton;
 
+    nsMakePanel* makePanel;
     nsSingPanel* singPanel;
     nsSpeakPanel* speakPanel;
-    nsVoiceMakePanelBase* voiceMakePanel;
-    nsCharacterPanel* characterPanel;
-    nsDictionalyPanel* dictionalyPanel;
 
     wxSizer* main_sizer;
 
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
+    void OnMakeButton(wxCommandEvent& event);
     void OnSingButton(wxCommandEvent& event);
     void OnSpeakButton(wxCommandEvent& event);
-    void OnMakeButton(wxCommandEvent& event);
-    void OnCharButton(wxCommandEvent& event);
+};
+
+
+class nsMakePanel : public wxPanel {
+public:
+    nsMakePanel(wxWindow* parent,
+        wxWindowID winid = wxID_ANY,
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxDefaultSize,
+        long style = wxTAB_TRAVERSAL | wxNO_BORDER,
+        const wxString& name = wxASCII_STR(wxPanelNameStr));
+
+    void SetVoice(NesoraMikomiVoice* voice);
+    NesoraMikomiVoice* GetVoice() const;
+
+    void PanelEnable();
+    void PanelDisable();
+
+private:
+    NesoraMikomiVoice* voice;
+
+    wxPanel* toolSelectorPanel;
+    nsMakeToolBarType selectedToolBarType;
+
+    nsToolBarButton* voiceButton;
+    nsToolBarButton* characterButton;
+    nsToolBarButton* dictionalyButton;
+
+    nsVoiceMakePanelBase* voicePanel;
+    nsCharacterPanel* characterPanel;
+    nsDictionalyPanel* dictionalyPanel;
+
+    wxSizer* main_sizer;
+
+    void OnVoiceButton(wxCommandEvent& event);
+    void OnCharacterButton(wxCommandEvent& event);
     void OnDictionalyButton(wxCommandEvent& event);
 };
 

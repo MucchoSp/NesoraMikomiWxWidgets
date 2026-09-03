@@ -3,24 +3,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
-#ifndef NESORA_DICTIONALY_PANEL_H
-#define NESORA_DICTIONALY_PANEL_H
+#ifndef NESORA_CHARACTER_PANEL_H
+#define NESORA_CHARACTER_PANEL_H
 
 #include <wx/wx.h>
 
 #define MINIAUDIO_IMPLEMENTATION
-#include "../../../lib/miniaudio_split/miniaudio.h"
+#include "../../../../lib/miniaudio_split/miniaudio.h"
 
-#include "NesoraDictionalyIndexPanel.h"
-#include "NesoraDictionalyEditPanel.h"
-#include "../../NesoraStyle/NesoraStyle.h"
-#include "../../NesoraLayout/NesoraIDs.h"
+#include "../../../NesoraStyle/NesoraStyle.h"
+#include "../../../NesoraLayout/NesoraIDs.h"
 
-#include "../../Nesora/Nesora.h"
+#include "../../../Nesora/Nesora.h"
 
-class nsDictionalyPanel : public wxPanel {
+class nsCharacterPanel : public wxPanel {
 public:
-    nsDictionalyPanel(wxWindow* parent,
+    nsCharacterPanel(wxWindow* parent,
         wxWindowID winid = wxID_ANY,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
@@ -30,7 +28,7 @@ public:
     }
 
     void Init();
-    void SetVoice(NesoraMikomiVoice* voice);
+    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
     NesoraMikomiVoice* GetVoice() const { return voice; }
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);
@@ -41,11 +39,8 @@ public:
 private:
     NesoraMikomiVoice* voice;
 
-    NesoraDictionalyIndexPanel* index;
-    NesoraDictionalyEditPanel* editDictionalyPanel;
-
     void menuSetup();
     
 };
 
-#endif // NESORA_DICTIONALY_PANEL_H
+#endif // NESORA_CHARACTER_PANEL_H

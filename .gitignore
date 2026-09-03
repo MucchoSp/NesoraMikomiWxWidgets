@@ -378,3 +378,6 @@ build/
 # macでの開発でしか使っていないファイルを無視
 # CMakeLists.txt
 # CMakePresets.json
+
+# .drawio
+*.drawio

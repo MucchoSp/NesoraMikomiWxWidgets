@@ -11,14 +11,14 @@
 #include <sstream>
 #include <random>
 
-#include "../../../NesoraStyle/NesoraStyle.h"
+#include "../../../../NesoraStyle/NesoraStyle.h"
 
 #include "../NesoraVoiceMakePanelBase.h"
-#include "../../NesoraIDs.h"
-#include "../../NesoraEvents.h"
+#include "../../../NesoraIDs.h"
+#include "../../../NesoraEvents.h"
 
-#include "../../../Nesora/Nesora.h"
-#include "../../../Nesora/source/NesoraParametricRosenbergWave/NesoraParametricLFModel.h"
+#include "../../../../Nesora/Nesora.h"
+#include "../../../../Nesora/source/NesoraParametricRosenbergWave/NesoraParametricLFModel.h"
 
 
 class nsPhoneticLFModelPanel : public nsSourcePanelBase {

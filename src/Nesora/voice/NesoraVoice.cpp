@@ -35,6 +35,13 @@ double NesoraMikomiVoice::Synthesize(double frequency, double samplingFrequency)
     return Synthesize(radian);
 }
 
+void NesoraMikomiVoice::UpdateParameters(ParametricNesoraParameterValue* parameters) {
+    currentParameters = parameters;
+    if (filter) {
+        filter->UpdateParameters(*parameters);
+    }
+}
+
 void NesoraMikomiVoice::SaveVoiceData(const std::string& filename) {
     std::ofstream ofs(filename, std::ios::binary);
     if (!ofs.is_open()) {

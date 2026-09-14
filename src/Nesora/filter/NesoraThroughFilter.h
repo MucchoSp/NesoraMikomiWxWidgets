@@ -16,6 +16,10 @@ public:
         return x; // 入力をそのまま出力する
     }
 
+    void UpdateParameters(const ParametricNesoraParameterValue& parameters) override {
+        // パラメータは使用しないので、特に何もしない
+    }
+
     std::vector<unsigned char> SaveData() override {
         // データがないので、空のベクターを返す
         return std::vector<unsigned char>();

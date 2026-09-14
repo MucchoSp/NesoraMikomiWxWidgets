@@ -30,11 +30,15 @@ public:
 
     void SetSource(NesoraSourceBase* src);
     void SetFilter(NesoraFilterBase* flt);
+    NesoraSourceBase* GetSource() const { return source; }
+    NesoraFilterBase* GetFilter() const { return filter; }
 
     double Synthesize(double radian);
     double Synthesize(double frequency, double samplingFrequency);
     double GetRadian() const { return radian; }
     void SetRadian(double r) { radian = r; }
+    void UpdateParameters(ParametricNesoraParameterValue* parameters);
+    ParametricNesoraParameterValue* GetCurrentParameters() const { return currentParameters; }
 
     void SaveVoiceData(const std::string& filename);
     void LoadVoiceData(const std::string& filename);
@@ -42,15 +46,13 @@ public:
     std::vector<unsigned char> GetVoiceData();
     void LoadVoiceData(const std::vector<unsigned char>& fileData);
 
-    NesoraSourceBase* GetSource() const { return source; }
-    NesoraFilterBase* GetFilter() const { return filter; }
-
 private:
 
     NesoraSourceBase* source;
     NesoraFilterBase* filter;
 
     double radian = 0.0;
+    ParametricNesoraParameterValue* currentParameters;
 
 };
 

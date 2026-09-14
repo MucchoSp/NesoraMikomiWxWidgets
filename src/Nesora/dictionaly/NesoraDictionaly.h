@@ -14,7 +14,11 @@ class NesoraDictionalyBase {
 public:
     NesoraDictionalyBase(){}
 
-    virtual std::map<uint32_t, ParametricNesoraParameter> Vowel(double t) = 0;
+    virtual int SetWord(const std::string& word, int eventtype) = 0;
+    virtual int SetPitch(double pitch) = 0;
+    virtual int SetEnvelope(double envelope) = 0;
+    virtual int GetWord(double t, ParametricNesoraParameterValue* outputParameters, double* outputPitch, double* outputEnvelope) = 0;
+    virtual void Reset() = 0;
 
     virtual std::vector<unsigned char> SaveData() = 0;
     virtual void LoadData(const std::vector<unsigned char>& data) = 0;
@@ -27,7 +31,7 @@ class NesoraVowelDictionaly : public NesoraDictionalyBase {
 public:
     NesoraVowelDictionaly(){}
 
-    std::map<uint32_t, ParametricNesoraParameter> Vowel(double t) override;
+    ParametricNesoraParameterValue Vowel(double t) override;
 
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;

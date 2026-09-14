@@ -44,6 +44,20 @@ struct ParametricNesoraParameter {
     double a0;
 };
 
+typedef std::map<uint32_t, double> ParametricNesoraParameterValue;
+
+struct ParametricNesoraScriptParameterValue {
+    std::string lastSymbol;
+    int startTime;
+    std::string symbol;
+    int remainingTime;
+    std::string nextSymbol;
+
+    double pitch;
+    double envelope;
+};
+
+
 
 
 //MARK: MIDI

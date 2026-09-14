@@ -14,7 +14,7 @@ public:
 
     virtual double GetPitch(double t) = 0;
     virtual double GetEnvelope(double t) = 0;
-    virtual ParametricNesoraParameter Vowel(double t) = 0;
+    virtual std::string GetWord(double t) = 0;
 
     virtual std::vector<unsigned char> SaveData() = 0;
     virtual void LoadData(const std::vector<unsigned char>& data) = 0;

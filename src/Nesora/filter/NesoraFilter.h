@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include "../NesoraDefines.h"
+#include "../ParametricNesroaDefines.h"
 
 #ifndef NESORA_FILTER_H
 #define NESORA_FILTER_H

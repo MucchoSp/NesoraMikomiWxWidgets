@@ -21,7 +21,7 @@ public:
     virtual void LoadData(const std::vector<unsigned char>& data) = 0;
 
     void SetSamplingFrequency(double smpl) { samplingFrequency = smpl; }
-    double GetSamplingFrequency() {return samplingFrequency; }
+    double GetSamplingFrequency() { return samplingFrequency; }
 protected:
 
     double samplingFrequency = 48000;

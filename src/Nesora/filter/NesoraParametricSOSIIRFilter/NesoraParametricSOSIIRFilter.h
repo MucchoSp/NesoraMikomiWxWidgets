@@ -12,8 +12,6 @@
 
 #include "../NesoraFilter.h"
 
-#include "../../ParametricNesroaDefines.h"
-
 #ifndef NESORA_PARAMETRIC_SOSIIRFILTER_H
 #define NESORA_PARAMETRIC_SOSIIRFILTER_H
 
@@ -57,7 +55,7 @@ public:
     NesoraParametricSOSIIRFilter(){}
     NesoraParametricSOSIIRFilter(int in_samplingFrequency) : samplingFrequency(in_samplingFrequency) {}
 
-    void Reset();
+    void Reset() override;
 
     void CalculateCoefficients(const std::map<uint32_t, double>& parameters);
     const std::vector<double>& CalculateFrequencyResponse(int num_samples);
@@ -66,6 +64,10 @@ public:
     double Filter(double x) override;
     void UpdateParameters(const ParametricNesoraParameterValue& parameters) override {
         CalculateCoefficients(parameters);
+    }
+    void ResetParameters() override {
+        for(auto& filter : SOFilters)
+            filter.Reset();
     }
 
     std::vector<unsigned char> SaveData() override;

@@ -17,6 +17,10 @@ void NesoraMikomiVoice::SetFilter(NesoraFilterBase* flt) {
     filter = flt;
 }
 
+void NesoraMikomiVoice::SetDictionaly(NesoraDictionalyBase* dic) {
+    dictionaly = dic;
+}
+
 double NesoraMikomiVoice::Synthesize(double radian) {
     if (source == nullptr)
         return 0.0;
@@ -41,6 +45,69 @@ void NesoraMikomiVoice::UpdateParameters(ParametricNesoraParameterValue* paramet
         filter->UpdateParameters(*parameters);
     }
 }
+
+// スクリプト合成
+void NesoraMikomiVoice::SetScript(NesoraScriptBase* scr) {
+    script = scr;
+    dictionaly->SetScript(script);
+}
+
+// スクリプトを更新する
+void NesoraMikomiVoice::RefreshScript() {
+    dictionaly->RefreshCache();
+}
+
+// スクリプトから音声を生成する
+void NesoraMikomiVoice::CacheScriptWave() {
+    currentScriptWave.clear();
+    if (source == nullptr or filter == nullptr or dictionaly == nullptr or script == nullptr)
+        return;
+
+    int i = 0;
+    double rad;
+    while(1) {
+        ParametricNesoraParameterValue param;
+        double pitch, envelope;
+        dictionaly->GetWord(i, &param, &pitch, &envelope);
+        if (pitch == 0.0) break;
+
+        rad = std::fmod(radian + 2.0 * nsPI * pitch / script->GetSamplingFrequency(), 2.0 * nsPI);
+        filter->UpdateParameters(param);
+        currentScriptWave.push_back(filter->Filter(source->Utterance(rad)) * envelope);
+
+        i++;
+    }
+}
+
+std::vector<double> NesoraMikomiVoice::GetScriptWave() {
+    CacheScriptWave();
+    return currentScriptWave;
+}
+
+double NesoraMikomiVoice::GetScriptWave(size_t idx) {
+    if (idx >= currentScriptWave.size()) return 0.0;
+    return currentScriptWave[idx];
+}
+
+double NesoraMikomiVoice::SynthesizeScript() {
+    if (dictionaly != nullptr) {
+        double pitch, envelope;
+        ParametricNesoraParameterValue param;
+        dictionaly->GetWord(script_idx, &param, &pitch, &envelope);
+        if (filter)
+            filter->UpdateParameters(param);
+        
+        return Synthesize(pitch, script->GetSamplingFrequency()) * envelope;
+    }
+    return 0.0;
+}
+
+void NesoraMikomiVoice::SetSynthesizeScriptIndex(size_t idx) {
+    script_idx = idx;
+}
+
+
+// TODO: 辞書を声と一緒に保存する仕組みを作る。
 
 void NesoraMikomiVoice::SaveVoiceData(const std::string& filename) {
     std::ofstream ofs(filename, std::ios::binary);

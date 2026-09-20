@@ -63,7 +63,7 @@ ParametricNesoraDictionalyWord& NesoraVowelDictionaly::GetWord(const std::string
 
 
 std::vector<unsigned char> NesoraVowelDictionaly::SaveData() {
-    
+    return std::vector<unsigned char>();
 }
 
 void NesoraVowelDictionaly::LoadData(const std::vector<unsigned char>& data) {

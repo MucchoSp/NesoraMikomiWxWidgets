@@ -30,16 +30,32 @@ public:
 
     void SetSource(NesoraSourceBase* src);
     void SetFilter(NesoraFilterBase* flt);
+    void SetDictionaly(NesoraDictionalyBase* dic);
     NesoraSourceBase* GetSource() const { return source; }
     NesoraFilterBase* GetFilter() const { return filter; }
+    NesoraDictionalyBase* GetDictionaly() const { return dictionaly; }
 
+    // リアルタイム合成
     double Synthesize(double radian);
     double Synthesize(double frequency, double samplingFrequency);
     double GetRadian() const { return radian; }
     void SetRadian(double r) { radian = r; }
+    
     void UpdateParameters(ParametricNesoraParameterValue* parameters);
     ParametricNesoraParameterValue* GetCurrentParameters() const { return currentParameters; }
 
+    // スクリプト合成
+    void SetScript(NesoraScriptBase* scr);
+    NesoraScriptBase* GetScript() const { return script; }
+    void RefreshScript();
+    double SynthesizeScript();
+    void SetSynthesizeScriptIndex(size_t idx);
+
+    void CacheScriptWave();
+    std::vector<double> GetScriptWave();
+    double GetScriptWave(size_t idx);
+
+    // ファイル操作
     void SaveVoiceData(const std::string& filename);
     void LoadVoiceData(const std::string& filename);
 
@@ -50,6 +66,11 @@ private:
 
     NesoraSourceBase* source;
     NesoraFilterBase* filter;
+
+    NesoraDictionalyBase* dictionaly;
+    NesoraScriptBase* script;
+    size_t script_idx;
+    std::vector<double> currentScriptWave;
 
     double radian = 0.0;
     ParametricNesoraParameterValue* currentParameters;

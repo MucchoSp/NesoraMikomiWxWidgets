@@ -15,9 +15,15 @@ public:
     double Filter(double x) override {
         return x; // 入力をそのまま出力する
     }
+    void Reset() override {
+        // リセットするものがない
+    }
 
     void UpdateParameters(const ParametricNesoraParameterValue& parameters) override {
         // パラメータは使用しないので、特に何もしない
+    }
+    void ResetParameters() override {
+        // パラメーターがないので何もしない
     }
 
     std::vector<unsigned char> SaveData() override {

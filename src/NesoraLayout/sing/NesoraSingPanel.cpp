@@ -132,13 +132,13 @@ void nsSingPanel::data_callback(ma_device* pDevice, void* pOutput, const void* p
     float* out = (float*)pOutput;
     (void)pInput;
 
-    nsSingPanel* frame = (nsSingPanel*)pDevice->pUserData;
+    nsSingPanel* singPanel = (nsSingPanel*)pDevice->pUserData;
     for (ma_uint32 i = 0; i < frameCount; i++) {
-        double nowPitch = frame->midiPanel->GetPitch();
-        double nowEnvelope = frame->midiPanel->GetEnvelope();
-        frame->midiPanel->ProceedTime(NesoraDefaultSamplingFrequency);
+        double nowPitch = singPanel->midiPanel->GetPitch();
+        double nowEnvelope = singPanel->midiPanel->GetEnvelope();
+        singPanel->midiPanel->ProceedTime(NesoraDefaultSamplingFrequency);
         if (nowPitch > 0) {
-            out[i] = (float)frame->voice->Synthesize(nowPitch, NesoraDefaultSamplingFrequency) * nowEnvelope / (std::pow(10.0, 10.0 - (float)frame->volume->GetValue() / 10.0));
+            out[i] = (float)singPanel->voice->Synthesize(nowPitch, NesoraDefaultSamplingFrequency) * nowEnvelope / (std::pow(10.0, 10.0 - (float)singPanel->volume->GetValue() / 10.0));
         } else {
             out[i] = 0.0f;
         }

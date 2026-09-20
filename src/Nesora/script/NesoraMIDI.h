@@ -41,7 +41,7 @@ public:
 
     double GetPitch(double t) override;
     double GetEnvelope(double t) override;
-    ParametricNesoraParameter Vowel(double t) override;
+    std::string GetWord(double t) override;
 
     void SetNotes(const std::vector<NesoraMidiNote>& in_notes);
     const std::vector<NesoraMidiNote>& GetNotes() const;
@@ -72,7 +72,7 @@ public:
 
     double GetPitch(double t) override;
     double GetEnvelope(double t) override;
-    ParametricNesoraParameter Vowel(double t) override;
+    std::string GetWord(double t) override;
 
     void SetNotes(const std::vector<NesoraMidiNotePhoneticalInfo>& in_notes);
     const std::vector<NesoraMidiNotePhoneticalInfo>& GetNotes() const;

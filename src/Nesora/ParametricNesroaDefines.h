@@ -123,8 +123,8 @@ struct NesoraMidiNotePhoneticalInfo {
 // MARK: 辞書
 
 struct ParametricNesoraDictionalyWordDeltaAndTime {
-    double parameterDeltas;                 // パラメータの変化（IDと変化量のペア）
     double time;                            // 変化が起こるタイミング(ms)
+    double parameterDeltas;                 // パラメータの変化
 };
 
 struct ParametricNesoraDictionalyEnvelopePoint {

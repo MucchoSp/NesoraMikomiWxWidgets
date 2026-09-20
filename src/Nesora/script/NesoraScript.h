@@ -12,6 +12,7 @@ class NesoraScriptBase {
 public:
     NesoraScriptBase(){}
 
+    // 引数の単位は秒
     virtual double GetPitch(double t) = 0;
     virtual double GetEnvelope(double t) = 0;
     virtual std::string GetWord(double t) = 0;

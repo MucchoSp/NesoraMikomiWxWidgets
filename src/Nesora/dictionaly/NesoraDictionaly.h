@@ -6,6 +6,7 @@
 #include <map>
 
 #include "../ParametricNesroaDefines.h"
+#include "../script/NesoraScript.h"
 
 #ifndef NESORA_DICTIONALY_H
 #define NESORA_DICTIONALY_H
@@ -13,51 +14,22 @@
 class NesoraDictionalyBase {
 public:
     NesoraDictionalyBase(){}
+    
+    virtual int GetWord(int idx, ParametricNesoraParameterValue* outputParameters, double* outputPitch, double* outputEnvelope) = 0;
 
-    virtual int SetWord(const std::string& word, int eventtype) = 0;
-    virtual int SetPitch(double pitch) = 0;
-    virtual int SetEnvelope(double envelope) = 0;
-    virtual int GetWord(double t, ParametricNesoraParameterValue* outputParameters, double* outputPitch, double* outputEnvelope) = 0;
-    virtual void Reset() = 0;
+    virtual int SetScript(NesoraScriptBase* script) = 0;
+    virtual NesoraScriptBase* GetScript() = 0;
+    virtual int RefreshCache() = 0;
 
     virtual std::vector<unsigned char> SaveData() = 0;
     virtual void LoadData(const std::vector<unsigned char>& data) = 0;
 
-private:
-};
-
-
-class NesoraVowelDictionaly : public NesoraDictionalyBase {
-public:
-    NesoraVowelDictionaly(){}
-
-    ParametricNesoraParameterValue Vowel(double t) override;
-
-    std::vector<unsigned char> SaveData() override;
-    void LoadData(const std::vector<unsigned char>& data) override;
-
-    void AddWord(const std::string& word, const std::map<uint32_t, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>>& parameterDeltas) {
-        ParametricNesoraDictionalyWord newWord;
-        newWord.word = word;
-        newWord.parameterDeltas = parameterDeltas;
-        parameters[word] = newWord;
-    }
-    ParametricNesoraDictionalyWord GetWord(const std::string& word) const {
-        auto it = parameters.find(word);
-        if (it != parameters.end()) {
-            return it->second;
-        } else {
-            return ParametricNesoraDictionalyWord(); // 見つからない場合は空の単語を返す
-        }
-    }
-    ParametricNesoraDictionalyWord& GetWord(const std::string& word) {
-        return parameters[word]; // 存在しない場合は新しい単語が作成される
-    }
+protected:
+    
+    NesoraScriptBase* script = nullptr;
 
 private:
-    ParametricNesoraDictionary parameters; // パラメータの辞書
 };
-
 
 
 #endif //NESORA_DICTIONALY_H

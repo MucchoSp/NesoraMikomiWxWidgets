@@ -20,4 +20,7 @@
 
 #include "script/NesoraMIDI.h"
 
+#include "dictionaly/NesoraVowelDictionaly.h"
+#include "dictionaly/NesoraThroughDictionaly.h"
+
 #endif // NESORA_H

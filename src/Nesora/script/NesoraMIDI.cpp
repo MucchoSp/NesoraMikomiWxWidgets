@@ -108,8 +108,8 @@ double NesoraMIDISplineScript::GetEnvelope(double t) {
     return 0.0;
 }
 
-ParametricNesoraParameter NesoraMIDISplineScript::Vowel(double t) {
-    return ParametricNesoraParameter();
+std::string NesoraMIDISplineScript::GetWord(double t) {
+    return std::string();
 }
 
 void NesoraMIDISplineScript::SetNotes(const std::vector<NesoraMidiNote>& in_notes) {
@@ -295,8 +295,8 @@ double NesoraMIDIPhoneticalScript::GetEnvelope(double t) {
     return 0.0;
 }
 
-ParametricNesoraParameter NesoraMIDIPhoneticalScript::Vowel(double t) {
-    return ParametricNesoraParameter();
+std::string NesoraMIDIPhoneticalScript::GetWord(double t) {
+    return std::string();
 }
 
 void NesoraMIDIPhoneticalScript::SetNotes(const std::vector<NesoraMidiNotePhoneticalInfo>& in_notes) {

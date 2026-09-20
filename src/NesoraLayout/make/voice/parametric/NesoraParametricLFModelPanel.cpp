@@ -151,7 +151,7 @@ void nsParametricLFModelPanel::OnPitchSlide(wxCommandEvent& event) {
 }
 
 void nsParametricLFModelPanel::OnPhoneticSlide(wxCommandEvent& event) {
-    phonetic_param->SetLabel(to_string_with_precision((double)phonetic_slider->GetValue() / 1000.0, 3) + " Hz");
+    phonetic_param->SetLabel(to_string_with_precision((double)phonetic_slider->GetValue() / 1000.0, 3));
 
     UpdateChart();
 }

@@ -53,13 +53,12 @@ void nsParametricVoiceMakePanel::Init() {
     wxSizer* horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
     wxSizer* filterHorizontalSizer = new wxBoxSizer(wxHORIZONTAL);
     playInterfacePanel = new nsParametricVoiceMakePlayInterfacePanel(this, wxID_ANY);
-    sourceSoundPanel = new nsParametricLFModelPanel(this, wxID_ANY);
+    sourcePanel = new nsParametricLFModelPanel(this, wxID_ANY);
     filterPanel = new nsParametricSOSIIRFilterPanel(this, wxID_ANY);
     parametricPanel = new nsParametricPanel(this, wxID_ANY);
-    voice = new NesoraMikomiVoice(sourceSoundPanel->GetSource(), filterPanel->GetFilter());
 
     horizontalSizer->Add(playInterfacePanel, 0, wxEXPAND | wxALL);
-    horizontalSizer->Add(sourceSoundPanel, 1, wxEXPAND | wxALL);
+    horizontalSizer->Add(sourcePanel, 1, wxEXPAND | wxALL);
     sizer->Add(horizontalSizer, 0, wxEXPAND | wxALL);
     filterHorizontalSizer->Add(parametricPanel, 0, wxEXPAND | wxALL);
     filterHorizontalSizer->Add(filterPanel, 1, wxEXPAND | wxALL);
@@ -71,6 +70,11 @@ void nsParametricVoiceMakePanel::Init() {
     playInterfacePanel->stopButton->Bind(wxEVT_BUTTON, &nsParametricVoiceMakePanel::OnStopButtonClicked, this);
 }
 
+void nsParametricVoiceMakePanel::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    voice->SetSource(sourcePanel->GetSource());
+    voice->SetFilter(filterPanel->GetFilter());
+}
 
 void nsParametricVoiceMakePanel::OnPlayButtonClicked(wxCommandEvent& event) {
     InitAudioDevice();
@@ -117,7 +121,7 @@ void nsParametricVoiceMakePanel::data_callback(ma_device* pDevice, void* pOutput
 
     nsParametricVoiceMakePanel* frame = (nsParametricVoiceMakePanel*)pDevice->pUserData;
     for (ma_uint32 i = 0; i < frameCount; i++) {
-        out[i] = (float)frame->voice->Synthesize(frame->sourceSoundPanel->GetPitch(), NesoraDefaultSamplingFrequency) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
+        out[i] = (float)frame->voice->Synthesize(frame->sourcePanel->GetPitch(), NesoraDefaultSamplingFrequency) / (std::pow(10.0, 10.0 - (float)frame->playInterfacePanel->volume->GetValue() / 10.0));
     }
 }
 
@@ -164,8 +168,8 @@ void nsParametricVoiceMakePanel::OnOpen(wxCommandEvent& event) {
 
     voice->LoadVoiceData(fileData);
 
-    if (sourceSoundPanel) {
-        sourceSoundPanel->Update();
+    if (sourcePanel) {
+        sourcePanel->Update();
     }
     if (filterPanel) {
         filterPanel->Update();

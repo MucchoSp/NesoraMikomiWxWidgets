@@ -6,6 +6,8 @@
 void nsDictionalyPanel::Init() {
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     // wxStaticText* label = new wxStaticText(this, wxID_ANY, _("This is the Dictionaly Panel"), wxPoint(10, 10));
+    dictionaly = new NesoraThroughDictionaly();
+
 
     wxBoxSizer* mainSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -22,6 +24,7 @@ void nsDictionalyPanel::Init() {
 
 void nsDictionalyPanel::SetVoice(NesoraMikomiVoice* voice) {
     this->voice = voice;
+    voice->SetDictionaly(dictionaly);
     index->SetVoice(voice);
     editDictionalyPanel->SetVoice(voice);
 }

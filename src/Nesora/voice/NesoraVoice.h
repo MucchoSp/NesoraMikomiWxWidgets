@@ -9,6 +9,10 @@
 #include <cmath>
 #include <iostream>
 
+#include "../filter/NesoraFilter.h"
+#include "../source/NesoraSource.h"
+#include "../script/NesoraScript.h"
+#include "../dictionaly/NesoraDictionaly.h"
 #include "../Nesora.h"
 
 #ifndef NESORA_VOICE_H
@@ -52,8 +56,9 @@ public:
     void SetSynthesizeScriptIndex(size_t idx);
 
     void CacheScriptWave();
-    std::vector<double> GetScriptWave();
+    std::vector<double> GetScriptWaveVector();
     double GetScriptWave(size_t idx);
+    double GetScriptWave();
 
     // ファイル操作
     void SaveVoiceData(const std::string& filename);
@@ -64,16 +69,16 @@ public:
 
 private:
 
-    NesoraSourceBase* source;
-    NesoraFilterBase* filter;
+    NesoraSourceBase* source = nullptr;
+    NesoraFilterBase* filter = nullptr;
 
-    NesoraDictionalyBase* dictionaly;
-    NesoraScriptBase* script;
-    size_t script_idx;
+    NesoraDictionalyBase* dictionaly = nullptr;
+    NesoraScriptBase* script = nullptr;
+    size_t script_idx = 0;
     std::vector<double> currentScriptWave;
 
     double radian = 0.0;
-    ParametricNesoraParameterValue* currentParameters;
+    ParametricNesoraParameterValue* currentParameters = nullptr;
 
 };
 

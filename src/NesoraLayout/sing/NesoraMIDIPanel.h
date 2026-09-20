@@ -167,11 +167,10 @@ public:
     }
 
     void Init();
-    double GetPitch(double t);
-    double GetEnvelope(double t);
     void ClearPlaybackLine();
     bool IsLyricEditing() const;
     void EnvelopeLineUpdate();
+    void SetPlaybackLine(double t);
 
     void SetLinkedPianoKeys(NesoraPianoKeys* keys) {
         m_linkedKeys = keys;
@@ -185,6 +184,7 @@ public:
     void SetLinkedEnvelopeline(NesoraEnvelopeline* envelopeline) {
         m_linkedEnvelopeline = envelopeline;
     }
+
 private:
     
     NesoraPianoKeys* m_linkedKeys = nullptr;
@@ -306,8 +306,6 @@ public:
     }
     
     void Init();
-    double GetPitch();
-    double GetEnvelope();
     void ProceedTime(double samplingFrequency);
     void PlayStop();
     bool IsLyricEditing() const;
@@ -319,7 +317,7 @@ private:
     NesoraPianoRollCanvas* pianoRoll;
     wxTimer playbackLineTimer;
 
-    double nowPlayTime = 0.0;   // 現在の再生位置[ms]
+    double nowPlayTime = 0.0;   // 現在の再生位置(秒)
 
     void OnPlaybackTimer(wxTimerEvent& event);
 };

@@ -156,7 +156,8 @@ nsMakePanel::nsMakePanel(wxWindow* parent,
     dictionalyPanel = new nsDictionalyPanel(this);
     dictionalyPanel->Hide();
 
-    voice = voicePanel->GetVoice();
+    voice = new NesoraMikomiVoice();
+    voicePanel->SetVoice(voice);
     characterPanel->SetVoice(voice);
     dictionalyPanel->SetVoice(voice);
 

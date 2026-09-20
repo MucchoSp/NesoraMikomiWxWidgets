@@ -32,6 +32,8 @@ public:
     void Init();
     void SetVoice(NesoraMikomiVoice* voice);
     NesoraMikomiVoice* GetVoice() const { return voice; }
+    void SetDictionaly(NesoraDictionalyBase* dic) { dictionaly = dic; }
+    NesoraDictionalyBase* GetDictionaly() const { return dictionaly; }
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);
 
@@ -40,6 +42,7 @@ public:
 
 private:
     NesoraMikomiVoice* voice;
+    NesoraDictionalyBase* dictionaly; // TODO: 仮
 
     NesoraDictionalyIndexPanel* index;
     NesoraDictionalyEditPanel* editDictionalyPanel;

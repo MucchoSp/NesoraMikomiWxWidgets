@@ -49,11 +49,15 @@ void NesoraMikomiVoice::UpdateParameters(ParametricNesoraParameterValue* paramet
 // スクリプト合成
 void NesoraMikomiVoice::SetScript(NesoraScriptBase* scr) {
     script = scr;
-    dictionaly->SetScript(script);
+    if (dictionaly != nullptr && script != nullptr)
+        dictionaly->SetScript(script);
 }
 
 // スクリプトを更新する
 void NesoraMikomiVoice::RefreshScript() {
+    if (dictionaly == nullptr || script == nullptr)
+        return;
+    dictionaly->SetScript(script);
     dictionaly->RefreshCache();
 }
 
@@ -79,7 +83,7 @@ void NesoraMikomiVoice::CacheScriptWave() {
     }
 }
 
-std::vector<double> NesoraMikomiVoice::GetScriptWave() {
+std::vector<double> NesoraMikomiVoice::GetScriptWaveVector() {
     CacheScriptWave();
     return currentScriptWave;
 }
@@ -89,17 +93,23 @@ double NesoraMikomiVoice::GetScriptWave(size_t idx) {
     return currentScriptWave[idx];
 }
 
+double NesoraMikomiVoice::GetScriptWave() {
+    script_idx++;
+    return currentScriptWave[script_idx];
+}
+
 double NesoraMikomiVoice::SynthesizeScript() {
-    if (dictionaly != nullptr) {
-        double pitch, envelope;
-        ParametricNesoraParameterValue param;
-        dictionaly->GetWord(script_idx, &param, &pitch, &envelope);
-        if (filter)
-            filter->UpdateParameters(param);
-        
-        return Synthesize(pitch, script->GetSamplingFrequency()) * envelope;
+    if (dictionaly == nullptr || script == nullptr) {
+        return 0.0;
     }
-    return 0.0;
+
+    double pitch, envelope;
+    ParametricNesoraParameterValue param;
+    dictionaly->GetWord(script_idx, &param, &pitch, &envelope);
+    if (filter)
+        filter->UpdateParameters(param);
+    script_idx++;
+    return Synthesize(pitch, script->GetSamplingFrequency()) * envelope;
 }
 
 void NesoraMikomiVoice::SetSynthesizeScriptIndex(size_t idx) {

@@ -1213,14 +1213,9 @@ void NesoraPianoRollCanvas::OnMagnify(wxMouseEvent& event) {
     event.Skip();
 }
 
-double NesoraPianoRollCanvas::GetPitch(double t) {
+void NesoraPianoRollCanvas::SetPlaybackLine(double t) {
     playbackTimeInSec.store(t);
-    return midiScript.GetPitch(t);
-}
-
-double NesoraPianoRollCanvas::GetEnvelope(double t) {
-    playbackTimeInSec.store(t);
-    return midiScript.GetEnvelope(t);
+    Refresh(false);
 }
 
 void NesoraPianoRollCanvas::ClearPlaybackLine() {
@@ -1520,16 +1515,9 @@ void NesoraMIDIPanel::Init() {
     playbackLineTimer.Start(16);
 }
 
-double NesoraMIDIPanel::GetPitch() {
-    return pianoRoll->GetPitch(nowPlayTime);
-}
-
-double NesoraMIDIPanel::GetEnvelope() {
-    return pianoRoll->GetEnvelope(nowPlayTime);
-}
-
 void NesoraMIDIPanel::ProceedTime(double samplingFrequency) {
-    nowPlayTime += 1000.0 / samplingFrequency;
+    nowPlayTime += 1.0 / samplingFrequency;
+    pianoRoll->SetPlaybackLine(nowPlayTime);
 }
 
 bool NesoraMIDIPanel::IsLyricEditing() const {

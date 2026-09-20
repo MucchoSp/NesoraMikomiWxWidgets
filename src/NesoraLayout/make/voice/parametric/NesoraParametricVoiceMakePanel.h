@@ -79,7 +79,7 @@ public:
     }
 
     void Init();
-    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    void SetVoice(NesoraMikomiVoice* voice);
     NesoraMikomiVoice* GetVoice() const { return voice; }
     void OnSave(wxCommandEvent& event);
     void OnOpen(wxCommandEvent& event);
@@ -91,11 +91,11 @@ private:
 
     std::vector<double> wave;// 48000 / 261.6
 
-    nsSourcePanelBase* sourceSoundPanel;
+    NesoraMikomiVoice* voice;
+    nsSourcePanelBase* sourcePanel;
     nsFilterPanelBase* filterPanel;
     nsParametricVoiceMakePlayInterfacePanel* playInterfacePanel;
     nsParametricPanel* parametricPanel;
-    NesoraMikomiVoice* voice;
 
     void menuSetup();
     

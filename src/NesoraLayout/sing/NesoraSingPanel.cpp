@@ -65,6 +65,10 @@ void nsSingPanel::OnStop(wxCommandEvent& event) {
 }
 
 void nsSingPanel::OnPlay(wxCommandEvent& event) {
+    if (voice == nullptr) {
+        return;
+    }
+    voice->RefreshScript();
     InitAudioDevice();
     isPlaying = true;
 }
@@ -134,15 +138,9 @@ void nsSingPanel::data_callback(ma_device* pDevice, void* pOutput, const void* p
 
     nsSingPanel* singPanel = (nsSingPanel*)pDevice->pUserData;
     for (ma_uint32 i = 0; i < frameCount; i++) {
-        double nowPitch = singPanel->midiPanel->GetPitch();
-        double nowEnvelope = singPanel->midiPanel->GetEnvelope();
-        singPanel->midiPanel->ProceedTime(NesoraDefaultSamplingFrequency);
-        if (nowPitch > 0) {
-            out[i] = (float)singPanel->voice->Synthesize(nowPitch, NesoraDefaultSamplingFrequency) * nowEnvelope / (std::pow(10.0, 10.0 - (float)singPanel->volume->GetValue() / 10.0));
-        } else {
-            out[i] = 0.0f;
-        }
+        out[i] = (float)singPanel->voice->GetScriptWave() / (std::pow(10.0, 10.0 - (float)singPanel->volume->GetValue() / 10.0));
     }
+    singPanel->midiPanel->ProceedTime(NesoraDefaultSamplingFrequency * frameCount);
 }
 
 void nsSingPanel::PanelEnable() {

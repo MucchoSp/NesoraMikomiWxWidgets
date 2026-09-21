@@ -2,7 +2,6 @@
 // Copyright (c) 2026 MucchoSP
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "NesoraVoice.h"
-#include "NesoraWav.h"
 #include <cstdint>
 #include <cstring>
 
@@ -65,7 +64,6 @@ void NesoraMikomiVoice::RefreshScript() {
 // スクリプトから音声を生成する
 void NesoraMikomiVoice::CacheScriptWave() {
     currentScriptWave.clear();
-    std::cout << "NesoraMikomiVoice::CacheScriptWave()" << std::endl;
     if (source == nullptr or filter == nullptr or dictionaly == nullptr or script == nullptr)
         return;
 
@@ -83,7 +81,6 @@ void NesoraMikomiVoice::CacheScriptWave() {
 
         i++;
     }
-    std::cout << "currentScriptWave.size(): " << currentScriptWave.size() << std::endl;
     
 }
 

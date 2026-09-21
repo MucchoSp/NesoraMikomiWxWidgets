@@ -185,6 +185,10 @@ public:
         m_linkedEnvelopeline = envelopeline;
     }
 
+    NesoraScriptBase* GetScript() const {
+        return midiScript;
+    }
+
 private:
     
     NesoraPianoKeys* m_linkedKeys = nullptr;
@@ -192,7 +196,7 @@ private:
     NesoraEnvelopeline* m_linkedEnvelopeline = nullptr;
         
     std::vector<MidiNoteBox> notes;
-    NesoraMIDIPhoneticalScript midiScript;
+    NesoraMIDIPhoneticalScript* midiScript;
     std::vector<double> pitchLine;
     int  hoverNoteIdx = -1;
 
@@ -306,9 +310,13 @@ public:
     }
     
     void Init();
-    void ProceedTime(double samplingFrequency);
+    void ProceedTime(double time);
     void PlayStop();
     bool IsLyricEditing() const;
+
+    NesoraScriptBase* GetScript() const {
+        return pianoRoll->GetScript();
+    }
 
 private:
     wxSlider* midi_slider;

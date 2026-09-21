@@ -23,6 +23,7 @@ public:
     // スクリプトを設定
     int SetScript(NesoraScriptBase* script) override {
         this->script = script;
+        std::cout << "script->GetSamplingFrequency() = " << script->GetSamplingFrequency() <<std::endl;
         return 0;
     }
     // 現在のスクリプトを取得
@@ -31,6 +32,7 @@ public:
     }
     // キャッシュを現在のスクリプトで更新する
     int RefreshCache() override {
+        outputPitchList.clear();
         int listSize = 0;
         double samplingFrequency = script->GetSamplingFrequency();
         while(1) {

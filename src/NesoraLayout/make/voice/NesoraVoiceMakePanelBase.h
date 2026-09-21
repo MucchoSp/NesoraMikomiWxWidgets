@@ -72,8 +72,8 @@ public:
     ~nsVoiceMakePanelBase() {
     }
 
-    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
-    NesoraMikomiVoice* GetVoice() const { return voice; }
+    virtual void SetVoice(NesoraMikomiVoice* voice) = 0;
+    virtual NesoraMikomiVoice* GetVoice() const = 0;
     virtual void OnSave(wxCommandEvent& event) = 0;
     virtual void OnOpen(wxCommandEvent& event) = 0;
 

@@ -65,7 +65,7 @@ struct ParametricNesoraScriptParameterValue {
 struct NesoraMidiNote {
     double pitch;       // 0-127 (MIDIノート番号)
     double intensity;   // 強弱（0.0-1.0）
-    double length;      // 長さ(ms)
+    double length;      // 長さ(秒)
     double modulation;  // モジュレーション(ピッチの揺れ)
     std::string lyric;  // 歌詞
 
@@ -83,36 +83,36 @@ enum class NesoraPitchCurveType {
 struct NesoraMidiNotePhoneticalInfo {
     double pitch;       // 0-127 (MIDIノート番号)
     double intensity;   // 強弱（0.0-1.0）
-    double length;      // 長さ(ms)
+    double length;      // 長さ(秒)
     std::string phoneticSymbol;     // 発音記号
     std::string lyric;  // 歌詞
 
-    double frontOverlap;            // 前の音との重なり時間(ms)
-    double backOverlap;             // 後の音との重なり時間(ms)
+    double frontOverlap;            // 前の音との重なり時間(秒)
+    double backOverlap;             // 後の音との重なり時間(秒)
 
     double strength;                // 強さ(0.0-1.0)
 
-    double frontTransitionTime;     // 前の音からの移行時間(ms)
-    double backTransitionTime;      // 後の音への移行時間(ms)
+    double frontTransitionTime;     // 前の音からの移行時間(秒)
+    double backTransitionTime;      // 後の音への移行時間(秒)
 
-    double cl_length;               // 破裂音の閉鎖区間の長さ(ms)
-    double uv_length;               // 声帯振動終了後に母音フォルマントが続く時間(ms)
-    double sv_length;               // 母音終了後に声帯振動が続いている時間(ms)
+    double cl_length;               // 破裂音の閉鎖区間の長さ(秒)
+    double uv_length;               // 声帯振動終了後に母音フォルマントが続く時間(秒)
+    double sv_length;               // 母音終了後に声帯振動が続いている時間(秒)
 
-    double frontPitchMoveTime;      // ピッチが変わる時間(ms)
-    double frontPitchMoveTimming;   // ピッチが変わるタイミング(ms)
+    double frontPitchMoveTime;      // ピッチが変わる時間(秒)
+    double frontPitchMoveTimming;   // ピッチが変わるタイミング(秒)
     NesoraPitchCurveType frontPitchMoveCurve;      // ピッチが変わるときのカーブの種類
 
     double modulationStrength;      // モジュレーションの強さ(cent)
     double modulationFrequency;     // モジュレーションの周波数(Hz)
-    double modulationStartTime;     // モジュレーションの開始時間(ms)
-    double modulationFadeInTime;    // モジュレーションのフェードイン時間(ms)
-    double modulationFadeOutTime;   // モジュレーションのフェードアウト時間(ms)
+    double modulationStartTime;     // モジュレーションの開始時間(秒)
+    double modulationFadeInTime;    // モジュレーションのフェードイン時間(秒)
+    double modulationFadeOutTime;   // モジュレーションのフェードアウト時間(秒)
 
-    double overshootTime;           // オーバーシュートの時間(ms)
+    double overshootTime;           // オーバーシュートの時間(秒)
     double overshootPitch;          // オーバーシュートのピッチ(cent)
 
-    double preparationTime;         // プレパレーション時間(ms)
+    double preparationTime;         // プレパレーション時間(秒)
     double preparationPitch;        // プレパレーションのピッチ(cent)
 };
 
@@ -123,12 +123,12 @@ struct NesoraMidiNotePhoneticalInfo {
 // MARK: 辞書
 
 struct ParametricNesoraDictionalyWordDeltaAndTime {
-    double time;                            // 変化が起こるタイミング(ms)
+    double time;                            // 変化が起こるタイミング(秒)
     double parameterDeltas;                 // パラメータの変化
 };
 
 struct ParametricNesoraDictionalyEnvelopePoint {
-    double time;   // 時間(ms)
+    double time;   // 時間(秒)
     double value;  // 値
 };
 
@@ -158,10 +158,10 @@ struct ParametricNesoraDictionalyWord {
     場合によっては、後続がある場合はblankTime部分を消し飛ばして後続のfixedTimeで処理させるのも手か
     */
 
-    double overlapTime;     // 前の単語との重なり時間(ms)
-    double fixedTime;       // 固定時間長(ms)
-    double blankTime;       // 終了時間長(ms)
-    double fadeoutTime;     // フェードアウト時間(ms)
+    double overlapTime;     // 前の単語との重なり時間(秒)
+    double fixedTime;       // 固定時間長(秒)
+    double blankTime;       // 終了時間長(秒)
+    double fadeoutTime;     // フェードアウト時間(秒)
 };
 
 typedef std::map<std::string, ParametricNesoraDictionalyWord> ParametricNesoraDictionary;

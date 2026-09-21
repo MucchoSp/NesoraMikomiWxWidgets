@@ -28,7 +28,6 @@ void nsSingPanel::Init() {
     toolbarSizer->Add(volumeText, 0, wxEXPAND | wxALL);
     toolbarSizer->Add(volume, 0, wxALL);
 
-
     midiPanel = new NesoraMIDIPanel(this);
 
     sizer->Add(toolbarSizer, 0, wxEXPAND | wxALL);
@@ -39,6 +38,11 @@ void nsSingPanel::Init() {
     voice = new NesoraMikomiVoice(new NesoraSinSource(), new NesoraThroughFilter());
 
     Bind(wxEVT_CHAR_HOOK, &nsSingPanel::OnCharHook, this);
+}
+
+void nsSingPanel::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    voice->SetScript(midiPanel->GetScript());
 }
 
 void nsSingPanel::ToolBar() {
@@ -61,15 +65,17 @@ void nsSingPanel::ToolBar() {
 void nsSingPanel::OnStop(wxCommandEvent& event) {
     UninitAudioDevice();
     midiPanel->PlayStop();
+    voice->SetSynthesizeScriptIndex(0);
     isPlaying = false;
 }
 
 void nsSingPanel::OnPlay(wxCommandEvent& event) {
-    if (voice == nullptr) {
+    if (voice == nullptr)
         return;
-    }
+    
     voice->RefreshScript();
-    InitAudioDevice();
+    voice->CacheScriptWave();
+    if (InitAudioDevice()) return;
     isPlaying = true;
 }
 
@@ -93,12 +99,11 @@ void nsSingPanel::OnCharHook(wxKeyEvent& event) {
     }
 
     if (event.GetKeyCode() == WXK_SPACE) {
+        wxCommandEvent evt;
         if (isPlaying) {
-            UninitAudioDevice();
-            isPlaying = false;
+            OnStop(evt);
         } else {
-            InitAudioDevice();
-            isPlaying = true;
+            OnPlay(evt);
         }
     }
     event.Skip();
@@ -108,7 +113,7 @@ void nsSingPanel::OnVolumeSlide(wxCommandEvent& event) {
     volumeText->SetLabel(to_string_with_precision(-10.0 + (double)volume->GetValue() / 10.0, 2) + " dB");
 }
 
-void nsSingPanel::InitAudioDevice() {
+int nsSingPanel::InitAudioDevice() {
     deviceConfig = ma_device_config_init(ma_device_type_playback);
     deviceConfig.playback.format   = ma_format_f32;
     deviceConfig.playback.channels = 1;
@@ -118,14 +123,15 @@ void nsSingPanel::InitAudioDevice() {
 
     if (ma_device_init(NULL, &deviceConfig, &device) != MA_SUCCESS) {
         wxLogMessage("Failed to open playback device.");
-        return;
+        return -1;
     }
 
     if (ma_device_start(&device) != MA_SUCCESS) {
         wxLogMessage("Failed to start playback device.");
         ma_device_uninit(&device);
-        return;
+        return -1;
     }
+    return 0;
 }
 
 void nsSingPanel::UninitAudioDevice() {
@@ -137,10 +143,11 @@ void nsSingPanel::data_callback(ma_device* pDevice, void* pOutput, const void* p
     (void)pInput;
 
     nsSingPanel* singPanel = (nsSingPanel*)pDevice->pUserData;
+    double volume = 1.0 / std::pow(10.0, 10.0 - (float)singPanel->volume->GetValue() / 10.0);
     for (ma_uint32 i = 0; i < frameCount; i++) {
-        out[i] = (float)singPanel->voice->GetScriptWave() / (std::pow(10.0, 10.0 - (float)singPanel->volume->GetValue() / 10.0));
+        out[i] = (float)singPanel->voice->GetScriptWave() * volume;
     }
-    singPanel->midiPanel->ProceedTime(NesoraDefaultSamplingFrequency * frameCount);
+    singPanel->midiPanel->ProceedTime((double)frameCount / (double)NesoraDefaultSamplingFrequency);
 }
 
 void nsSingPanel::PanelEnable() {

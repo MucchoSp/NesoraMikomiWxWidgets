@@ -2,6 +2,7 @@
 // Copyright (c) 2026 MucchoSP
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "NesoraVoice.h"
+#include "NesoraWav.h"
 #include <cstdint>
 #include <cstring>
 
@@ -64,6 +65,7 @@ void NesoraMikomiVoice::RefreshScript() {
 // スクリプトから音声を生成する
 void NesoraMikomiVoice::CacheScriptWave() {
     currentScriptWave.clear();
+    std::cout << "NesoraMikomiVoice::CacheScriptWave()" << std::endl;
     if (source == nullptr or filter == nullptr or dictionaly == nullptr or script == nullptr)
         return;
 
@@ -75,12 +77,14 @@ void NesoraMikomiVoice::CacheScriptWave() {
         dictionaly->GetWord(i, &param, &pitch, &envelope);
         if (pitch == 0.0) break;
 
-        rad = std::fmod(radian + 2.0 * nsPI * pitch / script->GetSamplingFrequency(), 2.0 * nsPI);
+        rad = std::fmod(rad + 2.0 * nsPI * pitch / script->GetSamplingFrequency(), 2.0 * nsPI);
         filter->UpdateParameters(param);
         currentScriptWave.push_back(filter->Filter(source->Utterance(rad)) * envelope);
 
         i++;
     }
+    std::cout << "currentScriptWave.size(): " << currentScriptWave.size() << std::endl;
+    
 }
 
 std::vector<double> NesoraMikomiVoice::GetScriptWaveVector() {
@@ -89,13 +93,15 @@ std::vector<double> NesoraMikomiVoice::GetScriptWaveVector() {
 }
 
 double NesoraMikomiVoice::GetScriptWave(size_t idx) {
-    if (idx >= currentScriptWave.size()) return 0.0;
+    if (idx >= currentScriptWave.size())
+        return 0.0;
     return currentScriptWave[idx];
 }
 
 double NesoraMikomiVoice::GetScriptWave() {
-    script_idx++;
-    return currentScriptWave[script_idx];
+    if (script_idx >= currentScriptWave.size())
+        return 0;
+    return currentScriptWave[script_idx++];
 }
 
 double NesoraMikomiVoice::SynthesizeScript() {

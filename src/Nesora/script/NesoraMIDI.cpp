@@ -125,7 +125,7 @@ void NesoraMIDISplineScript::CalculateNoteParam() {
     
     double remainder = 0.0;
     for (const auto& note : notes) {
-        double length = note.length * samplingFrequency / 1000.0;
+        double length = note.length * samplingFrequency;
         remainder += fmod(length, splineResolution);
         if (remainder >= splineResolution) {
             length += splineResolution;
@@ -140,7 +140,7 @@ void NesoraMIDISplineScript::CalculateNoteParam() {
     pitchLine.clear();
     envelope.clear();
     for (auto& note : notes) {
-        double length = note.length * samplingFrequency / 1000.0;
+        double length = note.length * samplingFrequency;
         for (size_t i = 0; i < static_cast<size_t>(length); i++) {
             pitchLine.push_back(pitchSpline.GetCubicValue(i));
             envelope.push_back(envelopeSpline.GetCubicValue(i));
@@ -156,7 +156,7 @@ std::vector<double> NesoraMIDISplineScript::GetPitchLinePerSample(double sampleR
     double remainder = 0.0;
     double NotesLength = 0.0;
     for (const auto& note : notes) {
-        double length = note.length * samplingFrequency / 1000.0;
+        double length = note.length * samplingFrequency;
         remainder += fmod(length, splineResolution);
         if (remainder >= splineResolution) {
             length += splineResolution;
@@ -267,7 +267,7 @@ double NesoraMIDIPhoneticalScript::GetPitch(double t) {
                 double modulationFadeIn = (localT < note.modulationStartTime + note.modulationFadeInTime) ? (modulationT / note.modulationFadeInTime) : 1.0;
                 double modulationFadeOut = (localT > note.length - note.modulationFadeOutTime) ? ((note.length - localT) / note.modulationFadeOutTime) : 1.0;
                 modulationStrength *= std::min(modulationFadeIn, modulationFadeOut); // フェードを適用
-                double modulationValue = modulationStrength * sin(2.0 * M_PI * note.modulationFrequency * modulationT / 1000.0);
+                double modulationValue = modulationStrength * sin(2.0 * M_PI * note.modulationFrequency * modulationT);
                 return note.pitch + modulationValue;
             }
         }
@@ -315,11 +315,11 @@ void NesoraMIDIPhoneticalScript::CalculateNoteParam(double sampleRate) {
     pitchLine.clear();
     envelopeLine.clear();
 
-    double currentTime = 0.0; // 現在の時間(s)
+    double currentTime = 0.0; // 現在の時間(秒)
     while(1) {
         pitchLine.push_back(GetPitch(currentTime));
         envelopeLine.push_back(GetEnvelope(currentTime));
-        currentTime += 1000.0 / sampleRate; // 1000/sampleRate[s](1/sampleRate[ms])ごとに更新
+        currentTime += 1.0 / sampleRate;
         if (pitchLine.back() == 0.0) break; // 最後のノートの長さを超えたら終了
     }
 
@@ -358,7 +358,7 @@ void NesoraMIDIPhoneticalScript::CalculateNoteParam(double sampleRate) {
     //         pitchLine.resize((size_t)((currentTime - note.frontPitchMoveTimming) * sampleRate / 1000.0));
     //     }
     //     if (std::abs((int)envelope.size() - ((currentTime + 1) * sampleRate / 1000.0)) > 1) {
-    //         envelope.resize((size_t)(currentTime * sampleRate / 1000.0));
+    //         envelope.resize((size_t)(currentTime * sampleRate));
     //     }
     // }
 

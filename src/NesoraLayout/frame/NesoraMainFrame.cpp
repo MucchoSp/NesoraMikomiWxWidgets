@@ -20,7 +20,8 @@ nsMainFrame::nsMainFrame()
     speakPanel = new nsSpeakPanel(this, nsID_SPEAK_PANEL, wxDefaultPosition, wxSize(1000, 300));
     speakPanel->Hide();
 
-    voice = makePanel->GetVoice();
+    voice = new NesoraMikomiVoice();
+    makePanel->SetVoice(voice);
     singPanel->SetVoice(voice);
     speakPanel->SetVoice(voice);
 
@@ -155,11 +156,6 @@ nsMakePanel::nsMakePanel(wxWindow* parent,
     characterPanel->Hide();
     dictionalyPanel = new nsDictionalyPanel(this);
     dictionalyPanel->Hide();
-
-    voice = new NesoraMikomiVoice();
-    voicePanel->SetVoice(voice);
-    characterPanel->SetVoice(voice);
-    dictionalyPanel->SetVoice(voice);
 
     main_sizer = new wxBoxSizer(wxVERTICAL);
     wxSizer* toolbar_sizer = new wxBoxSizer(wxHORIZONTAL);

@@ -13,6 +13,7 @@
 
 #include "../../../../NesoraStyle/NesoraStyle.h"
 
+#include "../NesoraVoiceMakePanelBase.h"
 #include "../../../NesoraIDs.h"
 #include "../../../NesoraEvents.h"
 
@@ -152,12 +153,16 @@ public:
     void SetSelected(bool selected);
     bool IsSelected() const;
 
+    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    NesoraMikomiVoice* GetVoice() const { return voice; }
+
     wxStaticText* nameStaticText;
     wxStaticText* IDStaticText;
     wxTextCtrl* IDTextCtrl;
     nsSlider* parameter;
 
 private:
+    NesoraMikomiVoice* voice = nullptr;
 
     bool isDragging = false;
     bool isSelected = false;
@@ -207,13 +212,23 @@ public:
     void RemoveSelectCard();
     void SelectItem(nsParameterCard* item);
     nsParameterCard* GetSelectedItem() const;
+    void ParameterUpdated();
 
+    void SetVoice(NesoraMikomiVoice* voice);
+    NesoraMikomiVoice* GetVoice() const { return voice; }
+
+    void SetVocieMakePanel(nsVoiceMakePanelBase* voiceMakePanel) { this->voiceMakePanel = voiceMakePanel; }
+    nsVoiceMakePanelBase* GetVoiceMakePanel() const { return voiceMakePanel; }
+    
 private:
+    NesoraMikomiVoice* voice = nullptr;
 
-    std::map<uint32_t, double> parameter;
+    nsVoiceMakePanelBase* voiceMakePanel = nullptr;
+
+    ParametricNesoraParameterValue* parameter = nullptr;
     std::vector<nsParameterCard> parameters;
 
-    nsParameterCard* selectedItem;
+    nsParameterCard* selectedItem = nullptr;
 
     wxBoxSizer* mainSizer;
 
@@ -242,10 +257,14 @@ public:
 
     void Init();
 
+    void SetVoice(NesoraMikomiVoice* voice);
+    NesoraMikomiVoice* GetVoice() const { return voice; }
+    
+    void SetVocieMakePanel(nsVoiceMakePanelBase* voiceMakePanel) { scrollWindow->SetVocieMakePanel(voiceMakePanel); }
+    nsVoiceMakePanelBase* GetVoiceMakePanel() const { return scrollWindow->GetVoiceMakePanel(); }
+    
 private:
-
-    std::map<uint32_t, double> parameter;
-    std::vector<nsParameterCard> parameters;
+    NesoraMikomiVoice* voice = nullptr;
 
     nsButton* addButton;
     nsParameterCardScrollContainer* scrollWindow;

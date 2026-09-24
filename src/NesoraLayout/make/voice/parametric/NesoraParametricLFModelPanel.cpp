@@ -125,6 +125,11 @@ void nsParametricLFModelPanel::Update() {
     UpdateChart();
 }
 
+void nsParametricLFModelPanel::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    voice->SetSource(source_wave);
+}
+
 
 void nsParametricLFModelPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
     nowSelectedParameter = event.GetID();
@@ -212,6 +217,11 @@ double nsParametricLFModelPanel::GetPitch() const {
     return (double)pitch_slider->GetValue();
 }
 
+void nsParametricLFModelPanel::SetSelectedParameterID(uint32_t ID) {
+    nowSelectedParameter = ID;
+    Update();
+}
+
 
 
 
@@ -289,6 +299,11 @@ void nsParametricLFModelRdParameterPanel::Update() {
     // TODO: パラメータの更新
 }
 
+void nsParametricLFModelRdParameterPanel::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    voice->SetSource(source_wave);
+}
+
 
 void nsParametricLFModelRdParameterPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
     nowSelectedParameter = event.GetID();
@@ -352,5 +367,10 @@ NesoraSourceBase* nsParametricLFModelRdParameterPanel::GetSource() {
 
 double nsParametricLFModelRdParameterPanel::GetPitch() const {
     return (double)pitch_slider->GetValue();
+}
+
+void nsParametricLFModelRdParameterPanel::SetSelectedParameterID(uint32_t ID) {
+    nowSelectedParameter = ID;
+    Update();
 }
 

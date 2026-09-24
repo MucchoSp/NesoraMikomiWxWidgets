@@ -88,6 +88,10 @@ public:
     void PanelEnable();
     void PanelDisable();
 
+    void SetSelectedParameterID(uint32_t ID) {
+        // phoneticではパラメータの選択はないので何もしない
+    }
+
 private:
 
     std::vector<double> wave;// 48000 / 261.6

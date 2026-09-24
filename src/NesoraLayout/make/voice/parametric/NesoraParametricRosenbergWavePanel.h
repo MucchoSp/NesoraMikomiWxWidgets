@@ -48,10 +48,15 @@ public:
     void Init() override;
     void Update() override;
     
+    void SetVoice(NesoraMikomiVoice* voice) override;
+    NesoraMikomiVoice* GetVoice() const override { return voice; }
+    
     std::vector<double> GetWave() const;
     NesoraSourceBase* GetSource() override;
 
     double GetPitch() const override;
+
+    void SetSelectedParameterID(uint32_t ID) override;
 
 private:
     nsSimpleChartControl* chart;

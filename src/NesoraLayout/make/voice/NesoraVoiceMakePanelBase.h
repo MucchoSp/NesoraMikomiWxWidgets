@@ -29,10 +29,19 @@ public:
 
     virtual void Init() = 0;
     virtual void Update() = 0;
+
+    virtual void SetVoice(NesoraMikomiVoice* voice) = 0;
+    virtual NesoraMikomiVoice* GetVoice() const = 0;
     
     virtual NesoraSourceBase* GetSource() = 0;
-
     virtual double GetPitch() const = 0;
+
+    // 現状parametricNesoraでしか使わない(phoneticでは使わない)が、parametric用に別に用意するのが面倒なのでここに実装している。
+    virtual void SetSelectedParameterID(uint32_t ID) = 0;
+
+protected:
+    NesoraMikomiVoice* voice = nullptr;
+
 };
 
 
@@ -54,7 +63,16 @@ public:
     virtual void Init() = 0;
     virtual void Update() = 0;
 
+    virtual void SetVoice(NesoraMikomiVoice* voice) = 0;
+    virtual NesoraMikomiVoice* GetVoice() const = 0;
+
     virtual NesoraFilterBase* GetFilter() = 0;
+
+    virtual void SetSelectedParameterID(uint32_t ID) = 0;
+
+protected:
+    NesoraMikomiVoice* voice = nullptr;
+
 };
 
 class nsVoiceMakePanelBase : public wxPanel {
@@ -79,6 +97,8 @@ public:
 
     virtual void PanelEnable() = 0;
     virtual void PanelDisable() = 0;
+
+    virtual void SetSelectedParameterID(uint32_t ID) = 0;
 
 protected:
     NesoraMikomiVoice* voice = nullptr;

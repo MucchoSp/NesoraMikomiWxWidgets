@@ -56,6 +56,7 @@ void nsParametricVoiceMakePanel::Init() {
     sourcePanel = new nsParametricLFModelPanel(this, wxID_ANY);
     filterPanel = new nsParametricSOSIIRFilterPanel(this, wxID_ANY);
     parametricPanel = new nsParametricPanel(this, wxID_ANY);
+    parametricPanel->SetVocieMakePanel(this);
 
     horizontalSizer->Add(playInterfacePanel, 0, wxEXPAND | wxALL);
     horizontalSizer->Add(sourcePanel, 1, wxEXPAND | wxALL);
@@ -70,14 +71,37 @@ void nsParametricVoiceMakePanel::Init() {
     playInterfacePanel->stopButton->Bind(wxEVT_BUTTON, &nsParametricVoiceMakePanel::OnStopButtonClicked, this);
 }
 
+void nsParametricVoiceMakePanel::Update() {
+    if (sourcePanel) {
+        sourcePanel->Update();
+    }
+    if (filterPanel) {
+        filterPanel->Update();
+    }
+    // if (parametricPanel) {
+    //     parametricPanel->Update();
+    // }
+}
+
 void nsParametricVoiceMakePanel::SetVoice(NesoraMikomiVoice* voice) {
     this->voice = voice;
-    voice->SetSource(sourcePanel->GetSource());
-    voice->SetFilter(filterPanel->GetFilter());
+    sourcePanel->SetVoice(voice);
+    filterPanel->SetVoice(voice);
+    parametricPanel->SetVoice(voice);
+}
+
+void nsParametricVoiceMakePanel::SetSelectedParameterID(uint32_t ID) {
+    nowParameterID = ID;
+    sourcePanel->SetSelectedParameterID(ID);
+    filterPanel->SetSelectedParameterID(ID);
 }
 
 void nsParametricVoiceMakePanel::OnPlayButtonClicked(wxCommandEvent& event) {
+    if (isPlaying) {
+        return;
+    }
     InitAudioDevice();
+    isPlaying = true;
 }
 
 void nsParametricVoiceMakePanel::OnStopButtonClicked(wxCommandEvent& event) {
@@ -86,11 +110,6 @@ void nsParametricVoiceMakePanel::OnStopButtonClicked(wxCommandEvent& event) {
 
 
 void nsParametricVoiceMakePanel::InitAudioDevice() {
-    if (isPlaying) {
-        return;
-    }
-    isPlaying = true;
-
     deviceConfig = ma_device_config_init(ma_device_type_playback);
     deviceConfig.playback.format = ma_format_f32;
     deviceConfig.playback.channels = 1;

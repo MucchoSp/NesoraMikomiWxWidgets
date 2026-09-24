@@ -39,10 +39,17 @@ double NesoraMikomiVoice::Synthesize(double frequency, double samplingFrequency)
     return Synthesize(radian);
 }
 
-void NesoraMikomiVoice::UpdateParameters(ParametricNesoraParameterValue* parameters) {
+void NesoraMikomiVoice::SetParameters(ParametricNesoraParameterValue* parameters) {
     currentParameters = parameters;
     if (filter) {
-        filter->UpdateParameters(*parameters);
+        filter->UpdateParameters(*currentParameters);
+    }
+}
+
+void NesoraMikomiVoice::UpdateParameters(const ParametricNesoraParameterValue* parameters) {
+    *currentParameters = *parameters;
+    if (filter) {
+        filter->UpdateParameters(*currentParameters);
     }
 }
 

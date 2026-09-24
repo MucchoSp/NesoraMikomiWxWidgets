@@ -40,10 +40,17 @@ public:
     void Init() override;
     void Update() override;
     
+    void SetVoice(NesoraMikomiVoice* voice) override { this->voice = voice; }
+    NesoraMikomiVoice* GetVoice() const override { return voice; }
+    
     std::vector<double> GetWave() const;
     NesoraSourceBase* GetSource() override;
 
     double GetPitch() const override;
+
+    void SetSelectedParameterID(uint32_t ID) override {
+        // phoneticではパラメータの選択はないので何もしない
+    }
 
 private:
     nsSimpleChartControl* chart;
@@ -103,10 +110,17 @@ public:
     void Init() override;
     void Update() override;
     
+    void SetVoice(NesoraMikomiVoice* voice) override { this->voice = voice; }
+    NesoraMikomiVoice* GetVoice() const override { return voice; }
+    
     std::vector<double> GetWave() const;
     NesoraSourceBase* GetSource() override;
 
     double GetPitch() const override;
+
+    void SetSelectedParameterID(uint32_t ID) override {
+        // phoneticではパラメータの選択はないので何もしない
+    }
 
 private:
     nsSimpleChartControl* chart;

@@ -49,13 +49,21 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
 }
 
 void nsParameterCard::OnParameterSlide(wxCommandEvent& event) {
-    nsParameterChangeEvent sendEvent(nsEVT_PARAMETER_CHANGED, GetId());
-    sendEvent.SetEventObject(this);
+    if (voice != nullptr) {
+        (*voice->GetCurrentParameters())[ID] = (double)parameter->GetValue() / (double)parameter->GetMax();
+    }
+    nsParameterCardScrollContainer* parent = (nsParameterCardScrollContainer*)GetParent();
+    if (parent) {
+        parent->ParameterUpdated();
+    }
 
-    sendEvent.SetData(ID, (double)parameter->GetValue() / (double)parameter->GetMax());
+    // nsParameterChangeEvent sendEvent(nsEVT_PARAMETER_CHANGED, GetId());
+    // sendEvent.SetEventObject(this);
 
-    // 送信する
-    this->GetEventHandler()->ProcessEvent(sendEvent);
+    // sendEvent.SetData(ID, (double)parameter->GetValue() / (double)parameter->GetMax());
+
+    // // 送信する
+    // this->GetEventHandler()->ProcessEvent(sendEvent);
 }
 
 void nsParameterCard::OnDeleteButton(wxCommandEvent& event) {
@@ -301,13 +309,17 @@ nsParameterCardScrollContainer::~nsParameterCardScrollContainer() {
 
 void nsParameterCardScrollContainer::AddCard() {
     nsParameterCard* card = new nsParameterCard(this);
+    card->SetVoice(voice);
     
     mainSizer->Add(card, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    nsAddParameterEvent event(nsEVT_ADD_PARAMETER, GetId());
-    event.SetEventObject(this);
-    event.SetData(card->ID);
-    this->GetEventHandler()->ProcessEvent(event);
+    // nsAddParameterEvent event(nsEVT_ADD_PARAMETER, GetId());
+    // event.SetEventObject(this);
+    // event.SetData(card->ID);
+    // this->GetEventHandler()->ProcessEvent(event);
+
+    if (parameter != nullptr)
+        (*parameter)[card->ID] = 0;
 
     SelectItem(card);
 
@@ -315,6 +327,12 @@ void nsParameterCardScrollContainer::AddCard() {
 }
 
 void nsParameterCardScrollContainer::RemoveSelectCard() {
+    if (voiceMakePanel) {
+        voiceMakePanel->SetSelectedParameterID(0);
+    }
+    if (parameter != nullptr && selectedItem != nullptr) {
+        parameter->erase(selectedItem->ID);
+    }
     selectedItem = {};
 }
 
@@ -328,17 +346,27 @@ void nsParameterCardScrollContainer::SelectItem(nsParameterCard* item) {
         selectedItem->SetSelected(true);
     }
 
-    nsSelectedParameterChangeEvent event(nsEVT_SELECTED_PARAMETER_CHANGED, GetId());
-    event.SetEventObject(this);
-    if (selectedItem)
-        event.SetID(selectedItem->ID);
-    else
-        event.SetID(0);
-    this->GetEventHandler()->ProcessEvent(event);
+    if (voiceMakePanel) {
+        voiceMakePanel->SetSelectedParameterID(selectedItem ? selectedItem->ID : 0);
+    }
+
+    // nsSelectedParameterChangeEvent event(nsEVT_SELECTED_PARAMETER_CHANGED, GetId());
+    // event.SetEventObject(this);
+    // if (selectedItem)
+    //     event.SetID(selectedItem->ID);
+    // else
+    //     event.SetID(0);
+    // this->GetEventHandler()->ProcessEvent(event);
 }
 
 nsParameterCard* nsParameterCardScrollContainer::GetSelectedItem() const {
     return selectedItem;
+}
+
+void nsParameterCardScrollContainer::ParameterUpdated() { 
+    if (voiceMakePanel) {
+        voiceMakePanel->Update();
+    }
 }
 
 // 背景をクリックしたとき
@@ -351,6 +379,11 @@ void nsParameterCardScrollContainer::OnLeftDown(wxMouseEvent& event) {
 void nsParameterCardScrollContainer::OnEscapePressed(wxCommandEvent& event) {
     SelectItem(nullptr);
     event.Skip();
+}
+
+void nsParameterCardScrollContainer::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    parameter = voice->GetCurrentParameters();
 }
 
 
@@ -376,6 +409,13 @@ void nsParametricPanel::Init() {
     this->SetSizer(sizer);
 }
 
+void nsParametricPanel::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    if (scrollWindow != nullptr)
+        scrollWindow->SetVoice(voice);
+}
+
 void nsParametricPanel::OnAddButton(wxCommandEvent& event) {
-    scrollWindow->AddCard();
+    if (scrollWindow != nullptr)
+        scrollWindow->AddCard();
 }

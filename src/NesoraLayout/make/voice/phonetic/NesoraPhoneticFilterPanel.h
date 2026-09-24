@@ -283,7 +283,14 @@ public:
     void Init() override;
     void Update() override;
 
+    void SetVoice(NesoraMikomiVoice* voice) override { this->voice = voice; }
+    NesoraMikomiVoice* GetVoice() const override { return voice; }
+    
     NesoraFilterBase* GetFilter() override;
+
+    void SetSelectedParameterID(uint32_t ID) override {
+        // phoneticではパラメータの選択はないので何もしない
+    }
 
 private:
     NesoraParametricSOSIIRFilter* filter;

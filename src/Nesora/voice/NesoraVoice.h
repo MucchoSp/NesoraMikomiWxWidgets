@@ -28,7 +28,7 @@ private:
 
 class NesoraMikomiVoice : public NesoraVoice {
 public:
-    NesoraMikomiVoice() {}
+    NesoraMikomiVoice() = default;
     NesoraMikomiVoice(NesoraSourceBase* src, NesoraFilterBase* flt) : source(src), filter(flt) {}
     ~NesoraMikomiVoice() {}
 
@@ -45,7 +45,8 @@ public:
     double GetRadian() const { return radian; }
     void SetRadian(double r) { radian = r; }
     
-    void UpdateParameters(ParametricNesoraParameterValue* parameters);
+    void SetParameters(ParametricNesoraParameterValue* parameters);
+    void UpdateParameters(const ParametricNesoraParameterValue* parameters);
     ParametricNesoraParameterValue* GetCurrentParameters() const { return currentParameters; }
 
     // スクリプト合成
@@ -78,7 +79,8 @@ private:
     std::vector<double> currentScriptWave;
 
     double radian = 0.0;
-    ParametricNesoraParameterValue* currentParameters = nullptr;
+    ParametricNesoraParameterValue defaultParameters;
+    ParametricNesoraParameterValue* currentParameters = &defaultParameters;
 
 };
 

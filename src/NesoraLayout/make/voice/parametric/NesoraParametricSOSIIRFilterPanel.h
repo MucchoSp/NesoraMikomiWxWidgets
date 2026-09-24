@@ -42,10 +42,14 @@ public:
     // UIを更新
     void SyncControlPointsFromFilter();
     void SetSelectedParameter(uint32_t param);
-    private:
+
+    void SetVoice(NesoraMikomiVoice* voice);
+    NesoraMikomiVoice* GetVoice() const { return voice; };
+    
+private:
+    NesoraMikomiVoice* voice = nullptr;
     
     std::vector<double> frequencyResponse;
-    std::map<uint32_t, double> parameters;
     
     uint32_t nowSelectedParameter = 0;
     
@@ -64,9 +68,9 @@ public:
     void RecalculationFrequencyResponse();
     void SetControlPointsFromFilter();
     
-    void OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event);
-    void OnChangeParameter(nsParameterChangeEvent& event);
-    void OnAddParameter(nsAddParameterEvent& event);
+    // void OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event);
+    // void OnChangeParameter(nsParameterChangeEvent& event);
+    // void OnAddParameter(nsAddParameterEvent& event);
 
     void OnPaint(wxPaintEvent& event);
 
@@ -107,7 +111,12 @@ public:
     void Init() override;
     void Update() override;
 
+    void SetVoice(NesoraMikomiVoice* voice) override;
+    NesoraMikomiVoice* GetVoice() const override { return voice; };
+    
     NesoraFilterBase* GetFilter() override;
+
+    void SetSelectedParameterID(uint32_t ID) override;
 
 private:
     nsParametricSOSIIRFrequencyResponseControl* iirFilter;

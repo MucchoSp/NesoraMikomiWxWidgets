@@ -107,6 +107,11 @@ void nsParametricRosenbergWavePanel::Update() {
     chart->SetData(wave);
 }
 
+void nsParametricRosenbergWavePanel::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    voice->SetSource(source_wave);
+}
+
 
 void nsParametricRosenbergWavePanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
     nowSelectedParameter = event.GetID();
@@ -163,5 +168,10 @@ NesoraSourceBase* nsParametricRosenbergWavePanel::GetSource() {
 
 double nsParametricRosenbergWavePanel::GetPitch() const {
     return (double)pitch_slider->GetValue();
+}
+
+void nsParametricRosenbergWavePanel::SetSelectedParameterID(uint32_t ID) {
+    nowSelectedParameter = ID;
+    Update();
 }
 

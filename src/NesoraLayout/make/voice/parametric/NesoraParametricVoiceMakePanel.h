@@ -79,17 +79,20 @@ public:
     }
 
     void Init();
-    void SetVoice(NesoraMikomiVoice* voice);
-    NesoraMikomiVoice* GetVoice() const { return voice; }
-    void OnSave(wxCommandEvent& event);
-    void OnOpen(wxCommandEvent& event);
+    void Update() override;
+    void SetVoice(NesoraMikomiVoice* voice) override;
+    NesoraMikomiVoice* GetVoice() const override { return voice; }
+    void OnSave(wxCommandEvent& event) override;
+    void OnOpen(wxCommandEvent& event) override;
 
-    void PanelEnable();
-    void PanelDisable();
+    void PanelEnable() override;
+    void PanelDisable() override;
+
+    void SetSelectedParameterID(uint32_t ID) override;
 
 private:
 
-    std::vector<double> wave;// 48000 / 261.6
+    std::vector<double> wave;
 
     NesoraMikomiVoice* voice;
     nsSourcePanelBase* sourcePanel;
@@ -111,7 +114,12 @@ private:
     static void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
 
     bool isPlaying = false;
+    uint32_t nowParameterID = 0;
 
 };
 
 #endif // NESORA_PARAMETRIC_VOICE_MAKE_PANEL_H
+
+
+
+// TODO: sourcePanel と filterPanel にも NesroaMikomiVoice を渡せるようにして、その声を介してパラメーターを操作できるようにする。

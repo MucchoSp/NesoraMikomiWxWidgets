@@ -154,6 +154,12 @@ void NesoraParametricSOSIIRFilter::Reset() {
         filter.Reset();
 }
 
+void NesoraParametricSOSIIRFilter::CalculateCoefficients() {
+    for(auto& filter : SOFilters) {
+        filter.CalculateCoefficients({});
+    }
+}
+
 void NesoraParametricSOSIIRFilter::CalculateCoefficients(const std::map<uint32_t, double>& parameters) {
     for(auto& filter : SOFilters) {
         filter.CalculateCoefficients(parameters);

@@ -57,6 +57,7 @@ public:
 
     void Reset() override;
 
+    void CalculateCoefficients();
     void CalculateCoefficients(const std::map<uint32_t, double>& parameters);
     const std::vector<double>& CalculateFrequencyResponse(int num_samples);
     const std::vector<double>& GetResponse() const;
@@ -77,6 +78,7 @@ public:
     std::vector<NesoraParametricSOFilter>& GetSOFilter();
 
 private:
+    ParametricNesoraParameterValue* parameters = nullptr;
 
     double samplingFrequency = NesoraDefaultSamplingFrequency;
 

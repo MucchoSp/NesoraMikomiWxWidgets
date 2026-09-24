@@ -46,7 +46,7 @@ nsParametricSOSIIRFrequencyResponseControl::nsParametricSOSIIRFrequencyResponseC
     for(size_t i = 0;i < nowControlPoints.size();i++) {
         nowControlPoints[i] = wxRect2DDouble(50 * i, 0, 10, 10);
     }
-    RecalculationFrequencyResponse();
+    // RecalculationFrequencyResponse();
 
     Bind(wxEVT_PAINT, &nsParametricSOSIIRFrequencyResponseControl::OnPaint, this);
     Bind(wxEVT_MOTION, &nsParametricSOSIIRFrequencyResponseControl::OnMouseMove, this);
@@ -58,16 +58,18 @@ nsParametricSOSIIRFrequencyResponseControl::nsParametricSOSIIRFrequencyResponseC
     Bind(wxEVT_RIGHT_DOWN, &nsParametricSOSIIRFrequencyResponseControl::OnRightDown, this);
     Bind(wxEVT_SIZE, &nsParametricSOSIIRFrequencyResponseControl::OnSize, this);
 
-    wxWindow* voiceMakeFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
-    if (voiceMakeFrame) {
-        voiceMakeFrame->Bind(nsEVT_SELECTED_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter, this);
-        voiceMakeFrame->Bind(nsEVT_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeParameter, this);
-        voiceMakeFrame->Bind(nsEVT_ADD_PARAMETER, &nsParametricSOSIIRFrequencyResponseControl::OnAddParameter, this);
-    }
+    // wxWindow* voiceMakeFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
+    // if (voiceMakeFrame) {
+    //     voiceMakeFrame->Bind(nsEVT_SELECTED_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter, this);
+    //     voiceMakeFrame->Bind(nsEVT_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeParameter, this);
+    //     voiceMakeFrame->Bind(nsEVT_ADD_PARAMETER, &nsParametricSOSIIRFrequencyResponseControl::OnAddParameter, this);
+    // }
 }
 
 void nsParametricSOSIIRFrequencyResponseControl::RecalculationFrequencyResponse() {
-    filter->CalculateCoefficients(parameters); //ここでパラメーターを渡す
+    if(voice && voice->GetCurrentParameters()) {
+        filter->CalculateCoefficients(*voice->GetCurrentParameters()); // ここでパラメーターを渡す
+    }
     filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
 }
 
@@ -95,7 +97,18 @@ void nsParametricSOSIIRFrequencyResponseControl::SyncControlPointsFromFilter() {
 
 void nsParametricSOSIIRFrequencyResponseControl::SetSelectedParameter(uint32_t param) {
     nowSelectedParameter = param;
+
+    SetControlPointsFromFilter();
+    RecalculationFrequencyResponse();
+
     wxWindow::Refresh();
+}
+
+void nsParametricSOSIIRFrequencyResponseControl::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    if (voice) {
+        voice->SetFilter(filter);
+    }
 }
 
 void nsParametricSOSIIRFrequencyResponseControl::SetControlPointsFromFilter() {
@@ -112,9 +125,10 @@ void nsParametricSOSIIRFrequencyResponseControl::SetControlPointsFromFilter() {
         destinationControlPoints[i].m_x = pdp.theta / nsPI * (double)GetClientSize().GetWidth() - destinationControlPoints[i].m_width / 2.0;
         destinationControlPoints[i].m_y = -r_to_y(pdp.r) * (double)GetClientSize().GetHeight() / 2.0 + (double)GetClientSize().GetHeight() / 2.0 - destinationControlPoints[i].m_height / 2.0;
 
-        if(nowSelectedParameter) {
-            const auto& paramValue = parameters.find(nowSelectedParameter);
-            if (paramValue != parameters.end()) {
+        if(nowSelectedParameter && voice && voice->GetCurrentParameters()) {
+            const auto& currentParameters = *voice->GetCurrentParameters();
+            const auto& paramValue = currentParameters.find(nowSelectedParameter);
+            if (paramValue != currentParameters.end()) {
                 const auto& pnp = filter->GetSOFilter()[i - 1].GetParametricPoint(nowSelectedParameter, paramValue->second);
                 nowControlPoints[i].m_width = 10.0;
                 nowControlPoints[i].m_height = 10.0;
@@ -343,29 +357,29 @@ void nsParametricSOSIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event
     event.Skip();
 }
 
-void nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
+// void nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
+//     nowSelectedParameter = event.GetID();
 
-    SetControlPointsFromFilter();
-    RecalculationFrequencyResponse();
+//     SetControlPointsFromFilter();
+//     RecalculationFrequencyResponse();
 
-    wxWindow::Refresh();
-    event.Skip();
-}
+//     wxWindow::Refresh();
+//     event.Skip();
+// }
 
-void nsParametricSOSIIRFrequencyResponseControl::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
+// void nsParametricSOSIIRFrequencyResponseControl::OnChangeParameter(nsParameterChangeEvent& event) {
+//     parameters[event.GetID()] = event.GetParam();
 
-    SetControlPointsFromFilter();
-    RecalculationFrequencyResponse();
+//     SetControlPointsFromFilter();
+//     RecalculationFrequencyResponse();
 
-    wxWindow::Refresh();
-    event.Skip();
-}
+//     wxWindow::Refresh();
+//     event.Skip();
+// }
 
-void nsParametricSOSIIRFrequencyResponseControl::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
-}
+// void nsParametricSOSIIRFrequencyResponseControl::OnAddParameter(nsAddParameterEvent& event) {
+//     parameters[event.GetData()] = 0.0;
+// }
 
 
 
@@ -396,8 +410,19 @@ void nsParametricSOSIIRFilterPanel::Update() {
     }
 }
 
+void nsParametricSOSIIRFilterPanel:: SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    iirFilter->SetVoice(voice);
+}
+
 NesoraFilterBase* nsParametricSOSIIRFilterPanel::GetFilter() {
     return iirFilter->filter;
+}
+
+void nsParametricSOSIIRFilterPanel::SetSelectedParameterID(uint32_t ID) {
+    if (iirFilter) {
+        iirFilter->SetSelectedParameter(ID);
+    }
 }
 
 

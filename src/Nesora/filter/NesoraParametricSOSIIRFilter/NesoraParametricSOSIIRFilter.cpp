@@ -155,8 +155,11 @@ void NesoraParametricSOSIIRFilter::Reset() {
 }
 
 void NesoraParametricSOSIIRFilter::CalculateCoefficients() {
+    if (!parameters)
+        return;
+
     for(auto& filter : SOFilters) {
-        filter.CalculateCoefficients({});
+        filter.CalculateCoefficients(*parameters);
     }
 }
 

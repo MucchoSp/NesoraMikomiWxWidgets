@@ -42,6 +42,8 @@ public:
 
     double Utterance(double radian) override;
 
+    void SetParameters(ParametricNesoraParameterValue* parameters) override;
+
     const NesoraRosenbergParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const;
     const NesoraRosenbergParameter GetParametricSource(const uint32_t parameterID, const double delta) const;
 
@@ -49,6 +51,7 @@ public:
     void LoadData(const std::vector<unsigned char>& data) override;
 
 private:
+    ParametricNesoraParameterValue* parameters = nullptr;
 
     double normal_t1 = 0.0, normal_t2 = 0.0, normal_a0 = -0.5, normal_noise = 0.0;
     double t1 = 0.0, t2 = 0.0, a0 = -0.5, noise = 0.0;

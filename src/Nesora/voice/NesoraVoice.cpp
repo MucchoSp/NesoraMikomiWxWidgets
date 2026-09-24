@@ -11,10 +11,16 @@ static const uint32_t NESORA_VERSION = 1;
 
 void NesoraMikomiVoice::SetSource(NesoraSourceBase* src) {
     source = src;
+    if (source && currentParameters) {
+        source->SetParameters(currentParameters);
+    }
 }
 
 void NesoraMikomiVoice::SetFilter(NesoraFilterBase* flt) {
     filter = flt;
+    if (filter && currentParameters) {
+        filter->SetParameters(currentParameters);
+    }
 }
 
 void NesoraMikomiVoice::SetDictionaly(NesoraDictionalyBase* dic) {
@@ -41,13 +47,19 @@ double NesoraMikomiVoice::Synthesize(double frequency, double samplingFrequency)
 
 void NesoraMikomiVoice::SetParameters(ParametricNesoraParameterValue* parameters) {
     currentParameters = parameters;
+    if (source) {
+        source->SetParameters(currentParameters);
+    }
     if (filter) {
-        filter->UpdateParameters(*currentParameters);
+        filter->SetParameters(currentParameters);
     }
 }
 
 void NesoraMikomiVoice::UpdateParameters(const ParametricNesoraParameterValue* parameters) {
     *currentParameters = *parameters;
+    if (source) {
+        source->UpdateParameters(*currentParameters);
+    }
     if (filter) {
         filter->UpdateParameters(*currentParameters);
     }

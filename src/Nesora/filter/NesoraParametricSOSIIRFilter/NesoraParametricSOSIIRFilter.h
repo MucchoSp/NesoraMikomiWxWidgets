@@ -63,6 +63,10 @@ public:
     const std::vector<double>& GetResponse() const;
 
     double Filter(double x) override;
+    void SetParameters(ParametricNesoraParameterValue* parameters) override {
+        this->parameters = parameters;
+        CalculateCoefficients();
+    }
     void UpdateParameters(const ParametricNesoraParameterValue& parameters) override {
         CalculateCoefficients(parameters);
     }

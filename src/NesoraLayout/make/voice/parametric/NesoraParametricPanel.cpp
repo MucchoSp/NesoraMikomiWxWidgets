@@ -56,14 +56,6 @@ void nsParameterCard::OnParameterSlide(wxCommandEvent& event) {
     if (parent) {
         parent->ParameterUpdated();
     }
-
-    // nsParameterChangeEvent sendEvent(nsEVT_PARAMETER_CHANGED, GetId());
-    // sendEvent.SetEventObject(this);
-
-    // sendEvent.SetData(ID, (double)parameter->GetValue() / (double)parameter->GetMax());
-
-    // // 送信する
-    // this->GetEventHandler()->ProcessEvent(sendEvent);
 }
 
 void nsParameterCard::OnDeleteButton(wxCommandEvent& event) {
@@ -349,14 +341,6 @@ void nsParameterCardScrollContainer::SelectItem(nsParameterCard* item) {
     if (voiceMakePanel) {
         voiceMakePanel->SetSelectedParameterID(selectedItem ? selectedItem->ID : 0);
     }
-
-    // nsSelectedParameterChangeEvent event(nsEVT_SELECTED_PARAMETER_CHANGED, GetId());
-    // event.SetEventObject(this);
-    // if (selectedItem)
-    //     event.SetID(selectedItem->ID);
-    // else
-    //     event.SetID(0);
-    // this->GetEventHandler()->ProcessEvent(event);
 }
 
 nsParameterCard* nsParameterCardScrollContainer::GetSelectedItem() const {

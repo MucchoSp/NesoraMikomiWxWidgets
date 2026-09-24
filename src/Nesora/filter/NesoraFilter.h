@@ -18,6 +18,7 @@ public:
 
     virtual double Filter(double x) = 0;
     virtual void Reset() = 0;
+    virtual void SetParameters(ParametricNesoraParameterValue* parameters) = 0;
     virtual void UpdateParameters(const ParametricNesoraParameterValue& parameters) = 0;
     virtual void ResetParameters() = 0;
 

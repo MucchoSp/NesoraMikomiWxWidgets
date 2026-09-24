@@ -15,6 +15,9 @@ public:
 
     double Utterance(double radian) override;
 
+    void SetParameters(ParametricNesoraParameterValue* parameters) override;
+    void UpdateParameters(const ParametricNesoraParameterValue& parameters) override {}
+
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;
 

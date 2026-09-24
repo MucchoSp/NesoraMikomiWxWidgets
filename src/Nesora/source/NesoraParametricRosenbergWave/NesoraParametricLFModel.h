@@ -44,6 +44,8 @@ public:
 
     double Utterance(double radian) override;
 
+    void SetParameters(ParametricNesoraParameterValue* parameters) override;
+
     const NesoraLFModelParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const { return NesoraLFModelParameter(); }
     const NesoraLFModelParameter GetParametricSource(const uint32_t parameterID, const double delta) const { return NesoraLFModelParameter(); }
 
@@ -51,6 +53,7 @@ public:
     void LoadData(const std::vector<unsigned char>& data) override;
 
 private:
+    ParametricNesoraParameterValue* parameters = nullptr;
 
     double normal_tp = 0.0, normal_te = 0.0, normal_ta = 0.0, normal_ee = 0.0, normal_noise = 0.0;
     double tp = 0.0, te = 0.0, ta = 0.0, ee = 0.0, noise = 0.0;
@@ -82,6 +85,8 @@ public:
 
     double Utterance(double radian) override;
 
+    void SetParameters(ParametricNesoraParameterValue* parameters) override;
+
     const NesoraLFModelParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const { return NesoraLFModelParameter(); }
     const NesoraLFModelParameter GetParametricSource(const uint32_t parameterID, const double delta) const { return NesoraLFModelParameter(); }
 
@@ -89,6 +94,7 @@ public:
     void LoadData(const std::vector<unsigned char>& data) override;
 
 private:
+    ParametricNesoraParameterValue* parameters = nullptr;
 
     double normal_rd = 0.0, normal_ee = 0.0, normal_noise = 0.0;
     double rd = 0.0, tp = 0.0, te = 0.0, ta = 0.0, ee = 0.0, noise = 0.0;

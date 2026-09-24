@@ -131,21 +131,21 @@ void nsParametricLFModelPanel::SetVoice(NesoraMikomiVoice* voice) {
 }
 
 
-void nsParametricLFModelPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
-    Update();
-}
+// void nsParametricLFModelPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
+//     nowSelectedParameter = event.GetID();
+//     Update();
+// }
 
-void nsParametricLFModelPanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
-    Update();
-}
+// void nsParametricLFModelPanel::OnChangeParameter(nsParameterChangeEvent& event) {
+//     parameters[event.GetID()] = event.GetParam();
+//     Update();
+// }
 
-void nsParametricLFModelPanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
-    nowSelectedParameter = event.GetData();
-    Update();
-}
+// void nsParametricLFModelPanel::OnAddParameter(nsAddParameterEvent& event) {
+//     parameters[event.GetData()] = 0.0;
+//     nowSelectedParameter = event.GetData();
+//     Update();
+// }
 
 
 void nsParametricLFModelPanel::OnPitchSlide(wxCommandEvent& event) {
@@ -305,21 +305,21 @@ void nsParametricLFModelRdParameterPanel::SetVoice(NesoraMikomiVoice* voice) {
 }
 
 
-void nsParametricLFModelRdParameterPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
-    Update();
-}
+// void nsParametricLFModelRdParameterPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
+//     nowSelectedParameter = event.GetID();
+//     Update();
+// }
 
-void nsParametricLFModelRdParameterPanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
-    Update();
-}
+// void nsParametricLFModelRdParameterPanel::OnChangeParameter(nsParameterChangeEvent& event) {
+//     parameters[event.GetID()] = event.GetParam();
+//     Update();
+// }
 
-void nsParametricLFModelRdParameterPanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
-    nowSelectedParameter = event.GetData();
-    Update();
-}
+// void nsParametricLFModelRdParameterPanel::OnAddParameter(nsAddParameterEvent& event) {
+//     parameters[event.GetData()] = 0.0;
+//     nowSelectedParameter = event.GetData();
+//     Update();
+// }
 
 
 void nsParametricLFModelRdParameterPanel::OnPitchSlide(wxCommandEvent& event) {

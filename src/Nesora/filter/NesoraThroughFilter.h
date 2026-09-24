@@ -19,6 +19,9 @@ public:
         // リセットするものがない
     }
 
+    void SetParameters(ParametricNesoraParameterValue* parameters) override {
+        // パラメータは使用しないので、特に何もしない
+    }
     void UpdateParameters(const ParametricNesoraParameterValue& parameters) override {
         // パラメータは使用しないので、特に何もしない
     }

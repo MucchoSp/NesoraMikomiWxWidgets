@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 #include <vector>
-
+#include "../ParametricNesroaDefines.h"
 
 #ifndef NESORA_SOURCE_H
 #define NESORA_SOURCE_H
@@ -13,6 +13,9 @@ public:
     NesoraSourceBase(){}
 
     virtual double Utterance(double radian) = 0;
+
+    virtual void SetParameters(ParametricNesoraParameterValue* parameters) = 0;
+    virtual void UpdateParameters(const ParametricNesoraParameterValue& parameters) = 0;
 
     virtual std::vector<unsigned char> SaveData() = 0;
     virtual void LoadData(const std::vector<unsigned char>& data) = 0;

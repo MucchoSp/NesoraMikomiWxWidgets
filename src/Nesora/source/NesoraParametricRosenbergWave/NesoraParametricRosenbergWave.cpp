@@ -13,6 +13,16 @@ double NesoraParametricRosenbergWave::Utterance(double radian) {
         return a0 * (1.0 - noise) + noise_input * noise;
 }
 
+void NesoraParametricRosenbergWave::SetParameters(ParametricNesoraParameterValue* parameters) {
+    this->parameters = parameters;
+}
+
+void NesoraParametricRosenbergWave::UpdateParameters(const ParametricNesoraParameterValue& parameters) {
+    if (this->parameters) {
+        *this->parameters = parameters;
+    }
+}
+
 void NesoraParametricRosenbergWave::SetParamater(double tau1, double tau2, double a0, double noise_level) {
     normal_t1 = tau1;
     normal_t2 = tau2;

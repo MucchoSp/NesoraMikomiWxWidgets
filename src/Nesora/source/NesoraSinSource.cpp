@@ -7,6 +7,10 @@ double NesoraSinSource::Utterance(double radian) {
     return std::sin(radian);
 }
 
+void NesoraSinSource::SetParameters(ParametricNesoraParameterValue* parameters) {
+    // サイン波はパラメータがないので、特に何もしない
+}
+
 std::vector<unsigned char> NesoraSinSource::SaveData() {
     // サイン波はパラメータがないので、空のデータを返す
     return std::vector<unsigned char>();

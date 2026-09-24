@@ -21,6 +21,16 @@ double NesoraParametricLFModel::Utterance(double theta) {
     }
 }
 
+void NesoraParametricLFModel::SetParameters(ParametricNesoraParameterValue* parameters) {
+    this->parameters = parameters;
+}
+
+void NesoraParametricLFModel::UpdateParameters(const ParametricNesoraParameterValue& parameters) {
+    if (this->parameters) {
+        *this->parameters = parameters;
+    }
+}
+
 void NesoraParametricLFModel::SetParamater(double Tp, double Te, double Ta, double Ee, double noise_level) {
     normal_tp = Tp;
     normal_te = Te;
@@ -190,6 +200,16 @@ double NesoraParametricLFModelRdParameter::Utterance(double theta) {
     } else {
         // 後半フェーズ（指数帰還）
         return -constVal * (std::exp(-beta * (theta - phi_e)) - std::exp(-beta * (2.0 * M_PI - phi_e))) + noise_input * noise;
+    }
+}
+
+void NesoraParametricLFModelRdParameter::SetParameters(ParametricNesoraParameterValue* parameters) {
+    this->parameters = parameters;
+}
+
+void NesoraParametricLFModelRdParameter::UpdateParameters(const ParametricNesoraParameterValue& parameters) {
+    if (this->parameters) {
+        *this->parameters = parameters;
     }
 }
 

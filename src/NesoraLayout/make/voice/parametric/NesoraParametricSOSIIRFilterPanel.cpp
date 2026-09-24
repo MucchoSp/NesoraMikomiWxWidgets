@@ -57,19 +57,10 @@ nsParametricSOSIIRFrequencyResponseControl::nsParametricSOSIIRFrequencyResponseC
     Bind(wxEVT_RIGHT_UP, &nsParametricSOSIIRFrequencyResponseControl::OnRightUp, this);
     Bind(wxEVT_RIGHT_DOWN, &nsParametricSOSIIRFrequencyResponseControl::OnRightDown, this);
     Bind(wxEVT_SIZE, &nsParametricSOSIIRFrequencyResponseControl::OnSize, this);
-
-    // wxWindow* voiceMakeFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
-    // if (voiceMakeFrame) {
-    //     voiceMakeFrame->Bind(nsEVT_SELECTED_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter, this);
-    //     voiceMakeFrame->Bind(nsEVT_PARAMETER_CHANGED, &nsParametricSOSIIRFrequencyResponseControl::OnChangeParameter, this);
-    //     voiceMakeFrame->Bind(nsEVT_ADD_PARAMETER, &nsParametricSOSIIRFrequencyResponseControl::OnAddParameter, this);
-    // }
 }
 
 void nsParametricSOSIIRFrequencyResponseControl::RecalculationFrequencyResponse() {
-    if(voice && voice->GetCurrentParameters()) {
-        filter->CalculateCoefficients(*voice->GetCurrentParameters()); // ここでパラメーターを渡す
-    }
+    filter->CalculateCoefficients();
     filter->CalculateFrequencyResponse(GetClientSize().GetWidth());
 }
 
@@ -356,30 +347,6 @@ void nsParametricSOSIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event
     wxWindow::Refresh();
     event.Skip();
 }
-
-// void nsParametricSOSIIRFrequencyResponseControl::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-//     nowSelectedParameter = event.GetID();
-
-//     SetControlPointsFromFilter();
-//     RecalculationFrequencyResponse();
-
-//     wxWindow::Refresh();
-//     event.Skip();
-// }
-
-// void nsParametricSOSIIRFrequencyResponseControl::OnChangeParameter(nsParameterChangeEvent& event) {
-//     parameters[event.GetID()] = event.GetParam();
-
-//     SetControlPointsFromFilter();
-//     RecalculationFrequencyResponse();
-
-//     wxWindow::Refresh();
-//     event.Skip();
-// }
-
-// void nsParametricSOSIIRFrequencyResponseControl::OnAddParameter(nsAddParameterEvent& event) {
-//     parameters[event.GetData()] = 0.0;
-// }
 
 
 

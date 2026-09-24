@@ -77,10 +77,6 @@ private:
     uint32_t nowSelectedParameter = 0;
     std::map<uint32_t, double> parameters;
     
-    void OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event);
-    void OnChangeParameter(nsParameterChangeEvent& event);
-    void OnAddParameter(nsAddParameterEvent& event);
-
     void OnPitchSlide(wxCommandEvent& event);
     void OnPhoneticSlide(wxCommandEvent& event);
     void OnTpSlide(wxCommandEvent& event);
@@ -141,10 +137,6 @@ private:
     uint32_t nowSelectedParameter = 0;
     std::map<uint32_t, double> parameters;
     
-    void OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event);
-    void OnChangeParameter(nsParameterChangeEvent& event);
-    void OnAddParameter(nsAddParameterEvent& event);
-
     void OnPitchSlide(wxCommandEvent& event);
     void OnPhoneticSlide(wxCommandEvent& event);
     void OnRdSlide(wxCommandEvent& event);

@@ -18,7 +18,7 @@ void nsPhoneticLFModelPanel::Init() {
     source_wave = new NesoraParametricLFModel();
 
     source_wave->SetParamater(0.4, 0.55, 0.05, 1.0, 0.1);
-    source_wave->SetParamater(parameters);
+    // source_wave->SetParamater(parameters);
     wave.resize(183);// 48000/261.6
     wave_integral.resize(183);// 48000/261.6
     double throw_away;
@@ -121,22 +121,6 @@ void nsPhoneticLFModelPanel::Update() {
 }
 
 
-void nsPhoneticLFModelPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
-    Update();
-}
-
-void nsPhoneticLFModelPanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
-    Update();
-}
-
-void nsPhoneticLFModelPanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
-    nowSelectedParameter = event.GetData();
-    Update();
-}
-
 
 void nsPhoneticLFModelPanel::OnPitchSlide(wxCommandEvent& event) {
     pitch_param->SetLabel(to_string_with_precision((double)pitch_slider->GetValue(), 0) + " Hz");
@@ -223,7 +207,7 @@ void nsPhoneticLFModelRdParameterPanel::Init() {
     source_wave = new NesoraParametricLFModelRdParameter();
 
     source_wave->SetParamater(1.0, 0.1, 0.1);
-    source_wave->SetParamater(parameters);
+    // source_wave->SetParamater(parameters);
     wave.resize(183);// 48000/261.6
     double throw_away;
     for (size_t i = 0;i < wave.size();i++)
@@ -285,21 +269,6 @@ void nsPhoneticLFModelRdParameterPanel::Update() {
 }
 
 
-void nsPhoneticLFModelRdParameterPanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
-    Update();
-}
-
-void nsPhoneticLFModelRdParameterPanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
-    Update();
-}
-
-void nsPhoneticLFModelRdParameterPanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
-    nowSelectedParameter = event.GetData();
-    Update();
-}
 
 
 void nsPhoneticLFModelRdParameterPanel::OnPitchSlide(wxCommandEvent& event) {

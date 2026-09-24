@@ -76,12 +76,12 @@ void nsParametricRosenbergWavePanel::Init() {
     sourceSizer->Add(chart, 0, wxEXPAND | wxALL);
     this->SetSizer(sourceSizer);
 
-    wxWindow* voiceMakeFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
-    if (voiceMakeFrame) {
-        voiceMakeFrame->Bind(nsEVT_SELECTED_PARAMETER_CHANGED, &nsParametricRosenbergWavePanel::OnChangeSelectedParameter, this);
-        voiceMakeFrame->Bind(nsEVT_PARAMETER_CHANGED, &nsParametricRosenbergWavePanel::OnChangeParameter, this);
-        voiceMakeFrame->Bind(nsEVT_ADD_PARAMETER, &nsParametricRosenbergWavePanel::OnAddParameter, this);
-    }
+    // wxWindow* voiceMakeFrame = wxWindow::FindWindowById(nsID_VOICE_MAKE_PANEL);
+    // if (voiceMakeFrame) {
+    //     voiceMakeFrame->Bind(nsEVT_SELECTED_PARAMETER_CHANGED, &nsParametricRosenbergWavePanel::OnChangeSelectedParameter, this);
+    //     voiceMakeFrame->Bind(nsEVT_PARAMETER_CHANGED, &nsParametricRosenbergWavePanel::OnChangeParameter, this);
+    //     voiceMakeFrame->Bind(nsEVT_ADD_PARAMETER, &nsParametricRosenbergWavePanel::OnAddParameter, this);
+    // }
 }
 
 void nsParametricRosenbergWavePanel::Update() {
@@ -113,21 +113,21 @@ void nsParametricRosenbergWavePanel::SetVoice(NesoraMikomiVoice* voice) {
 }
 
 
-void nsParametricRosenbergWavePanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-    nowSelectedParameter = event.GetID();
-    Update();
-}
+// void nsParametricRosenbergWavePanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
+//     nowSelectedParameter = event.GetID();
+//     Update();
+// }
 
-void nsParametricRosenbergWavePanel::OnChangeParameter(nsParameterChangeEvent& event) {
-    parameters[event.GetID()] = event.GetParam();
-    Update();
-}
+// void nsParametricRosenbergWavePanel::OnChangeParameter(nsParameterChangeEvent& event) {
+//     parameters[event.GetID()] = event.GetParam();
+//     Update();
+// }
 
-void nsParametricRosenbergWavePanel::OnAddParameter(nsAddParameterEvent& event) {
-    parameters[event.GetData()] = 0.0;
-    nowSelectedParameter = event.GetData();
-    Update();
-}
+// void nsParametricRosenbergWavePanel::OnAddParameter(nsAddParameterEvent& event) {
+//     parameters[event.GetData()] = 0.0;
+//     nowSelectedParameter = event.GetData();
+//     Update();
+// }
 
 
 void nsParametricRosenbergWavePanel::OnPitchSlide(wxCommandEvent& event) {

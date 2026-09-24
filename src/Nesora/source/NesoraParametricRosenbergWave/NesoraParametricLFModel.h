@@ -45,6 +45,7 @@ public:
     double Utterance(double radian) override;
 
     void SetParameters(ParametricNesoraParameterValue* parameters) override;
+    void UpdateParameters(const ParametricNesoraParameterValue& parameters) override;
 
     const NesoraLFModelParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const { return NesoraLFModelParameter(); }
     const NesoraLFModelParameter GetParametricSource(const uint32_t parameterID, const double delta) const { return NesoraLFModelParameter(); }
@@ -86,6 +87,7 @@ public:
     double Utterance(double radian) override;
 
     void SetParameters(ParametricNesoraParameterValue* parameters) override;
+    void UpdateParameters(const ParametricNesoraParameterValue& parameters) override;
 
     const NesoraLFModelParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const { return NesoraLFModelParameter(); }
     const NesoraLFModelParameter GetParametricSource(const uint32_t parameterID, const double delta) const { return NesoraLFModelParameter(); }

@@ -43,6 +43,7 @@ public:
     double Utterance(double radian) override;
 
     void SetParameters(ParametricNesoraParameterValue* parameters) override;
+    void UpdateParameters(const ParametricNesoraParameterValue& parameters) override;
 
     const NesoraRosenbergParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const;
     const NesoraRosenbergParameter GetParametricSource(const uint32_t parameterID, const double delta) const;

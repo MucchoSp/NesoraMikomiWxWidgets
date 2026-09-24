@@ -113,22 +113,6 @@ void nsParametricRosenbergWavePanel::SetVoice(NesoraMikomiVoice* voice) {
 }
 
 
-// void nsParametricRosenbergWavePanel::OnChangeSelectedParameter(nsSelectedParameterChangeEvent& event) {
-//     nowSelectedParameter = event.GetID();
-//     Update();
-// }
-
-// void nsParametricRosenbergWavePanel::OnChangeParameter(nsParameterChangeEvent& event) {
-//     parameters[event.GetID()] = event.GetParam();
-//     Update();
-// }
-
-// void nsParametricRosenbergWavePanel::OnAddParameter(nsAddParameterEvent& event) {
-//     parameters[event.GetData()] = 0.0;
-//     nowSelectedParameter = event.GetData();
-//     Update();
-// }
-
 
 void nsParametricRosenbergWavePanel::OnPitchSlide(wxCommandEvent& event) {
     pitch_param->SetLabel(to_string_with_precision((double)pitch_slider->GetValue(), 0) + " Hz");

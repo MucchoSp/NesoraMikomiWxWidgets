@@ -305,11 +305,6 @@ void nsParameterCardScrollContainer::AddCard() {
     
     mainSizer->Add(card, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    // nsAddParameterEvent event(nsEVT_ADD_PARAMETER, GetId());
-    // event.SetEventObject(this);
-    // event.SetData(card->ID);
-    // this->GetEventHandler()->ProcessEvent(event);
-
     if (parameter != nullptr)
         (*parameter)[card->ID] = 0;
 

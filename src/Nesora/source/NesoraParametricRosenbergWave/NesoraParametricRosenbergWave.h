@@ -31,9 +31,9 @@ public:
     }
 
     void SetParamater(double tau1, double tau2, double a0, double noise_level);
-    void SetParamater(const std::map<uint32_t, double>& parameters);
-    void SetDelta(const std::map<uint32_t, ParametricNesoraRosenbergWaveParameter>& in_delta);
-    void AddDelta(uint32_t in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value);
+    void SetParamater(const std::map<std::string, double>& parameters);
+    void SetDelta(const std::map<std::string, ParametricNesoraRosenbergWaveParameter>& in_delta);
+    void AddDelta(const std::string& in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value);
     void SetA0(double a0);
     double GetT1() const;
     double GetT2() const;
@@ -45,8 +45,8 @@ public:
     void SetParameters(ParametricNesoraParameterValue* parameters) override;
     void UpdateParameters(const ParametricNesoraParameterValue& parameters) override;
 
-    const NesoraRosenbergParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const;
-    const NesoraRosenbergParameter GetParametricSource(const uint32_t parameterID, const double delta) const;
+    const NesoraRosenbergParameter GetParametricSource(const std::map<std::string, double>& parameters) const;
+    const NesoraRosenbergParameter GetParametricSource(const std::string& parameterID, const double delta) const;
 
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;
@@ -56,7 +56,7 @@ private:
 
     double normal_t1 = 0.0, normal_t2 = 0.0, normal_a0 = -0.5, normal_noise = 0.0;
     double t1 = 0.0, t2 = 0.0, a0 = -0.5, noise = 0.0;
-    std::map<uint32_t, ParametricNesoraRosenbergWaveParameter> delta;
+    std::map<std::string, ParametricNesoraRosenbergWaveParameter> delta;
 
 };
 

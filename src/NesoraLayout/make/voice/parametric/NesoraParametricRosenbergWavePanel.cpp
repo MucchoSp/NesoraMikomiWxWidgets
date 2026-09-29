@@ -154,7 +154,7 @@ double nsParametricRosenbergWavePanel::GetPitch() const {
     return (double)pitch_slider->GetValue();
 }
 
-void nsParametricRosenbergWavePanel::SetSelectedParameterID(uint32_t ID) {
+void nsParametricRosenbergWavePanel::SetSelectedParameterID(const std::string& ID) {
     nowSelectedParameter = ID;
     Update();
 }

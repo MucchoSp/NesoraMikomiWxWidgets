@@ -86,7 +86,7 @@ void nsParametricSOSIIRFrequencyResponseControl::SyncControlPointsFromFilter() {
     RecalculationFrequencyResponse();
 }
 
-void nsParametricSOSIIRFrequencyResponseControl::SetSelectedParameter(uint32_t param) {
+void nsParametricSOSIIRFrequencyResponseControl::SetSelectedParameter(const std::string& param) {
     nowSelectedParameter = param;
 
     SetControlPointsFromFilter();
@@ -116,7 +116,7 @@ void nsParametricSOSIIRFrequencyResponseControl::SetControlPointsFromFilter() {
         destinationControlPoints[i].m_x = pdp.theta / nsPI * (double)GetClientSize().GetWidth() - destinationControlPoints[i].m_width / 2.0;
         destinationControlPoints[i].m_y = -r_to_y(pdp.r) * (double)GetClientSize().GetHeight() / 2.0 + (double)GetClientSize().GetHeight() / 2.0 - destinationControlPoints[i].m_height / 2.0;
 
-        if(nowSelectedParameter && voice && voice->GetCurrentParameters()) {
+        if(!nowSelectedParameter.empty() && voice && voice->GetCurrentParameters()) {
             const auto& currentParameters = *voice->GetCurrentParameters();
             const auto& paramValue = currentParameters.find(nowSelectedParameter);
             if (paramValue != currentParameters.end()) {
@@ -169,7 +169,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnPaint(wxPaintEvent& event) {
 
         // 操作点
         for (size_t i = 1; i < controlPoints.size(); i++) {
-            if(destinationControlPoints[i] != controlPoints[i] and nowSelectedParameter) {
+            if(destinationControlPoints[i] != controlPoints[i] and !nowSelectedParameter.empty()) {
                 gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
                 gc->StrokeLine(controlPoints[i].m_x + 5.0, controlPoints[i].m_y + 5.0, destinationControlPoints[i].m_x + 5.0, destinationControlPoints[i].m_y + 5.0);
                 gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
@@ -246,7 +246,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnMouseMove(wxMouseEvent& event
         for(size_t i = 1;i < controlPoints.size();i++) {
             if(nsHitTest(controlPoints[i], event.GetX(), event.GetY())) {
                 if(nsHitTest(destinationControlPoints[i], event.GetX(), event.GetY())) {
-                    if(nowSelectedParameter)
+                    if(!nowSelectedParameter.empty())
                         selectedDestinationControlPointIndex = i;
                     else
                         selectedControlPointIndex = i;
@@ -330,7 +330,7 @@ void nsParametricSOSIIRFrequencyResponseControl::OnRightDown(wxMouseEvent& event
     for(size_t i = 1;i < controlPoints.size();i++) {
         if(nsHitTest(controlPoints[i], event.GetX(), event.GetY())) {
             if(nsHitTest(destinationControlPoints[i], event.GetX(), event.GetY())) {
-                if(nowSelectedParameter)
+                if(!nowSelectedParameter.empty())
                     selectedDestinationControlPointIndex = i;
                 else
                     selectedControlPointIndex = i;
@@ -386,7 +386,7 @@ NesoraFilterBase* nsParametricSOSIIRFilterPanel::GetFilter() {
     return iirFilter->filter;
 }
 
-void nsParametricSOSIIRFilterPanel::SetSelectedParameterID(uint32_t ID) {
+void nsParametricSOSIIRFilterPanel::SetSelectedParameterID(const std::string& ID) {
     if (iirFilter) {
         iirFilter->SetSelectedParameter(ID);
     }

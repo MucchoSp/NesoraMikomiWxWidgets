@@ -41,7 +41,7 @@ public:
     NesoraParametricSOSIIRFilter* filter;
     // UIを更新
     void SyncControlPointsFromFilter();
-    void SetSelectedParameter(uint32_t param);
+    void SetSelectedParameter(const std::string& param);
 
     void SetVoice(NesoraMikomiVoice* voice);
     NesoraMikomiVoice* GetVoice() const { return voice; };
@@ -51,7 +51,7 @@ private:
     
     std::vector<double> frequencyResponse;
     
-    uint32_t nowSelectedParameter = 0;
+    std::string nowSelectedParameter;
     
     std::vector<wxRect2DDouble> controlPoints;              //操作点
     std::vector<wxRect2DDouble> destinationControlPoints;   //いま選択されているパラメーターにより飛ばされる先の場所
@@ -116,7 +116,7 @@ public:
     
     NesoraFilterBase* GetFilter() override;
 
-    void SetSelectedParameterID(uint32_t ID) override;
+    void SetSelectedParameterID(const std::string& ID) override;
 
 private:
     nsParametricSOSIIRFrequencyResponseControl* iirFilter;

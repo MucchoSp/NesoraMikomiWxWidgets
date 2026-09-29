@@ -90,7 +90,7 @@ void nsParametricVoiceMakePanel::SetVoice(NesoraMikomiVoice* voice) {
     parametricPanel->SetVoice(voice);
 }
 
-void nsParametricVoiceMakePanel::SetSelectedParameterID(uint32_t ID) {
+void nsParametricVoiceMakePanel::SetSelectedParameterID(const std::string& ID) {
     nowParameterID = ID;
     sourcePanel->SetSelectedParameterID(ID);
     filterPanel->SetSelectedParameterID(ID);

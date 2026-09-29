@@ -452,8 +452,8 @@ void NesoraDictionalyTimelinePanel::Init() {
     wxBoxSizer* parameterSizer = new wxBoxSizer(wxHORIZONTAL);
     parameterText = new wxStaticText(mainSizer->GetStaticBox(), wxID_ANY, _("Parameter"));
     parameterSizer->Add(parameterText, 0, wxEXPAND | wxALL);
-    parameterComboBox = new wxChoice(mainSizer->GetStaticBox(), wxID_ANY);
-    parameterSizer->Add(parameterComboBox, 0, wxEXPAND | wxALL);
+    parameterChoice = new wxChoice(mainSizer->GetStaticBox(), wxID_ANY);
+    parameterSizer->Add(parameterChoice, 0, wxEXPAND | wxALL);
     mainSizer->Add(parameterSizer, 0, wxEXPAND | wxALL);
     parameterControl = new NesoraDictionalyParameterControl(mainSizer->GetStaticBox(), wxID_ANY);
     mainSizer->Add(parameterControl, 1, wxEXPAND | wxALL);
@@ -475,8 +475,8 @@ void NesoraDictionalyTimelinePanel::Init() {
     parameterControl->Bind(wxEVT_MAGNIFY, &NesoraDictionalyTimelinePanel::OnMagnify, this);
     timelineControl->Bind(wxEVT_MOUSEWHEEL, &NesoraDictionalyTimelinePanel::OnMouseWheel, this);
     timelineControl->Bind(wxEVT_MAGNIFY, &NesoraDictionalyTimelinePanel::OnMagnify, this);
-    parameterComboBox->Bind(wxEVT_CHOICE, &NesoraDictionalyTimelinePanel::OnParameterChoice, this);
-    parameterComboBox->Bind(wxEVT_COMBOBOX_DROPDOWN, &NesoraDictionalyTimelinePanel::OnDropdown, this);
+    parameterChoice->Bind(wxEVT_CHOICE, &NesoraDictionalyTimelinePanel::OnParameterChoice, this);
+    parameterChoice->Bind(wxEVT_LEFT_DOWN, &NesoraDictionalyTimelinePanel::OnDropdown, this);
 
     SetSizer(mainSizer);
 
@@ -525,6 +525,19 @@ void NesoraDictionalyTimelinePanel::OnMagnify(wxMouseEvent& event) {
     event.Skip();
 }
 
+void NesoraDictionalyTimelinePanel::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+    if (timelineControl) {
+        timelineControl->SetVoice(voice);
+    }
+    if (envelopeTimelineControl) {
+        envelopeTimelineControl->SetVoice(voice);
+    }
+    if (parameterControl) {
+        parameterControl->SetVoice(voice);
+    }
+}
+
 void NesoraDictionalyTimelinePanel::SetWord(ParametricNesoraDictionalyWord* word) {
     this->word = word;
     if (timelineControl) {
@@ -539,15 +552,36 @@ void NesoraDictionalyTimelinePanel::SetWord(ParametricNesoraDictionalyWord* word
 }
 
 void NesoraDictionalyTimelinePanel::OnParameterChoice(wxCommandEvent& event) {
-    int selection = parameterComboBox->GetSelection();
-    if (parameterControl) {
-        parameterControl->SetSelectedParameterID(selection);
+    int selection = parameterChoice->GetSelection();
+    if (selection != wxNOT_FOUND && parameterControl) {
+        parameterControl->SetSelectedParameterID(parameterChoice->GetString(selection).ToStdString());
     }
+
+    event.Skip();
 }
 
-void NesoraDictionalyTimelinePanel::OnDropdown(wxCommandEvent& event) {
-    // Handle dropdown event if needed
-    
+void NesoraDictionalyTimelinePanel::OnDropdown(wxMouseEvent& event) {
+    if (voice == nullptr or voice->GetCurrentParameters() == nullptr) {
+        parameterChoice->Clear();
+        event.Skip();
+        return;
+    }
+
+    int selection = parameterChoice->GetSelection();
+    std::string selectedParameterID;
+    if (selection != wxNOT_FOUND) {
+        selectedParameterID = parameterChoice->GetString(selection).ToStdString();
+    }
+
+    parameterChoice->Clear();
+    for (const auto& [parameterID, value] : *voice->GetCurrentParameters()) {
+        parameterChoice->Append(parameterID);
+        if (parameterID == selectedParameterID) {
+            parameterChoice->SetSelection(parameterChoice->GetCount() - 1);
+        }
+    }
+
+    event.Skip();
 }
 
 
@@ -573,6 +607,9 @@ void NesoraDictionalyEditPanel::Init() {
 
 void NesoraDictionalyEditPanel::SetVoice(NesoraMikomiVoice* voice) {
     this->voice = voice;
+    if (timelinePanel) {
+        timelinePanel->SetVoice(voice);
+    }
 }
 
 void NesoraDictionalyEditPanel::SetWord(NesoraDictionalyIndexWord* indexWord) {

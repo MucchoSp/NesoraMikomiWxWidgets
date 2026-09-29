@@ -143,12 +143,12 @@ public:
 class nsParameterCard : public wxPanel {
 public:
     nsParameterCard(wxWindow* parent) : wxPanel(parent) {
-        Init(std::rand());
+        Init(std::to_string(std::rand()));
     }
 
-    uint32_t ID;
+    std::string ID;
 
-    void Init(uint32_t ID = 0, double param = 0);
+    void Init(const std::string& ID = "", double param = 0);
 
     void SetSelected(bool selected);
     bool IsSelected() const;

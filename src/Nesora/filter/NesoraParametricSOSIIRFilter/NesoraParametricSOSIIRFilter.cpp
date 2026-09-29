@@ -16,20 +16,20 @@ void NesoraParametricSOFilter::SetPoint(NesoraIIRFilterPD in_point) {
     point.theta = in_point.theta;
 }
 
-void NesoraParametricSOFilter::SetDelta(const std::map<uint32_t, ParametricNesoraIIRFilterParameter>& in_delta) {
+void NesoraParametricSOFilter::SetDelta(const std::map<std::string, ParametricNesoraIIRFilterParameter>& in_delta) {
     delta = in_delta;
 }
 
-void NesoraParametricSOFilter::AddDelta(uint32_t in_delta_ID, ParametricNesoraIIRFilterParameter in_delta_value) {
+void NesoraParametricSOFilter::AddDelta(const std::string& in_delta_ID, ParametricNesoraIIRFilterParameter in_delta_value) {
     delta[in_delta_ID] = in_delta_value;
 }
 
-void NesoraParametricSOFilter::SetDestinationPoint(uint32_t parameterID, NesoraIIRFilterPD in_point) {
+void NesoraParametricSOFilter::SetDestinationPoint(const std::string& parameterID, NesoraIIRFilterPD in_point) {
     delta[parameterID].delta_r = in_point.r - point.r;
     delta[parameterID].delta_theta = in_point.theta - point.theta;
 }
 
-void NesoraParametricSOFilter::CalculateCoefficients(const std::map<uint32_t, double>& parameters) {
+void NesoraParametricSOFilter::CalculateCoefficients(const std::map<std::string, double>& parameters) {
     double r = point.r, theta = point.theta;
 
     for(const auto& [paramid, param] : parameters) {
@@ -86,7 +86,7 @@ const NesoraIIRFilterPD& NesoraParametricSOFilter::GetPoint() const {
     return point;
 }
 
-const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const std::map<uint32_t, double>& parameters) const {
+const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const std::map<std::string, double>& parameters) const {
     NesoraIIRFilterPD out = point;
 
     for(const auto& [paramid, param] : parameters) {
@@ -110,7 +110,7 @@ const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const std::
     return out;
 }
 
-const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const uint32_t paramid, const double param) const {
+const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const std::string& paramid, const double param) const {
     NesoraIIRFilterPD out = point;
     
     const auto& paramdelta = delta.find(paramid);
@@ -131,11 +131,11 @@ const NesoraIIRFilterPD NesoraParametricSOFilter::GetParametricPoint(const uint3
     return out;
 }
 
-std::map<uint32_t, ParametricNesoraIIRFilterParameter> NesoraParametricSOFilter::GetDelta() const {
+std::map<std::string, ParametricNesoraIIRFilterParameter> NesoraParametricSOFilter::GetDelta() const {
     return delta;
 }
 
-const ParametricNesoraIIRFilterParameter NesoraParametricSOFilter::GetDelta(const uint32_t parameterID) const {
+const ParametricNesoraIIRFilterParameter NesoraParametricSOFilter::GetDelta(const std::string& parameterID) const {
     const auto& paramdelta = delta.find(parameterID);
     if (paramdelta == delta.end())
         return {0};
@@ -163,7 +163,7 @@ void NesoraParametricSOSIIRFilter::CalculateCoefficients() {
     }
 }
 
-void NesoraParametricSOSIIRFilter::CalculateCoefficients(const std::map<uint32_t, double>& parameters) {
+void NesoraParametricSOSIIRFilter::CalculateCoefficients(const std::map<std::string, double>& parameters) {
     for(auto& filter : SOFilters) {
         filter.CalculateCoefficients(parameters);
     }
@@ -247,11 +247,13 @@ std::vector<unsigned char> NesoraParametricSOSIIRFilter::SaveData() {
         size_t filterDataSize = filterData.size();
         data.insert(data.end(), reinterpret_cast<const unsigned char*>(&filterDataSize), reinterpret_cast<const unsigned char*>(&filterDataSize) + sizeof(size_t));
         data.insert(data.end(), filterData.begin(), filterData.end());
-        std::map<uint32_t, ParametricNesoraIIRFilterParameter> delta = filter.GetDelta();
+        std::map<std::string, ParametricNesoraIIRFilterParameter> delta = filter.GetDelta();
         size_t deltaSize = delta.size();
         data.insert(data.end(), reinterpret_cast<const unsigned char*>(&deltaSize), reinterpret_cast<const unsigned char*>(&deltaSize) + sizeof(size_t));
         for(const auto& [paramid, paramdelta] : delta) {
-            data.insert(data.end(), reinterpret_cast<const unsigned char*>(&paramid), reinterpret_cast<const unsigned char*>(&paramid) + sizeof(uint32_t));
+            size_t paramidSize = paramid.size();
+            data.insert(data.end(), reinterpret_cast<const unsigned char*>(&paramidSize), reinterpret_cast<const unsigned char*>(&paramidSize) + sizeof(size_t));
+            data.insert(data.end(), reinterpret_cast<const unsigned char*>(paramid.data()), reinterpret_cast<const unsigned char*>(paramid.data()) + paramidSize);
             std::vector<unsigned char> deltaData = paramdelta.SaveData();
             size_t deltaDataSize = deltaData.size();
             data.insert(data.end(), reinterpret_cast<const unsigned char*>(&deltaDataSize), reinterpret_cast<const unsigned char*>(&deltaDataSize) + sizeof(size_t));
@@ -300,14 +302,19 @@ void NesoraParametricSOSIIRFilter::LoadData(const std::vector<unsigned char>& da
         size_t deltaSize = *reinterpret_cast<const size_t*>(data.data() + offset);
         offset += sizeof(size_t);
 
-        std::map<uint32_t, ParametricNesoraIIRFilterParameter> delta;
+        std::map<std::string, ParametricNesoraIIRFilterParameter> delta;
         for (size_t j = 0; j < deltaSize; j++) {
-            if (offset + sizeof(uint32_t) > data.size()) {
+            if (offset + sizeof(size_t) > data.size()) {
                 // データが不十分
                 return;
             }
-            uint32_t paramid = *reinterpret_cast<const uint32_t*>(data.data() + offset);
-            offset += sizeof(uint32_t);
+            size_t paramidSize = *reinterpret_cast<const size_t*>(data.data() + offset);
+            offset += sizeof(size_t);
+            if (offset + paramidSize > data.size()) {
+                return;
+            }
+            std::string paramid(reinterpret_cast<const char*>(data.data() + offset), paramidSize);
+            offset += paramidSize;
 
             if (offset + sizeof(size_t) > data.size()) {
                 // データが不十分

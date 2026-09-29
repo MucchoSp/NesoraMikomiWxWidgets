@@ -41,7 +41,7 @@ NesoraScriptBase* NesoraVowelDictionaly::GetScript() {
     return script;
 }
 
-void NesoraVowelDictionaly::AddWord(const std::string& word, const std::map<uint32_t, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>>& parameterDeltas) {
+void NesoraVowelDictionaly::AddWord(const std::string& word, const std::map<std::string, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>>& parameterDeltas) {
     ParametricNesoraDictionalyWord newWord;
     newWord.word = word;
     newWord.parameterDeltas = parameterDeltas;

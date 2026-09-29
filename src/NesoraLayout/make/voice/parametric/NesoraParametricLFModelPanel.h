@@ -51,7 +51,7 @@ public:
 
     double GetPitch() const override;
 
-    void SetSelectedParameterID(uint32_t ID) override;
+    void SetSelectedParameterID(const std::string& ID) override;
 
 private:
     nsSimpleChartControl* chart;
@@ -75,8 +75,8 @@ private:
     std::vector<double> wave;// 48000 / 261.6
     std::vector<double> wave_integral;// 48000 / 261.6
 
-    uint32_t nowSelectedParameter = 0;
-    std::map<uint32_t, double> parameters;
+    std::string nowSelectedParameter;
+    std::map<std::string, double> parameters;
     
     void OnPitchSlide(wxCommandEvent& event);
     void OnPhoneticSlide(wxCommandEvent& event);
@@ -115,7 +115,7 @@ public:
 
     double GetPitch() const override;
 
-    void SetSelectedParameterID(uint32_t ID) override;
+    void SetSelectedParameterID(const std::string& ID) override;
 
 private:
     nsSimpleChartControl* chart;
@@ -133,8 +133,8 @@ private:
     NesoraParametricLFModelRdParameter* source_wave;
     std::vector<double> wave;// 48000 / 261.6
 
-    uint32_t nowSelectedParameter = 0;
-    std::map<uint32_t, double> parameters;
+    std::string nowSelectedParameter;
+    std::map<std::string, double> parameters;
     
     void OnPitchSlide(wxCommandEvent& event);
     void OnPhoneticSlide(wxCommandEvent& event);

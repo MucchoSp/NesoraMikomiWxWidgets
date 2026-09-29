@@ -88,7 +88,7 @@ public:
     void PanelEnable();
     void PanelDisable();
 
-    void SetSelectedParameterID(uint32_t ID) {
+    void SetSelectedParameterID(const std::string& ID) {
         // phoneticではパラメータの選択はないので何もしない
     }
 

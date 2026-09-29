@@ -48,7 +48,7 @@ public:
 
     double GetPitch() const override;
 
-    void SetSelectedParameterID(uint32_t ID) override {
+    void SetSelectedParameterID(const std::string& ID) override {
         // phoneticではパラメータの選択はないので何もしない
     }
 
@@ -111,7 +111,7 @@ public:
 
     double GetPitch() const override;
 
-    void SetSelectedParameterID(uint32_t ID) override {
+    void SetSelectedParameterID(const std::string& ID) override {
         // phoneticではパラメータの選択はないので何もしない
     }
 

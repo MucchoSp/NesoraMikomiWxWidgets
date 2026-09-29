@@ -3,7 +3,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
+#include <cstring>
 #include <map>
+#include <string>
+#include <vector>
 
 #ifndef PARAMETRIC_NESORA_DEFINES
 #define PARAMETRIC_NESORA_DEFINES
@@ -44,7 +47,7 @@ struct ParametricNesoraParameter {
     double a0;
 };
 
-typedef std::map<uint32_t, double> ParametricNesoraParameterValue;
+typedef std::map<std::string, double> ParametricNesoraParameterValue;
 
 struct ParametricNesoraScriptParameterValue {
     std::string lastSymbol;
@@ -135,7 +138,7 @@ struct ParametricNesoraDictionalyEnvelopePoint {
 struct ParametricNesoraDictionalyWord {
     std::string word;
     std::string symbol;
-    std::map<uint32_t, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>> parameterDeltas;   // パラメータの変化
+    std::map<std::string, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>> parameterDeltas;   // パラメータの変化
     std::vector<ParametricNesoraDictionalyEnvelopePoint> envelope;             // エンベロープのリスト
 
 
@@ -212,12 +215,14 @@ inline std::vector<unsigned char> SaveData(const ParametricNesoraParameter& para
     return data;
 }
 
-inline std::vector<unsigned char> SaveData(const std::map<uint32_t, ParametricNesoraParameter>& parameters) {
+inline std::vector<unsigned char> SaveData(const std::map<std::string, ParametricNesoraParameter>& parameters) {
     std::vector<unsigned char> data;
     size_t paramSize = parameters.size();
     data.insert(data.end(), reinterpret_cast<const unsigned char*>(&paramSize), reinterpret_cast<const unsigned char*>(&paramSize) + sizeof(size_t));
     for(const auto& [paramID, param] : parameters) {
-        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&paramID), reinterpret_cast<const unsigned char*>(&paramID) + sizeof(uint32_t));
+        size_t paramIDSize = paramID.size();
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(&paramIDSize), reinterpret_cast<const unsigned char*>(&paramIDSize) + sizeof(size_t));
+        data.insert(data.end(), reinterpret_cast<const unsigned char*>(paramID.data()), reinterpret_cast<const unsigned char*>(paramID.data()) + paramIDSize);
         std::vector<unsigned char> paramData = SaveData(param);
         size_t paramDataSize = paramData.size();
         data.insert(data.end(), reinterpret_cast<const unsigned char*>(&paramDataSize), reinterpret_cast<const unsigned char*>(&paramDataSize) + sizeof(size_t));

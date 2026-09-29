@@ -82,7 +82,7 @@ private:
 
     NesoraDictionalyEditPanel* editPanel;
 
-    NesoraDictionalyIndexWord* selectedItem;
+    NesoraDictionalyIndexWord* selectedItem = nullptr;
 
     wxBoxSizer* mainSizer;
 

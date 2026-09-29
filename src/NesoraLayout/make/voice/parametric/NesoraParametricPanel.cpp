@@ -5,7 +5,7 @@
 
 // MARK:nsParameterCard
 
-void nsParameterCard::Init(uint32_t in_ID, double in_param) {
+void nsParameterCard::Init(const std::string& in_ID, double in_param) {
     
     SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
 
@@ -14,14 +14,13 @@ void nsParameterCard::Init(uint32_t in_ID, double in_param) {
     nameStaticText = new wxStaticText(this, wxID_ANY, _("Parameter"));
 
     ID = in_ID;
-    wxString IDString = wxString::Format(wxT("%X"), ID);
-    wxHexTextValidator IDValue(&IDString, 8);
+    wxString IDString = wxString::FromUTF8(ID);
     IDStaticText = new wxStaticText(this, wxID_ANY, "#" + IDString);
     IDStaticText->Bind(wxEVT_LEFT_DCLICK, [this](wxMouseEvent& event) {
             this->IDTextSwitchToEditMode();
             event.Skip();
         });
-    IDTextCtrl = new wxTextCtrl(this, wxID_ANY, IDString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER, IDValue);
+    IDTextCtrl = new wxTextCtrl(this, wxID_ANY, IDString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     IDTextCtrl->Bind(wxEVT_COMMAND_TEXT_ENTER, [this](wxEvent& event) {
             this->IDTextSwitchToDisplayMode();
             event.Skip();
@@ -237,12 +236,29 @@ void nsParameterCard::IDTextSwitchToEditMode() {
 void nsParameterCard::IDTextSwitchToDisplayMode() {
     if (!IDTextCtrl->IsShown()) return;
 
-    IDStaticText->SetLabel("#" + IDTextCtrl->GetValue());
-    if (!IDTextCtrl->GetValue().ToUInt(&ID, 16)) {
-        ID = 0;
-        IDTextCtrl->SetValue("00000000");
-        IDStaticText->SetLabel("#00000000");
+    std::string newID = IDTextCtrl->GetValue().ToStdString();
+    if (newID.empty()) {
+        IDTextCtrl->SetValue(ID);
+        IDTextCtrl->Hide();
+        IDStaticText->Show();
+        this->GetSizer()->Layout();
+        return;
     }
+
+    std::string oldID = ID;
+    if (newID != oldID) {
+        if (voice != nullptr) {
+            auto* parameters = voice->GetCurrentParameters();
+            auto it = parameters->find(oldID);
+            if (it != parameters->end()) {
+                double value = it->second;
+                parameters->erase(it);
+                (*parameters)[newID] = value;
+            }
+        }
+    }
+    IDStaticText->SetLabel(IDTextCtrl->GetValue());
+    ID = IDTextCtrl->GetValue().ToStdString();
 
     this->IDTextCtrl->Hide();
     this->IDStaticText->Show();
@@ -315,7 +331,7 @@ void nsParameterCardScrollContainer::AddCard() {
 
 void nsParameterCardScrollContainer::RemoveSelectCard() {
     if (voiceMakePanel) {
-        voiceMakePanel->SetSelectedParameterID(0);
+        voiceMakePanel->SetSelectedParameterID("");
     }
     if (parameter != nullptr && selectedItem != nullptr) {
         parameter->erase(selectedItem->ID);
@@ -334,7 +350,7 @@ void nsParameterCardScrollContainer::SelectItem(nsParameterCard* item) {
     }
 
     if (voiceMakePanel) {
-        voiceMakePanel->SetSelectedParameterID(selectedItem ? selectedItem->ID : 0);
+        voiceMakePanel->SetSelectedParameterID(selectedItem ? selectedItem->ID : "");
     }
 }
 

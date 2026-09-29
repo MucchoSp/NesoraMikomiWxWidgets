@@ -33,9 +33,9 @@ public:
     }
 
     void SetParamater(double Tp, double Te, double Ta, double Ee, double noise_level);
-    void SetParamater(const std::map<uint32_t, double>& parameters) {}
-    void SetDelta(const std::map<uint32_t, ParametricNesoraRosenbergWaveParameter>& in_delta) {}
-    void AddDelta(uint32_t in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value) {}
+    void SetParamater(const std::map<std::string, double>& parameters) {}
+    void SetDelta(const std::map<std::string, ParametricNesoraRosenbergWaveParameter>& in_delta) {}
+    void AddDelta(const std::string& in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value) {}
     double GetTp() const;
     double GetTe() const;
     double GetTa() const;
@@ -47,8 +47,8 @@ public:
     void SetParameters(ParametricNesoraParameterValue* parameters) override;
     void UpdateParameters(const ParametricNesoraParameterValue& parameters) override;
 
-    const NesoraLFModelParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const { return NesoraLFModelParameter(); }
-    const NesoraLFModelParameter GetParametricSource(const uint32_t parameterID, const double delta) const { return NesoraLFModelParameter(); }
+    const NesoraLFModelParameter GetParametricSource(const std::map<std::string, double>& parameters) const { return NesoraLFModelParameter(); }
+    const NesoraLFModelParameter GetParametricSource(const std::string& parameterID, const double delta) const { return NesoraLFModelParameter(); }
 
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;
@@ -58,7 +58,7 @@ private:
 
     double normal_tp = 0.0, normal_te = 0.0, normal_ta = 0.0, normal_ee = 0.0, normal_noise = 0.0;
     double tp = 0.0, te = 0.0, ta = 0.0, ee = 0.0, noise = 0.0;
-    std::map<uint32_t, ParametricNesoraRosenbergWaveParameter> delta;
+    std::map<std::string, ParametricNesoraRosenbergWaveParameter> delta;
 
     double phi_e = 0.0, omega_g = 0.0, alpha = 0.0, beta = 0.0, E0 = 0.0, constVal = 0.0;
     double solve_epsilon(double Te, double Ta, double Tc);
@@ -77,9 +77,9 @@ public:
     }
 
     void SetParamater(double Rd,  double Ee, double noise_level);
-    void SetParamater(const std::map<uint32_t, double>& parameters) {}
-    void SetDelta(const std::map<uint32_t, ParametricNesoraRosenbergWaveParameter>& in_delta) {}
-    void AddDelta(uint32_t in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value) {}
+    void SetParamater(const std::map<std::string, double>& parameters) {}
+    void SetDelta(const std::map<std::string, ParametricNesoraRosenbergWaveParameter>& in_delta) {}
+    void AddDelta(const std::string& in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value) {}
     double GetRd() const;
     double GetEe() const;
     double GetNoise() const;
@@ -89,8 +89,8 @@ public:
     void SetParameters(ParametricNesoraParameterValue* parameters) override;
     void UpdateParameters(const ParametricNesoraParameterValue& parameters) override;
 
-    const NesoraLFModelParameter GetParametricSource(const std::map<uint32_t, double>& parameters) const { return NesoraLFModelParameter(); }
-    const NesoraLFModelParameter GetParametricSource(const uint32_t parameterID, const double delta) const { return NesoraLFModelParameter(); }
+    const NesoraLFModelParameter GetParametricSource(const std::map<std::string, double>& parameters) const { return NesoraLFModelParameter(); }
+    const NesoraLFModelParameter GetParametricSource(const std::string& parameterID, const double delta) const { return NesoraLFModelParameter(); }
 
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;
@@ -100,7 +100,7 @@ private:
 
     double normal_rd = 0.0, normal_ee = 0.0, normal_noise = 0.0;
     double rd = 0.0, tp = 0.0, te = 0.0, ta = 0.0, ee = 0.0, noise = 0.0;
-    std::map<uint32_t, ParametricNesoraRosenbergWaveParameter> delta;
+    std::map<std::string, ParametricNesoraRosenbergWaveParameter> delta;
 
     double phi_e = 0.0, omega_g = 0.0, alpha = 0.0, beta = 0.0, E0 = 0.0, constVal = 0.0;
     double solve_epsilon(double Te, double Ta, double Tc);

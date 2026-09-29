@@ -201,7 +201,7 @@ double nsParametricLFModelPanel::GetPitch() const {
     return (double)pitch_slider->GetValue();
 }
 
-void nsParametricLFModelPanel::SetSelectedParameterID(uint32_t ID) {
+void nsParametricLFModelPanel::SetSelectedParameterID(const std::string& ID) {
     nowSelectedParameter = ID;
     Update();
 }
@@ -337,7 +337,7 @@ double nsParametricLFModelRdParameterPanel::GetPitch() const {
     return (double)pitch_slider->GetValue();
 }
 
-void nsParametricLFModelRdParameterPanel::SetSelectedParameterID(uint32_t ID) {
+void nsParametricLFModelRdParameterPanel::SetSelectedParameterID(const std::string& ID) {
     nowSelectedParameter = ID;
     Update();
 }

@@ -88,7 +88,7 @@ public:
     void PanelEnable() override;
     void PanelDisable() override;
 
-    void SetSelectedParameterID(uint32_t ID) override;
+    void SetSelectedParameterID(const std::string& ID) override;
 
 private:
 
@@ -114,7 +114,7 @@ private:
     static void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
 
     bool isPlaying = false;
-    uint32_t nowParameterID = 0;
+    std::string nowParameterID;
 
 };
 

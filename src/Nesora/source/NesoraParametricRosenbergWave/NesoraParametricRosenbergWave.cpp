@@ -30,7 +30,7 @@ void NesoraParametricRosenbergWave::SetParamater(double tau1, double tau2, doubl
     normal_noise = noise_level;
 }
 
-void NesoraParametricRosenbergWave::SetParamater(const std::map<uint32_t, double>& parameters) {
+void NesoraParametricRosenbergWave::SetParamater(const std::map<std::string, double>& parameters) {
     t1 = normal_t1;
     t2 = normal_t2;
     a0 = normal_a0;
@@ -54,11 +54,11 @@ void NesoraParametricRosenbergWave::SetParamater(const std::map<uint32_t, double
     if (noise > 1.0) noise = 1.0;
 }
 
-void NesoraParametricRosenbergWave::SetDelta(const std::map<uint32_t, ParametricNesoraRosenbergWaveParameter>& in_delta) {
+void NesoraParametricRosenbergWave::SetDelta(const std::map<std::string, ParametricNesoraRosenbergWaveParameter>& in_delta) {
     delta = in_delta;
 }
 
-void NesoraParametricRosenbergWave::AddDelta(uint32_t in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value) {
+void NesoraParametricRosenbergWave::AddDelta(const std::string& in_delta_ID, ParametricNesoraRosenbergWaveParameter in_delta_value) {
     delta[in_delta_ID] = in_delta_value;
 }
 
@@ -82,7 +82,7 @@ double NesoraParametricRosenbergWave::GetNoise() const {
     return normal_noise;
 }
 
-const NesoraRosenbergParameter NesoraParametricRosenbergWave::GetParametricSource(const std::map<uint32_t, double>& parameters) const {
+const NesoraRosenbergParameter NesoraParametricRosenbergWave::GetParametricSource(const std::map<std::string, double>& parameters) const {
     NesoraRosenbergParameter out;
     out.tau1 = normal_t1;
     out.tau2 = normal_t2;
@@ -109,7 +109,7 @@ const NesoraRosenbergParameter NesoraParametricRosenbergWave::GetParametricSourc
     return out;
 }
 
-const NesoraRosenbergParameter NesoraParametricRosenbergWave::GetParametricSource(const uint32_t parameterID, const double in_delta) const {
+const NesoraRosenbergParameter NesoraParametricRosenbergWave::GetParametricSource(const std::string& parameterID, const double in_delta) const {
     NesoraRosenbergParameter out;
     out.tau1 = normal_t1;
     out.tau2 = normal_t2;

@@ -176,12 +176,12 @@ public:
     void SetTimelineControl(NesoraDictionalyTimelineControl* control) { timelineControl = control; }
     void SetEnvelopeTimelineControl(NesoraDictionalyEnvelopelineControl* control) { envelopeTimelineControl = control; }
 
-    void SetSelectedParameterID(int ID) { selectedParameterID = ID; Refresh(); }
+    void SetSelectedParameterID(const std::string& ID) { selectedParameterID = ID; Refresh(); }
 private:
     NesoraDictionalyTimelineControl *timelineControl;
     NesoraDictionalyEnvelopelineControl* envelopeTimelineControl;
 
-    int selectedParameterID = 0;
+    std::string selectedParameterID;
 
     void OnPaint(wxPaintEvent& event);
 };
@@ -203,16 +203,17 @@ public:
 
     void Init();
 
+    void SetVoice(NesoraMikomiVoice* voice);
     void SetWord(ParametricNesoraDictionalyWord* word);
 
 private:
-    NesoraMikomiVoice* voice;
+    NesoraMikomiVoice* voice = nullptr;
     ParametricNesoraDictionalyWord* word;
 
     wxStaticText* timelineText;
     wxStaticText* envelopeTimelineText;
     wxStaticText* parameterText;
-    wxChoice* parameterComboBox;
+    wxChoice* parameterChoice;
 
     NesoraDictionalyTimelineControl* timelineControl;
     NesoraDictionalyEnvelopelineControl* envelopeTimelineControl;
@@ -229,7 +230,7 @@ private:
     void OnSize(wxSizeEvent& event);
     void OnMagnify(wxMouseEvent& event);
     void OnParameterChoice(wxCommandEvent& event);
-    void OnDropdown(wxCommandEvent& event);
+    void OnDropdown(wxMouseEvent& event);
 };
 
 

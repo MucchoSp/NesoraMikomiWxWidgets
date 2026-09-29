@@ -171,7 +171,7 @@ void NesoraDictionalyIndexScrollContainer::RemoveSelectCard() {
 }
 
 void NesoraDictionalyIndexScrollContainer::SelectItem(NesoraDictionalyIndexWord* item) {
-    if (selectedItem && selectedItem != item) {
+    if (selectedItem != nullptr && selectedItem != item) {
         selectedItem->SetSelected(false);
     }
         

@@ -291,28 +291,53 @@ void NesoraDictionalyEnvelopelineControl::OnPaint(wxPaintEvent& event) {
         if (word) {
             double overlapX = -word->overlapTime * pixelPerSecond - xOffset;
             double fixedX = (word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset;
-
+            double blankX = (word->blankTime + word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset + dynamicWidth * pixelPerSecond;
+            
             std::vector<wxPoint2DDouble> points;
-            points.push_back({(double)overlapX, (double)size.y});
+            std::vector<wxPoint2DDouble> fixedPoints;
+            std::vector<wxPoint2DDouble> blankPoints;
 
-            for (size_t i = 0; i < word->envelope.size(); i++) {
-                double timeX = word->envelope[i].time * pixelPerSecond + overlapX;
-                double valueY = size.y - (word->envelope[i].value * size.y);
+            points.push_back({(double)overlapX, (double)size.y});
+            fixedPoints.push_back({(double)overlapX, (double)size.y});
+            for (size_t i = 0; i < word->fixedEnvelope.size(); i++) {
+                double timeX = word->fixedEnvelope[i].time * pixelPerSecond + overlapX;
+                double valueY = size.y - (word->fixedEnvelope[i].value * size.y);
                 points.push_back({timeX, valueY});
+                fixedPoints.push_back({timeX, valueY});
             }
-            points.push_back({(double)fixedX, 0.0});
+            for (size_t i = 0; i < word->blankEnvelope.size(); i++) {
+                double timeX = word->blankEnvelope[i].time * pixelPerSecond + fixedX + dynamicWidth * pixelPerSecond;
+                double valueY = size.y - (word->blankEnvelope[i].value * size.y);
+                points.push_back({timeX, valueY});
+                blankPoints.push_back({timeX, valueY});
+            }
+            points.push_back({(double)blankX,(double)size.y});
+            blankPoints.push_back({(double)blankX,(double)size.y});
+            gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
             gc->StrokeLines(points.size(), points.data());
-            for (size_t i = 0; i < word->envelope.size(); i++) {
-                const auto& point = points[i + 1];
-                gc->SetPen(wxPen(nsGetColor(nsColorType::PRIMARY), 2));
-                gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
+
+            for (size_t i = 0; i < word->fixedEnvelope.size(); i++) {
+                const auto& point = fixedPoints[i + 1];
+                if (selectedFixedPointIndex == static_cast<int>(i)) {
+                    gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
+                    gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
+                } else {
+                    gc->SetPen(wxPen(nsGetColor(nsColorType::PRIMARY), 2));
+                    gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
+                }
                 gc->DrawEllipse(point.m_x - clickMargin, point.m_y - clickMargin, clickMargin * 2, clickMargin * 2);
             }
-            if (selectedPointIndex >= 0 && selectedPointIndex < static_cast<int>(word->envelope.size())) {
-                const auto& selectedPoint = points[selectedPointIndex + 1];
-                gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
-                gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
-                gc->DrawEllipse(selectedPoint.m_x - clickMargin, selectedPoint.m_y - clickMargin, clickMargin * 2, clickMargin * 2);
+
+            for (size_t i = 0; i < word->blankEnvelope.size(); i++) {
+                const auto& point = blankPoints[i];
+                if (selectedBlankPointIndex == static_cast<int>(i)) {
+                    gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
+                    gc->SetBrush(wxBrush(nsGetColor(nsColorType::SECONDARY)));
+                } else {
+                    gc->SetPen(wxPen(nsGetColor(nsColorType::PRIMARY), 2));
+                    gc->SetBrush(wxBrush(nsGetColor(nsColorType::BACKGROUND)));
+                }
+                gc->DrawEllipse(point.m_x - clickMargin, point.m_y - clickMargin, clickMargin * 2, clickMargin * 2);
             }
         }
 
@@ -327,22 +352,57 @@ void NesoraDictionalyEnvelopelineControl::OnLeftDown(wxMouseEvent& event) {
 
 void NesoraDictionalyEnvelopelineControl::OnLeftUp(wxMouseEvent& event) {
     isDragging = false;
-    if (selectedPointIndex >= 0 && word && selectedPointIndex < static_cast<int>(word->envelope.size())) {
-        std::sort(word->envelope.begin(), word->envelope.end(), [](const auto& a, const auto& b) {
+    if (selectedFixedPointIndex >= 0 && word && selectedFixedPointIndex < static_cast<int>(word->fixedEnvelope.size())) {
+        if (word->fixedEnvelope[selectedFixedPointIndex].time < 0.0) {
+            word->fixedEnvelope[selectedFixedPointIndex].time = 0.0;
+        } else if (word->fixedEnvelope[selectedFixedPointIndex].time > word->fixedTime) {
+            word->fixedEnvelope[selectedFixedPointIndex].time = word->fixedTime;
+        }
+        std::sort(word->fixedEnvelope.begin(), word->fixedEnvelope.end(), [](const auto& a, const auto& b) {
             return a.time < b.time;
         });
         Refresh();
     }
-    selectedPointIndex = -1;
+    if (selectedBlankPointIndex >= 0 && word && selectedBlankPointIndex < static_cast<int>(word->blankEnvelope.size())) {
+        if (word->blankEnvelope[selectedBlankPointIndex].time < 0.0) {
+            word->blankEnvelope[selectedBlankPointIndex].time = 0.0;
+        } else if (word->blankEnvelope[selectedBlankPointIndex].time > word->blankTime) {
+            word->blankEnvelope[selectedBlankPointIndex].time = word->blankTime;
+        }
+        std::sort(word->blankEnvelope.begin(), word->blankEnvelope.end(), [](const auto& a, const auto& b) {
+            return a.time < b.time;
+        });
+        Refresh();
+    }
 }
 
 void NesoraDictionalyEnvelopelineControl::OnRigthtDown(wxMouseEvent& event) {
     lastMousePosition = event.GetPosition();
     if (word) {
-        word->envelope.push_back({(lastMousePosition.x + xOffset) / pixelPerSecond + word->overlapTime, 1.0 - ((double)lastMousePosition.y / (double)GetSize().y)});
-        std::sort(word->envelope.begin(), word->envelope.end(), [](const auto& a, const auto& b) {
-            return a.time < b.time;
-        });
+
+        double overlapX = -word->overlapTime * pixelPerSecond - xOffset;
+        double fixedX = (word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset;
+        double blankX = (word->blankTime + word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset + dynamicWidth * pixelPerSecond;
+
+        if (selectedFixedPointIndex >= 0 && selectedFixedPointIndex < static_cast<int>(word->fixedEnvelope.size())) {
+            word->fixedEnvelope.erase(word->fixedEnvelope.begin() + selectedFixedPointIndex);
+            selectedFixedPointIndex = -1;
+        } else if (selectedBlankPointIndex >= 0 && selectedBlankPointIndex < static_cast<int>(word->blankEnvelope.size())) {
+            word->blankEnvelope.erase(word->blankEnvelope.begin() + selectedBlankPointIndex);
+            selectedBlankPointIndex = -1;
+        } else {
+            if (lastMousePosition.x >= overlapX && lastMousePosition.x < fixedX) {
+                word->fixedEnvelope.push_back({(lastMousePosition.x + xOffset) / pixelPerSecond + word->overlapTime, 1.0 - ((double)lastMousePosition.y / (double)GetSize().y)});
+                std::sort(word->fixedEnvelope.begin(), word->fixedEnvelope.end(), [](const auto& a, const auto& b) {
+                    return a.time < b.time;
+                });
+            } else if (lastMousePosition.x >= fixedX + dynamicWidth * pixelPerSecond && lastMousePosition.x < blankX) {
+                word->blankEnvelope.push_back({(lastMousePosition.x + xOffset) / pixelPerSecond + word->overlapTime - dynamicWidth - word->fixedTime, 1.0 - ((double)lastMousePosition.y / (double)GetSize().y)});
+                std::sort(word->blankEnvelope.begin(), word->blankEnvelope.end(), [](const auto& a, const auto& b) {
+                    return a.time < b.time;
+                });
+            }
+        }
         Refresh();
     }
 }
@@ -351,19 +411,42 @@ void NesoraDictionalyEnvelopelineControl::OnRightUp(wxMouseEvent& event) {
 }
 
 void NesoraDictionalyEnvelopelineControl::OnMouseMove(wxMouseEvent& event) {
-    static int oldSelectedPointIndex = -1;
+    static int oldSelectedFixedPointIndex = -1, oldSelectedFBlankPointIndex = -1;
     if (isDragging) {
         wxPoint currentPosition = event.GetPosition();
         int deltaX = currentPosition.x - lastMousePosition.x;
         int deltaY = currentPosition.y - lastMousePosition.y;
 
-        if (selectedPointIndex >= 0 && selectedPointIndex < static_cast<int>(word->envelope.size())) {
-            word->envelope[selectedPointIndex].time += deltaX / pixelPerSecond;
-            word->envelope[selectedPointIndex].value -= deltaY / (double)GetSize().y;
-            if (word->envelope[selectedPointIndex].value < 0.0) {
-                word->envelope[selectedPointIndex].value = 0.0;
-            } else if (word->envelope[selectedPointIndex].value > 1.0) {
-                word->envelope[selectedPointIndex].value = 1.0;
+
+        double overlapX = -word->overlapTime * pixelPerSecond - xOffset;
+        double fixedX = (word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset;
+        double blankX = (word->blankTime + word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset + dynamicWidth * pixelPerSecond;
+
+        if (selectedFixedPointIndex >= 0 && selectedFixedPointIndex < static_cast<int>(word->fixedEnvelope.size())) {
+            word->fixedEnvelope[selectedFixedPointIndex].time = (currentPosition.x + xOffset) / pixelPerSecond + word->overlapTime;
+            word->fixedEnvelope[selectedFixedPointIndex].value = 1.0 - ((double)currentPosition.y / (double)GetSize().y);
+            if (word->fixedEnvelope[selectedFixedPointIndex].value < 0.0) {
+                word->fixedEnvelope[selectedFixedPointIndex].value = 0.0;
+            } else if (word->fixedEnvelope[selectedFixedPointIndex].value > 1.0) {
+                word->fixedEnvelope[selectedFixedPointIndex].value = 1.0;
+            }
+            if (word->fixedEnvelope[selectedFixedPointIndex].time < 0.0) {
+                word->fixedEnvelope[selectedFixedPointIndex].time = 0.0;
+            } else if (word->fixedEnvelope[selectedFixedPointIndex].time > word->fixedTime) {
+                word->fixedEnvelope[selectedFixedPointIndex].time = word->fixedTime;
+            }
+        } else if (selectedBlankPointIndex >= 0 && selectedBlankPointIndex < static_cast<int>(word->blankEnvelope.size())) {
+            word->blankEnvelope[selectedBlankPointIndex].time = (currentPosition.x + xOffset) / pixelPerSecond - dynamicWidth - (word->fixedTime - word->overlapTime);
+            word->blankEnvelope[selectedBlankPointIndex].value = 1.0 - ((double)currentPosition.y / (double)GetSize().y);
+            if (word->blankEnvelope[selectedBlankPointIndex].value < 0.0) {
+                word->blankEnvelope[selectedBlankPointIndex].value = 0.0;
+            } else if (word->blankEnvelope[selectedBlankPointIndex].value > 1.0) {
+                word->blankEnvelope[selectedBlankPointIndex].value = 1.0;
+            }
+            if (word->blankEnvelope[selectedBlankPointIndex].time < 0.0) {
+                word->blankEnvelope[selectedBlankPointIndex].time = 0.0;
+            } else if (word->blankEnvelope[selectedBlankPointIndex].time > word->blankTime) {
+                word->blankEnvelope[selectedBlankPointIndex].time = word->blankTime;
             }
         }
 
@@ -373,25 +456,39 @@ void NesoraDictionalyEnvelopelineControl::OnMouseMove(wxMouseEvent& event) {
         // マウスポインタの更新
         if (word) {
             SetCursor(wxCursor(wxCURSOR_ARROW));
-            selectedPointIndex = -1;
-            for (int i = 0; i < word->envelope.size(); i++) {
+
+            selectedFixedPointIndex = -1;
+            for (int i = 0; i < word->fixedEnvelope.size(); i++) {
                 double overlapX = -word->overlapTime * pixelPerSecond - xOffset;
-                double timeX = word->envelope[i].time * pixelPerSecond + overlapX;
-                double valueY = GetSize().y - (word->envelope[i].value * GetSize().y);
+                double timeX = word->fixedEnvelope[i].time * pixelPerSecond + overlapX;
+                double valueY = GetSize().y - (word->fixedEnvelope[i].value * GetSize().y);
                 if (std::abs(event.GetPosition().x - timeX) <= clickMargin && std::abs(event.GetPosition().y - valueY) <= clickMargin) {
                     SetCursor(wxCursor(wxCURSOR_HAND));
-                    selectedPointIndex = i;
+                    selectedFixedPointIndex = i;
+                    break;
+                }
+            }
+            selectedBlankPointIndex = -1;
+            for (int i = 0; i < word->blankEnvelope.size(); i++) {
+                double timeX = (word->blankEnvelope[i].time + (word->fixedTime - word->overlapTime) + dynamicWidth) * pixelPerSecond - xOffset;
+                double valueY = GetSize().y - (word->blankEnvelope[i].value * GetSize().y);
+                if (std::abs(event.GetPosition().x - timeX) <= clickMargin && std::abs(event.GetPosition().y - valueY) <= clickMargin) {
+                    SetCursor(wxCursor(wxCURSOR_HAND));
+                    selectedBlankPointIndex = i;
                     break;
                 }
             }
         }
     }
 
-    if ((event.Dragging() && HasCapture()) || selectedPointIndex != oldSelectedPointIndex) {
+    if ((event.Dragging() && HasCapture()) || selectedFixedPointIndex != oldSelectedFixedPointIndex) {
         Refresh();
-        oldSelectedPointIndex = selectedPointIndex;
+        oldSelectedFixedPointIndex = selectedFixedPointIndex;
     }
-
+    if ((event.Dragging() && HasCapture()) || selectedBlankPointIndex != oldSelectedFBlankPointIndex) {
+        Refresh();
+        oldSelectedFBlankPointIndex = selectedBlankPointIndex;
+    }
     event.Skip();
 }
 

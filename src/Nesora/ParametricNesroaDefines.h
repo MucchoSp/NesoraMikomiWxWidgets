@@ -139,7 +139,8 @@ struct ParametricNesoraDictionalyWord {
     std::string word;
     std::string symbol;
     std::map<std::string, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>> parameterDeltas;   // パラメータの変化
-    std::vector<ParametricNesoraDictionalyEnvelopePoint> envelope;             // エンベロープのリスト
+    std::vector<ParametricNesoraDictionalyEnvelopePoint> fixedEnvelope;             // エンベロープのリスト
+    std::vector<ParametricNesoraDictionalyEnvelopePoint> blankEnvelope;             // エンベロープのリスト
 
 
     /*

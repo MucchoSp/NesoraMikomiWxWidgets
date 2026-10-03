@@ -147,7 +147,8 @@ private:
     NesoraDictionalyTimelineControl *timelineControl;
     NesoraDictionalyParameterControl* parameterControl;
 
-    int selectedPointIndex = -1;
+    int selectedFixedPointIndex = -1;
+    int selectedBlankPointIndex = -1;
 
     void OnPaint(wxPaintEvent& event);
     void OnLeftDown(wxMouseEvent& event);

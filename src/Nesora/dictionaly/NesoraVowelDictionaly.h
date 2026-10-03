@@ -23,7 +23,7 @@ public:
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;
 
-    void AddWord(const std::string& word, const std::map<std::string, std::vector<ParametricNesoraDictionalyWordDeltaAndTime>>& parameterDeltas);
+    void AddWord(const std::string& word, const std::map<std::string, std::vector<ParametricNesoraDictionalyWordParameterValueAndTime>>& parameterValues);
     ParametricNesoraDictionalyWord GetWord(const std::string& word) const;
     ParametricNesoraDictionalyWord& GetWord(const std::string& word);
 

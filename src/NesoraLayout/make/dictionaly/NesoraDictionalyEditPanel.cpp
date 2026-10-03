@@ -38,6 +38,21 @@ int GetTickDecimalPlaces(double tickStep) {
     return std::max(0, static_cast<int>(std::ceil(-std::log10(tickStep))));
 }
 
+double ParameterValueToScreenY(double value, double height) {
+    return height * (1.0 - value);
+}
+
+double ScreenYToParameterValue(double screenY, double height) {
+    if (height <= 0.0) {
+        return 0.0;
+    }
+    return 1.0 - screenY / height;
+}
+
+double ClampParameterValue(double value) {
+    return std::clamp(value, 0.0, 1.0);
+}
+
 }
 
 
@@ -503,6 +518,11 @@ void NesoraDictionalyParameterControl::Init() {
     SetMinSize(wxSize(-1, 100));
 
     Bind(wxEVT_PAINT, &NesoraDictionalyParameterControl::OnPaint, this);
+    Bind(wxEVT_LEFT_DOWN, &NesoraDictionalyParameterControl::OnLeftDown, this);
+    Bind(wxEVT_LEFT_UP, &NesoraDictionalyParameterControl::OnLeftUp, this);
+    Bind(wxEVT_RIGHT_DOWN, &NesoraDictionalyParameterControl::OnRightDown, this);
+    Bind(wxEVT_RIGHT_UP, &NesoraDictionalyParameterControl::OnRightUp, this);
+    Bind(wxEVT_MOTION, &NesoraDictionalyParameterControl::OnMouseMove, this);
 }
 
 void NesoraDictionalyParameterControl::OnPaint(wxPaintEvent& event) {
@@ -520,11 +540,174 @@ void NesoraDictionalyParameterControl::OnPaint(wxPaintEvent& event) {
         gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
         wxPoint2DDouble points[] = { {(double)-xOffset, 0.0}, {(double)-xOffset, (double)size.y} };
         DrawTimeBox(gc, size, dynamicWidth);
-        if (word) {
+        if (word && !selectedParameterID.empty()) {
+            const auto fixedParameter = word->fixedParameterValues.find(selectedParameterID);
+            const auto blankParameter = word->blankParameterValues.find(selectedParameterID);
+            const auto* fixedValues = fixedParameter == word->fixedParameterValues.end() ? nullptr : &fixedParameter->second;
+            const auto* blankValues = blankParameter == word->blankParameterValues.end() ? nullptr : &blankParameter->second;
+            double overlapX = -word->overlapTime * pixelPerSecond - xOffset;
+            double fixedX = (word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset;
+            double blankX = (word->blankTime + word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset + dynamicWidth * pixelPerSecond;
+            std::vector<wxPoint2DDouble> points;
+            std::vector<wxPoint2DDouble> fixedPoints;
+            std::vector<wxPoint2DDouble> blankPoints;
+            const double zeroY = ParameterValueToScreenY(0.0, size.y);
+
+            points.push_back({overlapX, zeroY});
+            fixedPoints.push_back({overlapX, zeroY});
+            if (fixedValues) {
+                for (const auto& value : *fixedValues) {
+                    double timeX = value.time * pixelPerSecond + overlapX;
+                    double valueY = ParameterValueToScreenY(value.parameterValue, size.y);
+                    points.push_back({timeX, valueY});
+                    fixedPoints.push_back({timeX, valueY});
+                }
+            }
+            if (blankValues) {
+                for (const auto& value : *blankValues) {
+                    double timeX = (value.time + word->fixedTime - word->overlapTime + dynamicWidth) * pixelPerSecond - xOffset;
+                    double valueY = ParameterValueToScreenY(value.parameterValue, size.y);
+                    points.push_back({timeX, valueY});
+                    blankPoints.push_back({timeX, valueY});
+                }
+            }
+            points.push_back({blankX, zeroY});
+            gc->SetPen(wxPen(nsGetColor(nsColorType::SECONDARY), 2));
+            gc->StrokeLines(points.size(), points.data());
+            gc->StrokeLine(0.0, zeroY, size.x, zeroY);
+
+            if (fixedValues) {
+                for (size_t i = 0; i < fixedValues->size(); ++i) {
+                    const auto& point = fixedPoints[i + 1];
+                    bool selected = selectedFixedPointIndex == static_cast<int>(i);
+                    gc->SetPen(wxPen(nsGetColor(selected ? nsColorType::SECONDARY : nsColorType::PRIMARY), 2));
+                    gc->SetBrush(wxBrush(nsGetColor(selected ? nsColorType::SECONDARY : nsColorType::BACKGROUND)));
+                    gc->DrawEllipse(point.m_x - clickMargin, point.m_y - clickMargin, clickMargin * 2, clickMargin * 2);
+                }
+            }
+            if (blankValues) {
+                for (size_t i = 0; i < blankValues->size(); ++i) {
+                    const auto& point = blankPoints[i];
+                    bool selected = selectedBlankPointIndex == static_cast<int>(i);
+                    gc->SetPen(wxPen(nsGetColor(selected ? nsColorType::SECONDARY : nsColorType::PRIMARY), 2));
+                    gc->SetBrush(wxBrush(nsGetColor(selected ? nsColorType::SECONDARY : nsColorType::BACKGROUND)));
+                    gc->DrawEllipse(point.m_x - clickMargin, point.m_y - clickMargin, clickMargin * 2, clickMargin * 2);
+                }
+            }
         }
 
         delete gc;
     }
+}
+
+void NesoraDictionalyParameterControl::OnLeftDown(wxMouseEvent& event) {
+    isDragging = true;
+    lastMousePosition = event.GetPosition();
+    CaptureMouse();
+}
+
+void NesoraDictionalyParameterControl::OnLeftUp(wxMouseEvent& event) {
+    isDragging = false;
+    if (HasCapture()) {
+        ReleaseMouse();
+    }
+    if (!word || selectedParameterID.empty()) {
+        return;
+    }
+
+    auto fixedParameter = word->fixedParameterValues.find(selectedParameterID);
+    if (fixedParameter != word->fixedParameterValues.end() && selectedFixedPointIndex >= 0 && selectedFixedPointIndex < static_cast<int>(fixedParameter->second.size())) {
+        std::sort(fixedParameter->second.begin(), fixedParameter->second.end(), [](const auto& left, const auto& right) { return left.time < right.time; });
+    }
+    auto blankParameter = word->blankParameterValues.find(selectedParameterID);
+    if (blankParameter != word->blankParameterValues.end() && selectedBlankPointIndex >= 0 && selectedBlankPointIndex < static_cast<int>(blankParameter->second.size())) {
+        std::sort(blankParameter->second.begin(), blankParameter->second.end(), [](const auto& left, const auto& right) { return left.time < right.time; });
+    }
+    Refresh();
+}
+
+void NesoraDictionalyParameterControl::OnRightDown(wxMouseEvent& event) {
+    if (!word || selectedParameterID.empty()) {
+        return;
+    }
+
+    auto fixedParameter = word->fixedParameterValues.find(selectedParameterID);
+    auto blankParameter = word->blankParameterValues.find(selectedParameterID);
+    if (selectedFixedPointIndex >= 0 && fixedParameter != word->fixedParameterValues.end() && selectedFixedPointIndex < static_cast<int>(fixedParameter->second.size())) {
+        fixedParameter->second.erase(fixedParameter->second.begin() + selectedFixedPointIndex);
+        selectedFixedPointIndex = -1;
+    } else if (selectedBlankPointIndex >= 0 && blankParameter != word->blankParameterValues.end() && selectedBlankPointIndex < static_cast<int>(blankParameter->second.size())) {
+        blankParameter->second.erase(blankParameter->second.begin() + selectedBlankPointIndex);
+        selectedBlankPointIndex = -1;
+    } else {
+        double overlapX = -word->overlapTime * pixelPerSecond - xOffset;
+        double fixedX = (word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset;
+        double blankX = (word->blankTime + word->fixedTime - word->overlapTime) * pixelPerSecond - xOffset + dynamicWidth * pixelPerSecond;
+        wxPoint position = event.GetPosition();
+        if (position.x >= overlapX && position.x < fixedX) {
+            auto& values = word->fixedParameterValues[selectedParameterID];
+            values.push_back({(position.x + xOffset) / pixelPerSecond + word->overlapTime, ClampParameterValue(ScreenYToParameterValue(position.y, GetSize().y))});
+            std::sort(values.begin(), values.end(), [](const auto& left, const auto& right) { return left.time < right.time; });
+        } else if (position.x >= fixedX + dynamicWidth * pixelPerSecond && position.x < blankX) {
+            auto& values = word->blankParameterValues[selectedParameterID];
+            values.push_back({(position.x + xOffset) / pixelPerSecond - dynamicWidth - (word->fixedTime - word->overlapTime), ClampParameterValue(ScreenYToParameterValue(position.y, GetSize().y))});
+            std::sort(values.begin(), values.end(), [](const auto& left, const auto& right) { return left.time < right.time; });
+        }
+    }
+    Refresh();
+}
+
+void NesoraDictionalyParameterControl::OnRightUp(wxMouseEvent& event) {
+}
+
+void NesoraDictionalyParameterControl::OnMouseMove(wxMouseEvent& event) {
+    if (!word || selectedParameterID.empty()) {
+        return;
+    }
+
+    auto fixedParameter = word->fixedParameterValues.find(selectedParameterID);
+    auto blankParameter = word->blankParameterValues.find(selectedParameterID);
+    if (isDragging) {
+        wxPoint currentPosition = event.GetPosition();
+        if (selectedFixedPointIndex >= 0 && fixedParameter != word->fixedParameterValues.end() && selectedFixedPointIndex < static_cast<int>(fixedParameter->second.size())) {
+            auto& value = fixedParameter->second[selectedFixedPointIndex];
+            value.time = std::clamp((currentPosition.x + xOffset) / pixelPerSecond + word->overlapTime, 0.0, word->fixedTime);
+            value.parameterValue = ClampParameterValue(ScreenYToParameterValue(currentPosition.y, GetSize().y));
+        } else if (selectedBlankPointIndex >= 0 && blankParameter != word->blankParameterValues.end() && selectedBlankPointIndex < static_cast<int>(blankParameter->second.size())) {
+            auto& value = blankParameter->second[selectedBlankPointIndex];
+            value.time = std::clamp((currentPosition.x + xOffset) / pixelPerSecond - dynamicWidth - (word->fixedTime - word->overlapTime), 0.0, word->blankTime);
+            value.parameterValue = ClampParameterValue(ScreenYToParameterValue(currentPosition.y, GetSize().y));
+        }
+        lastMousePosition = currentPosition;
+        Refresh();
+        return;
+    }
+
+    selectedFixedPointIndex = -1;
+    if (fixedParameter != word->fixedParameterValues.end()) {
+        double overlapX = -word->overlapTime * pixelPerSecond - xOffset;
+        for (size_t i = 0; i < fixedParameter->second.size(); ++i) {
+            double timeX = fixedParameter->second[i].time * pixelPerSecond + overlapX;
+            double valueY = ParameterValueToScreenY(fixedParameter->second[i].parameterValue, GetSize().y);
+            if (std::abs(event.GetPosition().x - timeX) <= clickMargin && std::abs(event.GetPosition().y - valueY) <= clickMargin) {
+                selectedFixedPointIndex = static_cast<int>(i);
+                break;
+            }
+        }
+    }
+    selectedBlankPointIndex = -1;
+    if (blankParameter != word->blankParameterValues.end()) {
+        for (size_t i = 0; i < blankParameter->second.size(); ++i) {
+            double timeX = (blankParameter->second[i].time + word->fixedTime - word->overlapTime + dynamicWidth) * pixelPerSecond - xOffset;
+            double valueY = ParameterValueToScreenY(blankParameter->second[i].parameterValue, GetSize().y);
+            if (std::abs(event.GetPosition().x - timeX) <= clickMargin && std::abs(event.GetPosition().y - valueY) <= clickMargin) {
+                selectedBlankPointIndex = static_cast<int>(i);
+                break;
+            }
+        }
+    }
+    SetCursor(wxCursor(selectedFixedPointIndex >= 0 || selectedBlankPointIndex >= 0 ? wxCURSOR_HAND : wxCURSOR_ARROW));
+    Refresh();
 }
 
 

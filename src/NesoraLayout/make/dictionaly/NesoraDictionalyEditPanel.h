@@ -177,14 +177,26 @@ public:
     void SetTimelineControl(NesoraDictionalyTimelineControl* control) { timelineControl = control; }
     void SetEnvelopeTimelineControl(NesoraDictionalyEnvelopelineControl* control) { envelopeTimelineControl = control; }
 
-    void SetSelectedParameterID(const std::string& ID) { selectedParameterID = ID; Refresh(); }
+    void SetSelectedParameterID(const std::string& ID) {
+        selectedParameterID = ID;
+        selectedFixedPointIndex = -1;
+        selectedBlankPointIndex = -1;
+        Refresh();
+    }
 private:
     NesoraDictionalyTimelineControl *timelineControl;
     NesoraDictionalyEnvelopelineControl* envelopeTimelineControl;
 
     std::string selectedParameterID;
+    int selectedFixedPointIndex = -1;
+    int selectedBlankPointIndex = -1;
 
     void OnPaint(wxPaintEvent& event);
+    void OnLeftDown(wxMouseEvent& event);
+    void OnLeftUp(wxMouseEvent& event);
+    void OnRightDown(wxMouseEvent& event);
+    void OnRightUp(wxMouseEvent& event);
+    void OnMouseMove(wxMouseEvent& event);
 };
 
 

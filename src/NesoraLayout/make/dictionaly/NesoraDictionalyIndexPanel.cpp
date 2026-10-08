@@ -154,6 +154,9 @@ void NesoraDictionalyIndexScrollContainer::OnEscapePressed(wxCommandEvent& event
 
 void NesoraDictionalyIndexScrollContainer::AddCard() {
     NesoraDictionalyIndexWord* card = new NesoraDictionalyIndexWord(this);
+    card->word.word = "New Word";
+    card->word.symbol = "???";
+    card->ChangeWord();
     
     mainSizer->Add(card, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
@@ -178,11 +181,13 @@ void NesoraDictionalyIndexScrollContainer::SelectItem(NesoraDictionalyIndexWord*
     selectedItem = item;
     if (selectedItem) {
         selectedItem->SetSelected(true);
-    }
 
-    if (editPanel) {
-        if (selectedItem)
+        if (editPanel) {
             editPanel->SetWord(selectedItem);
+        }
+        if (playPanel) {
+            playPanel->SetWord(selectedItem);
+        }
     }
 }
 

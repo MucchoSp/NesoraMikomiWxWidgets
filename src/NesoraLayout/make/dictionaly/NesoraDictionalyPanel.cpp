@@ -9,16 +9,21 @@ void nsDictionalyPanel::Init() {
     dictionaly = new NesoraThroughDictionaly();
 
 
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* horizontalSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
     index = new NesoraDictionalyIndexPanel(this, wxID_ANY);
     editDictionalyPanel = new NesoraDictionalyEditPanel(this, wxID_ANY);
+    playPanel = new NesoraDictionalyPlayPanel(this, wxID_ANY);
     
-    mainSizer->Add(index, 0, wxEXPAND | wxALL);
-    mainSizer->Add(editDictionalyPanel, 1, wxEXPAND | wxALL);
-
+    mainSizer->Add(playPanel, 0, wxEXPAND | wxALL);
+    horizontalSizer->Add(index, 0, wxEXPAND | wxALL);
+    horizontalSizer->Add(editDictionalyPanel, 1, wxEXPAND | wxALL);
+    mainSizer->Add(horizontalSizer, 1, wxEXPAND | wxALL);
+    
     SetSizer(mainSizer);
-
+    
+    index->SetPlayPanel(playPanel);
     index->SetEditPanel(editDictionalyPanel);
 }
 
@@ -27,6 +32,7 @@ void nsDictionalyPanel::SetVoice(NesoraMikomiVoice* voice) {
     voice->SetDictionaly(dictionaly);
     index->SetVoice(voice);
     editDictionalyPanel->SetVoice(voice);
+    playPanel->SetVoice(voice);
 }
 
 void nsDictionalyPanel::OnSave(wxCommandEvent& event) {

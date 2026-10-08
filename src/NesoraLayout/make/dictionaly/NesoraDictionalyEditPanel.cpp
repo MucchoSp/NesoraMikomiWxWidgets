@@ -558,7 +558,7 @@ void NesoraDictionalyParameterControl::OnPaint(wxPaintEvent& event) {
             if (fixedValues) {
                 for (const auto& value : *fixedValues) {
                     double timeX = value.time * pixelPerSecond + overlapX;
-                    double valueY = ParameterValueToScreenY(value.parameterValue, size.y);
+                    double valueY = ParameterValueToScreenY(value.value, size.y);
                     points.push_back({timeX, valueY});
                     fixedPoints.push_back({timeX, valueY});
                 }
@@ -566,7 +566,7 @@ void NesoraDictionalyParameterControl::OnPaint(wxPaintEvent& event) {
             if (blankValues) {
                 for (const auto& value : *blankValues) {
                     double timeX = (value.time + word->fixedTime - word->overlapTime + dynamicWidth) * pixelPerSecond - xOffset;
-                    double valueY = ParameterValueToScreenY(value.parameterValue, size.y);
+                    double valueY = ParameterValueToScreenY(value.value, size.y);
                     points.push_back({timeX, valueY});
                     blankPoints.push_back({timeX, valueY});
                 }
@@ -672,11 +672,11 @@ void NesoraDictionalyParameterControl::OnMouseMove(wxMouseEvent& event) {
         if (selectedFixedPointIndex >= 0 && fixedParameter != word->fixedParameterValues.end() && selectedFixedPointIndex < static_cast<int>(fixedParameter->second.size())) {
             auto& value = fixedParameter->second[selectedFixedPointIndex];
             value.time = std::clamp((currentPosition.x + xOffset) / pixelPerSecond + word->overlapTime, 0.0, word->fixedTime);
-            value.parameterValue = ClampParameterValue(ScreenYToParameterValue(currentPosition.y, GetSize().y));
+            value.value = ClampParameterValue(ScreenYToParameterValue(currentPosition.y, GetSize().y));
         } else if (selectedBlankPointIndex >= 0 && blankParameter != word->blankParameterValues.end() && selectedBlankPointIndex < static_cast<int>(blankParameter->second.size())) {
             auto& value = blankParameter->second[selectedBlankPointIndex];
             value.time = std::clamp((currentPosition.x + xOffset) / pixelPerSecond - dynamicWidth - (word->fixedTime - word->overlapTime), 0.0, word->blankTime);
-            value.parameterValue = ClampParameterValue(ScreenYToParameterValue(currentPosition.y, GetSize().y));
+            value.value = ClampParameterValue(ScreenYToParameterValue(currentPosition.y, GetSize().y));
         }
         lastMousePosition = currentPosition;
         Refresh();
@@ -688,7 +688,7 @@ void NesoraDictionalyParameterControl::OnMouseMove(wxMouseEvent& event) {
         double overlapX = -word->overlapTime * pixelPerSecond - xOffset;
         for (size_t i = 0; i < fixedParameter->second.size(); ++i) {
             double timeX = fixedParameter->second[i].time * pixelPerSecond + overlapX;
-            double valueY = ParameterValueToScreenY(fixedParameter->second[i].parameterValue, GetSize().y);
+            double valueY = ParameterValueToScreenY(fixedParameter->second[i].value, GetSize().y);
             if (std::abs(event.GetPosition().x - timeX) <= clickMargin && std::abs(event.GetPosition().y - valueY) <= clickMargin) {
                 selectedFixedPointIndex = static_cast<int>(i);
                 break;
@@ -699,7 +699,7 @@ void NesoraDictionalyParameterControl::OnMouseMove(wxMouseEvent& event) {
     if (blankParameter != word->blankParameterValues.end()) {
         for (size_t i = 0; i < blankParameter->second.size(); ++i) {
             double timeX = (blankParameter->second[i].time + word->fixedTime - word->overlapTime + dynamicWidth) * pixelPerSecond - xOffset;
-            double valueY = ParameterValueToScreenY(blankParameter->second[i].parameterValue, GetSize().y);
+            double valueY = ParameterValueToScreenY(blankParameter->second[i].value, GetSize().y);
             if (std::abs(event.GetPosition().x - timeX) <= clickMargin && std::abs(event.GetPosition().y - valueY) <= clickMargin) {
                 selectedBlankPointIndex = static_cast<int>(i);
                 break;

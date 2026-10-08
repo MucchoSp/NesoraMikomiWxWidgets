@@ -13,6 +13,7 @@
 
 #include "NesoraDictionalyIndexPanel.h"
 #include "NesoraDictionalyEditPanel.h"
+#include "NesoraDictionalyPlayPanel.h"
 #include "../../../NesoraStyle/NesoraStyle.h"
 #include "../../../NesoraLayout/NesoraIDs.h"
 
@@ -42,10 +43,11 @@ public:
 
 private:
     NesoraMikomiVoice* voice;
-    NesoraDictionalyBase* dictionaly; // TODO: 仮
+    NesoraDictionalyBase* dictionaly = nullptr;
 
     NesoraDictionalyIndexPanel* index;
     NesoraDictionalyEditPanel* editDictionalyPanel;
+    NesoraDictionalyPlayPanel* playPanel;
 
     void menuSetup();
     

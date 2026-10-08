@@ -3,13 +3,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "NesoraVowelDictionaly.h"
 
+#include <algorithm>
+
 // MARK: NesoraVowelDictionaly
 
 int NesoraVowelDictionaly::GetWord(int idx, ParametricNesoraParameterValue* outputParameters, double* outputPitch, double* outputEnvelope) {
-    // ParametricNesoraDictionalyWord param = parameters[script->GetWord(t)];
+    if (idx < 0 || idx >= static_cast<int>(outputPitchList.size())) {
+        *outputParameters = ParametricNesoraParameterValue();
+        *outputPitch = 0.0;
+        *outputEnvelope = 0.0;
+        return -1; // インデックスが範囲外の場合はエラーコードを返す
+    }
+    
+    *outputParameters = outputParameterList[idx];
+    *outputPitch = outputPitchList[idx];
+    *outputEnvelope = outputEnvelopeList[idx];
 
-    
-    
     return 0;
 }
 
@@ -41,7 +50,7 @@ NesoraScriptBase* NesoraVowelDictionaly::GetScript() {
     return script;
 }
 
-void NesoraVowelDictionaly::AddWord(const std::string& word, const std::map<std::string, std::vector<ParametricNesoraDictionalyWordParameterValueAndTime>>& parameterValues) {
+void NesoraVowelDictionaly::AddWord(const std::string& word, const std::map<std::string, std::vector<ParametricNesoraDictionalyValueAndTime>>& parameterValues) {
     ParametricNesoraDictionalyWord newWord;
     newWord.word = word;
     newWord.fixedParameterValues = parameterValues;

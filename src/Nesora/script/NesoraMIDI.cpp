@@ -296,6 +296,21 @@ double NesoraMIDIPhoneticalScript::GetEnvelope(double t) {
 }
 
 std::string NesoraMIDIPhoneticalScript::GetWord(double t) {
+    double noteStartTime = 0.0;
+    double noteEndTime = 0.0;
+    for (size_t i = 0; i < notes.size(); i++) {
+        const auto& note = notes[i];
+        noteStartTime = noteEndTime;
+        noteEndTime = noteStartTime + note.length;
+
+        if (t >= noteStartTime and t <= noteEndTime) {
+            // 現在のノートの範囲内
+            double localT = t - noteStartTime;
+            return note.phoneticSymbol;
+        }
+        
+    }
+
     return std::string();
 }
 

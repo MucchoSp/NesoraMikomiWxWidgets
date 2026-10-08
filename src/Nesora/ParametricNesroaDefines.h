@@ -125,12 +125,7 @@ struct NesoraMidiNotePhoneticalInfo {
 
 // MARK: 辞書
 
-struct ParametricNesoraDictionalyWordParameterValueAndTime {
-    double time;                            // 値が設定されるタイミング(秒)
-    double parameterValue;                  // パラメータの値
-};
-
-struct ParametricNesoraDictionalyEnvelopePoint {
+struct ParametricNesoraDictionalyValueAndTime {
     double time;   // 時間(秒)
     double value;  // 値
 };
@@ -138,10 +133,10 @@ struct ParametricNesoraDictionalyEnvelopePoint {
 struct ParametricNesoraDictionalyWord {
     std::string word;
     std::string symbol;
-    std::map<std::string, std::vector<ParametricNesoraDictionalyWordParameterValueAndTime>> fixedParameterValues;   // パラメータの値
-    std::map<std::string, std::vector<ParametricNesoraDictionalyWordParameterValueAndTime>> blankParameterValues;   // パラメータの値
-    std::vector<ParametricNesoraDictionalyEnvelopePoint> fixedEnvelope;             // エンベロープのリスト
-    std::vector<ParametricNesoraDictionalyEnvelopePoint> blankEnvelope;             // エンベロープのリスト
+    std::map<std::string, std::vector<ParametricNesoraDictionalyValueAndTime>> fixedParameterValues;   // パラメータの値
+    std::map<std::string, std::vector<ParametricNesoraDictionalyValueAndTime>> blankParameterValues;   // パラメータの値
+    std::vector<ParametricNesoraDictionalyValueAndTime> fixedEnvelope;             // エンベロープのリスト
+    std::vector<ParametricNesoraDictionalyValueAndTime> blankEnvelope;             // エンベロープのリスト
 
 
     /*

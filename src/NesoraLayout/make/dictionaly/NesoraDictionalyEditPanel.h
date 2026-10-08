@@ -74,7 +74,7 @@ protected:
 
     bool isDragging = false;
     wxPoint lastMousePosition;
-    double dynamicWidth = 4.0;
+    double dynamicWidth = 2.0;
 
     int clickMargin = 5;
 

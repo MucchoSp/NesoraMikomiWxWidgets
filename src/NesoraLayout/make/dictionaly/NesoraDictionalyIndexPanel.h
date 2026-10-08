@@ -13,8 +13,9 @@
 
 #include "../../../Nesora/Nesora.h"
 #include "NesoraDictionalyEditPanel.h"
+#include "NesoraDictionalyPlayPanel.h"
 
-
+// MARK: NesoraDictionalyIndexWord
 
 class NesoraDictionalyIndexWord : public wxPanel {
 public:
@@ -55,6 +56,11 @@ private:
     void ProcessItemClick();
 };
 
+
+
+
+// MARK: NesoraDictionalyIndexScrollContainer
+
 class NesoraDictionalyIndexScrollContainer : public wxScrolledWindow {
 public:
     NesoraDictionalyIndexScrollContainer(wxWindow* parent,
@@ -75,12 +81,14 @@ public:
     NesoraDictionalyIndexWord* GetSelectedItem() const;
 
     void SetEditPanel(NesoraDictionalyEditPanel* editPanel) { this->editPanel = editPanel; }
+    void SetPlayPanel(NesoraDictionalyPlayPanel* playPanel) { this->playPanel = playPanel; }
 
 private:
     NesoraVowelDictionaly vowelDictionaly;
     std::vector<NesoraDictionalyIndexWord*> items;
 
     NesoraDictionalyEditPanel* editPanel;
+    NesoraDictionalyPlayPanel* playPanel;
 
     NesoraDictionalyIndexWord* selectedItem = nullptr;
 
@@ -91,6 +99,11 @@ private:
 
 };
 
+
+
+
+
+// MARK: NesoraDictionalyIndexPanel
 
 class NesoraDictionalyIndexPanel : public wxPanel {
 public:
@@ -107,6 +120,7 @@ public:
 
     void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
     void SetEditPanel(NesoraDictionalyEditPanel* editPanel) { scrollContainer->SetEditPanel(editPanel); }
+    void SetPlayPanel(NesoraDictionalyPlayPanel* playPanel) { scrollContainer->SetPlayPanel(playPanel); }
 
 private:
     NesoraMikomiVoice* voice;

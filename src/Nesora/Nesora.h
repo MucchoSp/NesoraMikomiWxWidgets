@@ -19,6 +19,7 @@
 #include "source/NesoraSinSource.h"
 
 #include "script/NesoraMIDI.h"
+#include "script/NesoraMonosyllableScript.h"
 
 #include "dictionaly/NesoraVowelDictionaly.h"
 #include "dictionaly/NesoraThroughDictionaly.h"

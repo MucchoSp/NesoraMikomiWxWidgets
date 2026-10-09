@@ -87,7 +87,7 @@ void NesoraMikomiVoice::CacheScriptWave() {
         return;
 
     int i = 0;
-    double rad;
+    double rad = 0.0;
     while(1) {
         ParametricNesoraParameterValue param;
         double pitch, envelope;

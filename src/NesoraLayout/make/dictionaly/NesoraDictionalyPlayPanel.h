@@ -30,10 +30,11 @@ public:
         const wxString& name = wxASCII_STR(wxPanelNameStr)) : wxPanel(parent, winid, pos, size, style, name) {
         Init();
     }
+    ~NesoraDictionalyPlayPanel();
 
     void Init();
     void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
-    void SetWord(NesoraDictionalyIndexWord* word) { this->indexWord = word; }
+    void SetWord(NesoraDictionalyIndexWord* word);
     NesoraDictionalyIndexWord* GetWord() const { return indexWord; }
 
     void OnPlay(wxCommandEvent& event);
@@ -53,6 +54,8 @@ private:
     wxStaticText* pitchText;
     nsSlider* length;
     wxStaticText* lengthText;
+
+    NesoraMonosyllableScript* script;
 
     bool isPlaying = false;
 

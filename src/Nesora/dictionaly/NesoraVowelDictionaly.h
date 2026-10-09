@@ -23,9 +23,13 @@ public:
     std::vector<unsigned char> SaveData() override;
     void LoadData(const std::vector<unsigned char>& data) override;
 
-    void AddWord(const std::string& word, const std::map<std::string, std::vector<ParametricNesoraDictionalyValueAndTime>>& parameterValues);
-    ParametricNesoraDictionalyWord GetWord(const std::string& word) const;
-    ParametricNesoraDictionalyWord& GetWord(const std::string& word);
+
+    void AddWord(const std::string& symbol, const std::map<std::string, std::vector<ParametricNesoraDictionalyValueAndTime>>& parameterValues);
+    void AddWord(const ParametricNesoraDictionalyWord& word) { parameters[word.symbol] = word; }
+    void RemoveWord(const std::string& symbol) { parameters.erase(symbol); }
+    ParametricNesoraDictionalyWord GetWord(const std::string& symbol) const;
+    ParametricNesoraDictionalyWord& GetWord(const std::string& symbol);
+    ParametricNesoraDictionalyWord* GetWordPtr(const std::string& symbol);
 
 private:
     ParametricNesoraDictionary parameters; // パラメータの辞書

@@ -6,6 +6,13 @@
 
 // MARK: NesoraDictionalyPlayPanel
 
+NesoraDictionalyPlayPanel::~NesoraDictionalyPlayPanel() {
+    if (isPlaying) {
+        UninitAudioDevice();
+        isPlaying = false;
+    }
+}
+
 void NesoraDictionalyPlayPanel::Init() {
     this->SetBackgroundColour(nsGetColor(nsColorType::BACKGROUND));
     // SetMinSize(wxSize(-1, 50));
@@ -51,6 +58,10 @@ void NesoraDictionalyPlayPanel::Init() {
     Bind(wxEVT_TOOL, &NesoraDictionalyPlayPanel::OnPlay, this, nsID_PLAY);
 }
 
+void NesoraDictionalyPlayPanel::SetWord(NesoraDictionalyIndexWord* word) {
+    indexWord = word;
+}
+
 void NesoraDictionalyPlayPanel::OnPlay(wxCommandEvent& event) {
     if (voice == nullptr) {
         wxLogMessage("Voice is not set.");
@@ -58,11 +69,13 @@ void NesoraDictionalyPlayPanel::OnPlay(wxCommandEvent& event) {
     }
 
     if (!isPlaying) {
-        if (indexWord == nullptr || indexWord->word.symbol.empty()) {
+        if (indexWord == nullptr || indexWord->GetWord() == nullptr || indexWord->GetWord()->symbol.empty()) {
             wxLogMessage("Word is not set.");
             return;
         }
 
+        script = new NesoraMonosyllableScript(pitch->GetValue() * 4.0 + 100.0, 1.0, indexWord->GetWord()->symbol, length->GetValue() / 20.0);
+        voice->SetScript(script);
         voice->RefreshScript();
         voice->CacheScriptWave();
         if (InitAudioDevice() == 0) {
@@ -118,6 +131,7 @@ int NesoraDictionalyPlayPanel::InitAudioDevice() {
 
 void NesoraDictionalyPlayPanel::UninitAudioDevice() {
     ma_device_uninit(&device);
+    isPlaying = false;
 }
 
 void NesoraDictionalyPlayPanel::data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
@@ -130,5 +144,4 @@ void NesoraDictionalyPlayPanel::data_callback(ma_device* pDevice, void* pOutput,
         out[i] = (float)playPanel->voice->GetScriptWave() * volume;
     }
 }
-
 

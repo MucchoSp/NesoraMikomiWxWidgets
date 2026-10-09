@@ -82,8 +82,8 @@ void NesoraDictionalyTitlePanel::Init() {
 void NesoraDictionalyTitlePanel::SetWord(NesoraDictionalyIndexWord* indexWord) {
     this->indexWord = indexWord;
     if (indexWord) {
-        titleEdit->SetValue(indexWord->word.word);
-        symbolEdit->SetValue(indexWord->word.symbol);
+        titleEdit->SetValue(indexWord->GetWord()->word);
+        symbolEdit->SetValue(indexWord->GetWord()->symbol);
     } else {
         titleEdit->Clear();
         symbolEdit->Clear();
@@ -92,14 +92,14 @@ void NesoraDictionalyTitlePanel::SetWord(NesoraDictionalyIndexWord* indexWord) {
 
 void NesoraDictionalyTitlePanel::OnTitleEdit(wxCommandEvent& event) {
     if (indexWord) {
-        indexWord->word.word = titleEdit->GetValue().ToStdString();
+        indexWord->GetWord()->word = titleEdit->GetValue().ToStdString();
         indexWord->ChangeWord();
     }
 }
 
 void NesoraDictionalyTitlePanel::OnSymbolEdit(wxCommandEvent& event) {
     if (indexWord) {
-        indexWord->word.symbol = symbolEdit->GetValue().ToStdString();
+        indexWord->GetWord()->symbol = symbolEdit->GetValue().ToStdString();
         indexWord->ChangeWord();
     }
 }
@@ -898,6 +898,6 @@ void NesoraDictionalyEditPanel::SetWord(NesoraDictionalyIndexWord* indexWord) {
         titlePanel->SetWord(indexWord);
     }
     if (timelinePanel) {
-        timelinePanel->SetWord(&(indexWord->word));
+        timelinePanel->SetWord(indexWord->GetWord());
     }
 }

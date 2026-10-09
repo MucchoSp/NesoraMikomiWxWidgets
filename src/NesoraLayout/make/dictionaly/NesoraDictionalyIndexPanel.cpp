@@ -45,13 +45,13 @@ void NesoraDictionalyIndexWord::SetSelected(bool selected) {
 }
 
 void NesoraDictionalyIndexWord::ChangeWord() {
-    if (word.word.empty()) {
+    if (word->word.empty()) {
         wordText->SetLabelText("Empty");
     }
     else {
-        wordText->SetLabelText(word.word);
+        wordText->SetLabelText(word->word);
     }
-    symbolText->SetLabelText("[" + word.symbol + "]");
+    symbolText->SetLabelText("[" + word->symbol + "]");
     Refresh();
 }
 
@@ -154,9 +154,14 @@ void NesoraDictionalyIndexScrollContainer::OnEscapePressed(wxCommandEvent& event
 
 void NesoraDictionalyIndexScrollContainer::AddCard() {
     NesoraDictionalyIndexWord* card = new NesoraDictionalyIndexWord(this);
-    card->word.word = "New Word";
-    card->word.symbol = "???";
-    card->ChangeWord();
+    ParametricNesoraDictionalyWord word = {};
+    word.word = "New Word";
+    word.symbol = "???";
+    if (voice) {
+        vowelDictionaly->AddWord(word);
+        card->SetWord(vowelDictionaly->GetWordPtr(word.symbol));
+        card->ChangeWord();
+    }
     
     mainSizer->Add(card, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
@@ -170,6 +175,15 @@ void NesoraDictionalyIndexScrollContainer::AddCard() {
 }
 
 void NesoraDictionalyIndexScrollContainer::RemoveSelectCard() {
+    if (selectedItem) {
+        if (editPanel) {
+            editPanel->SetWord(nullptr);
+        }
+        if (voice) {
+            vowelDictionaly->RemoveWord(selectedItem->GetWord()->symbol);
+        }
+        selectedItem->Destroy();
+    }
     selectedItem = nullptr;
 }
 
@@ -213,6 +227,16 @@ void NesoraDictionalyIndexPanel::Init() {
     mainSizer->Add(addButton, 0, wxEXPAND | wxALL);
 
     SetSizer(mainSizer);
+}
+
+void NesoraDictionalyIndexPanel::SetVoice(NesoraMikomiVoice* voice) {
+    this->voice = voice;
+}
+
+void NesoraDictionalyIndexPanel::SetDictionaly(NesoraVowelDictionaly* dic) {
+    this->vowelDictionaly = dic;
+    scrollContainer->SetVoice(voice);
+    scrollContainer->SetDictionaly(dic);
 }
 
 void NesoraDictionalyIndexPanel::OnAddButton(wxCommandEvent& event) {

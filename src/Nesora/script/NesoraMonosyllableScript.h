@@ -35,7 +35,7 @@ public:
     void SetLength(double l) { length = l; }
     double GetLength() const { return length; }
 
-    std::vector<unsigned char> SaveData() override {}
+    std::vector<unsigned char> SaveData() override { return {}; }
     void LoadData(const std::vector<unsigned char>& data) override {}
 private:
     double pitch = 0.0;

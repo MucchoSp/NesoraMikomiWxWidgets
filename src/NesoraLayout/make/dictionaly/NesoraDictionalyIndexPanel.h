@@ -41,10 +41,14 @@ public:
 
     void ChangeWord();
 
-    ParametricNesoraDictionalyWord word;
-private:
-    bool isSelected;
+    void SetWord(ParametricNesoraDictionalyWord* word) { this->word = word; }
+    ParametricNesoraDictionalyWord* GetWord() const { return word; }
 
+private:
+    ParametricNesoraDictionalyWord* word;
+    
+    bool isSelected;
+    
     wxStaticText* wordText;
     wxStaticText* symbolText;
 
@@ -80,11 +84,16 @@ public:
     void SelectItem(NesoraDictionalyIndexWord* item);
     NesoraDictionalyIndexWord* GetSelectedItem() const;
 
+    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    void SetDictionaly(NesoraVowelDictionaly* dic) { this->vowelDictionaly = dic; }
+
     void SetEditPanel(NesoraDictionalyEditPanel* editPanel) { this->editPanel = editPanel; }
     void SetPlayPanel(NesoraDictionalyPlayPanel* playPanel) { this->playPanel = playPanel; }
 
 private:
-    NesoraVowelDictionaly vowelDictionaly;
+    NesoraMikomiVoice* voice;
+
+    NesoraVowelDictionaly* vowelDictionaly;
     std::vector<NesoraDictionalyIndexWord*> items;
 
     NesoraDictionalyEditPanel* editPanel;
@@ -118,13 +127,14 @@ public:
 
     void Init();
 
-    void SetVoice(NesoraMikomiVoice* voice) { this->voice = voice; }
+    void SetVoice(NesoraMikomiVoice* voice);
+    void SetDictionaly(NesoraVowelDictionaly* dic);
     void SetEditPanel(NesoraDictionalyEditPanel* editPanel) { scrollContainer->SetEditPanel(editPanel); }
     void SetPlayPanel(NesoraDictionalyPlayPanel* playPanel) { scrollContainer->SetPlayPanel(playPanel); }
 
 private:
     NesoraMikomiVoice* voice;
-    NesoraVowelDictionaly vowelDictionaly;
+    NesoraVowelDictionaly* vowelDictionaly;
 
     nsButton* addButton;
     NesoraDictionalyIndexScrollContainer* scrollContainer;
